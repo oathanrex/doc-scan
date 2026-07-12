@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Document Scanner — Product Requirements Document (PRD) | Full Feature Spec, User Flows & Roadmap</title>
+<meta name="description" content="A complete, practitioner-written PRD for a mobile document scanner app: automatic border detection, perspective correction, multi-page capture, and PDF export. Includes personas, acceptance criteria, metrics, risks and a phased roadmap.">
+<meta name="keywords" content="document scanner PRD, mobile scanner app requirements, perspective correction, automatic border detection, PDF export app, product requirements document">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.com/prd/mobile-document-scanner">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mobile Document Scanner — Product Requirements Document">
+<meta property="og:description" content="Full PRD covering problem statement, personas, functional & non-functional requirements, user flows, metrics, risks and roadmap for a mobile document scanning app.">
+<meta property="og:site_name" content="Product Requirements Library">
+<meta property="article:published_time" content="2026-07-12">
+<meta property="article:modified_time" content="2026-07-12">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mobile Document Scanner — PRD">
+<meta name="twitter:description" content="Scan, review, export to PDF — a full product requirements document with acceptance criteria, metrics, and roadmap.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Mobile Document Scanner — Product Requirements Document",
+  "description": "A complete PRD for a mobile document scanner app covering automatic border detection, perspective correction, multi-page capture, and PDF export.",
+  "author": {
+    "@type": "Person",
+    "name": "Ananya Rao",
+    "jobTitle": "Senior Product Manager, Imaging & Capture"
+  },
+  "reviewedBy": {
+    "@type": "Person",
+    "name": "Marcus Feld",
+    "jobTitle": "Staff Mobile Engineer, Computer Vision"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Product Requirements Library"
+  },
+  "datePublished": "2026-07-12",
+  "dateModified": "2026-07-12",
+  "mainEntityOfPage": "https://example.com/prd/mobile-document-scanner"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does automatic border detection actually do?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It analyzes each camera frame in real time to find the four edges of a document against its background, then draws a live outline so the person can confirm or nudge the corners before capture." }
+    },
+    {
+      "@type": "Question",
+      "name": "How is perspective correction different from cropping?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Cropping only removes pixels outside a rectangle. Perspective correction (a homographic transform) also warps the remaining image so a page photographed at an angle appears flat and rectangular, as if scanned straight-on." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why build a native app instead of a web-based scanner?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Real-time edge detection at 30 fps and reliable camera control are far smoother with native camera APIs and on-device compute than through a browser, and native apps can save directly to the device's file system and share sheet." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the app need an internet connection to work?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Border detection, perspective correction, and PDF export are designed to run fully on-device, so the core flow works offline. Optional features like cloud backup or text recognition may use network access." }
+    }
+  ]
+}
+</script>
+
+<style>
+:root{
+  --bg:#F7F5F0;
+  --surface:#FFFFFF;
+  --surface-2:#F0EDE6;
+  --ink:#161A20;
+  --ink-soft:#565F6E;
+  --ink-faint:#8B93A1;
+  --accent:#0E7C7E;
+  --accent-ink:#053C3D;
+  --accent-2:#B8791F;
+  --line:#E2DDD2;
+  --line-strong:#C9C2B3;
+  --radius:2px;
+  --mono:'IBM Plex Mono', ui-monospace, monospace;
+  --sans:'Inter', system-ui, sans-serif;
+  --display:'Space Grotesk', var(--sans);
+  --shadow: 0 1px 2px rgba(20,20,20,.04);
+}
+:root[data-theme="dark"]{
+  --bg:#0A0D11;
+  --surface:#11151B;
+  --surface-2:#161B22;
+  --ink:#E7EAEE;
+  --ink-soft:#9BA5B3;
+  --ink-faint:#5E6773;
+  --accent:#3FD9C7;
+  --accent-ink:#BFF6EC;
+  --accent-2:#E3A857;
+  --line:#232A34;
+  --line-strong:#323B48;
+  --shadow: 0 1px 2px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.65;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s ease, color .25s ease;
+}
+img,svg{max-width:100%;display:block;}
+a{color:var(--accent-ink);}
+::selection{background:var(--accent);color:var(--bg);}
+
+.wrap{max-width:840px;margin:0 auto;padding:0 24px;}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{
+  max-width:840px;margin:0 auto;padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:13px;color:var(--ink-soft);
+  text-decoration:none;
+}
+.brand-mark{
+  width:20px;height:20px;flex:none;
+  border:1.5px solid var(--accent);border-radius:3px;position:relative;
+}
+.brand-mark::before,.brand-mark::after{
+  content:"";position:absolute;width:6px;height:6px;border:1.5px solid var(--accent-2);
+}
+.brand-mark::before{top:-1.5px;left:-1.5px;border-right:none;border-bottom:none;}
+.brand-mark::after{bottom:-1.5px;right:-1.5px;border-left:none;border-top:none;}
+
+.theme-toggle{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);
+  border:1px solid var(--line-strong);
+  border-radius:20px;
+  padding:4px;
+  cursor:pointer;
+  font-family:var(--mono);font-size:11px;color:var(--ink-soft);
+}
+.theme-toggle span{padding:5px 10px;border-radius:16px;transition:.2s;}
+.theme-toggle .active{background:var(--accent);color:var(--bg);}
+
+/* ---------- Hero ---------- */
+.hero{
+  padding:56px 0 40px;
+  border-bottom:1px solid var(--line);
+}
+.eyebrow{
+  font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent-2);margin:0 0 16px;display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--accent-2);}
+h1{
+  font-family:var(--display);font-weight:700;
+  font-size:clamp(30px,5vw,46px);
+  line-height:1.08;letter-spacing:-.01em;
+  margin:0 0 18px;
+}
+.hero-sub{
+  font-size:18px;color:var(--ink-soft);max-width:60ch;margin:0 0 28px;
+}
+.byline{
+  display:flex;flex-wrap:wrap;gap:18px;align-items:center;
+  font-size:13px;color:var(--ink-faint);font-family:var(--mono);
+  padding-top:22px;border-top:1px solid var(--line);
+}
+.byline strong{color:var(--ink-soft);font-family:var(--sans);font-weight:600;}
+.avatar{
+  width:28px;height:28px;border-radius:50%;background:var(--accent);
+  color:var(--bg);display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:600;
+}
+.byline-who{display:flex;align-items:center;gap:8px;}
+
+/* ---------- Viewfinder demo ---------- */
+.viewfinder{
+  margin-top:32px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  padding:28px;
+  display:flex;align-items:center;gap:24px;
+  flex-wrap:wrap;
+}
+.vf-stage{
+  position:relative;width:140px;height:180px;flex:none;
+  background:var(--surface-2);
+}
+.vf-doc{
+  position:absolute;top:24px;left:20px;width:100px;height:132px;
+  background:var(--bg);border:1px solid var(--line-strong);
+  transform:rotate(-3deg);
+}
+.vf-doc::before,.vf-doc::after{content:"";position:absolute;left:12px;right:12px;height:2px;background:var(--line-strong);}
+.vf-doc::before{top:22px;}
+.vf-doc::after{top:38px;}
+.corner{position:absolute;width:16px;height:16px;}
+.corner::before,.corner::after{content:"";position:absolute;background:var(--accent);}
+.corner::before{width:100%;height:2px;top:0;}
+.corner::after{width:2px;height:100%;left:0;}
+.c-tl{top:16px;left:12px;}
+.c-tr{top:16px;right:12px;}
+.c-tr::before{transform:scaleX(1);}
+.c-bl{bottom:16px;left:12px;}
+.c-bl::before{top:auto;bottom:0;}
+.c-br{bottom:16px;right:12px;}
+.c-br::before{top:auto;bottom:0;}
+.scanline{
+  position:absolute;left:12px;right:12px;height:2px;
+  background:linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation:sweep 2.6s ease-in-out infinite;
+  box-shadow:0 0 8px var(--accent);
+}
+@keyframes sweep{
+  0%,100%{top:16px;opacity:.9;}
+  50%{top:148px;opacity:.5;}
+}
+.vf-caption{flex:1;min-width:200px;}
+.vf-caption p{margin:0;font-size:14px;color:var(--ink-soft);}
+.vf-caption .k{font-family:var(--mono);font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;}
+
+@media (prefers-reduced-motion: reduce){
+  .scanline{animation:none;top:16px;}
+}
+
+/* ---------- TOC ---------- */
+.toc{
+  margin:36px 0;
+  background:var(--surface);
+  border:1px solid var(--line);
+  padding:22px 26px;
+}
+.toc-title{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 14px;}
+.toc ol{margin:0;padding:0;list-style:none;columns:2;column-gap:28px;}
+.toc li{margin-bottom:9px;break-inside:avoid;}
+.toc a{color:var(--ink);text-decoration:none;font-size:14px;display:flex;gap:8px;}
+.toc a:hover{color:var(--accent-ink);}
+.toc .n{font-family:var(--mono);color:var(--accent-2);flex:none;width:20px;}
+@media (max-width:560px){.toc ol{columns:1;}}
+
+/* ---------- Sections ---------- */
+section.block{padding:44px 0;border-bottom:1px solid var(--line);}
+section.block:last-of-type{border-bottom:none;}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;}
+.sec-num{font-family:var(--mono);font-size:14px;color:var(--accent-2);}
+h2{font-family:var(--display);font-size:26px;font-weight:600;margin:0;letter-spacing:-.01em;}
+h3{font-family:var(--display);font-size:18px;font-weight:600;margin:28px 0 10px;}
+p{margin:0 0 16px;color:var(--ink);}
+.lede{font-size:17px;color:var(--ink-soft);}
+ul,ol.plain{padding-left:22px;margin:0 0 16px;}
+li{margin-bottom:6px;}
+
+.callout{
+  border-left:2px solid var(--accent);
+  background:var(--surface);
+  padding:16px 20px;
+  margin:20px 0;
+  font-size:14.5px;
+  color:var(--ink-soft);
+}
+.callout strong{color:var(--ink);}
+
+/* Persona cards */
+.personas{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;}
+@media (max-width:600px){.personas{grid-template-columns:1fr;}}
+.persona{background:var(--surface);border:1px solid var(--line);padding:20px;}
+.persona-name{font-family:var(--display);font-weight:600;font-size:16px;margin-bottom:2px;}
+.persona-role{font-family:var(--mono);font-size:11.5px;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;}
+.persona dt{font-size:11.5px;color:var(--ink-faint);font-family:var(--mono);text-transform:uppercase;margin-top:10px;}
+.persona dd{margin:2px 0 0;font-size:14px;color:var(--ink-soft);}
+
+/* Feature spec (details/summary, no JS needed) */
+.feature{
+  border:1px solid var(--line);
+  background:var(--surface);
+  margin-bottom:10px;
+}
+.feature summary{
+  cursor:pointer;
+  list-style:none;
+  padding:16px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font-family:var(--display);font-weight:600;font-size:15.5px;
+}
+.feature summary::-webkit-details-marker{display:none;}
+.feature summary::after{
+  content:"+";
+  font-family:var(--mono);color:var(--accent);font-size:18px;flex:none;
+}
+.feature[open] summary::after{content:"–";}
+.feature-body{padding:0 20px 20px;border-top:1px solid var(--line);}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--accent-ink);background:color-mix(in srgb, var(--accent) 16%, transparent);
+  padding:2px 8px;border-radius:10px;margin-right:6px;
+}
+.gherkin{
+  font-family:var(--mono);font-size:13px;background:var(--surface-2);
+  padding:14px 16px;margin-top:12px;white-space:pre-wrap;color:var(--ink-soft);
+  border-left:2px solid var(--line-strong);
+}
+.gherkin b{color:var(--accent-ink);}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+th{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);font-weight:500;}
+tr:last-child td{border-bottom:none;}
+.pill{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:10px;}
+.pill.high{background:color-mix(in srgb, #d64545 18%, transparent);color:#d64545;}
+.pill.med{background:color-mix(in srgb, var(--accent-2) 20%, transparent);color:var(--accent-2);}
+.pill.low{background:color-mix(in srgb, var(--accent) 18%, transparent);color:var(--accent);}
+
+/* Flow diagram */
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:24px 0;}
+.flow-step{
+  background:var(--surface);border:1px solid var(--line-strong);
+  padding:12px 16px;font-family:var(--mono);font-size:12.5px;text-align:center;min-width:100px;
+}
+.flow-step b{display:block;font-family:var(--sans);font-size:13.5px;color:var(--ink);margin-bottom:2px;}
+.flow-arrow{color:var(--accent);font-family:var(--mono);}
+
+/* Roadmap */
+.phase{display:grid;grid-template-columns:120px 1fr;gap:18px;padding:18px 0;border-top:1px solid var(--line);}
+.phase:first-of-type{border-top:none;}
+.phase-label{font-family:var(--mono);font-size:12px;color:var(--accent-2);text-transform:uppercase;letter-spacing:.05em;padding-top:2px;}
+
+/* FAQ */
+.faq-item{padding:18px 0;border-top:1px solid var(--line);}
+.faq-item:first-of-type{border-top:none;}
+.faq-q{font-family:var(--display);font-weight:600;font-size:16px;margin:0 0 8px;}
+.faq-a{color:var(--ink-soft);margin:0;font-size:14.5px;}
+
+/* Author / EEAT box */
+.author-box{
+  display:flex;gap:18px;background:var(--surface);border:1px solid var(--line);padding:24px;margin-top:8px;
+}
+.author-avatar{
+  width:52px;height:52px;border-radius:50%;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:flex;align-items:center;justify-content:center;color:var(--bg);font-family:var(--mono);font-weight:600;
+}
+.author-box h4{margin:0 0 2px;font-family:var(--display);font-size:16px;}
+.author-role{font-family:var(--mono);font-size:12px;color:var(--accent);margin-bottom:8px;}
+.author-box p{font-size:14px;color:var(--ink-soft);margin:0;}
+
+.note{
+  font-size:12.5px;color:var(--ink-faint);border:1px dashed var(--line-strong);padding:14px 16px;margin-top:14px;
+}
+
+footer{padding:36px 0 60px;}
+footer p{font-size:12.5px;color:var(--ink-faint);font-family:var(--mono);}
+
+.backtotop{
+  display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;
+  color:var(--ink-faint);text-decoration:none;margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="#top" class="brand"><span class="brand-mark"></span> DOC-SCAN / PRD-01</a>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <span data-mode="light">Light</span><span data-mode="dark">Dark</span>
+    </button>
+  </div>
+</div>
+
+<div class="wrap" id="top">
+
+  <header class="hero">
+    <p class="eyebrow">Product Requirements Document</p>
+    <h1>Mobile Document Scanner</h1>
+    <p class="hero-sub">Scan, review, export to PDF. Capture multi-page documents with automatic border detection and perspective correction, then export a single, clean PDF — no desk scanner required.</p>
+
+    <div class="viewfinder">
+      <div class="vf-stage" aria-hidden="true">
+        <div class="vf-doc"></div>
+        <div class="corner c-tl"></div>
+        <div class="corner c-tr"></div>
+        <div class="corner c-bl"></div>
+        <div class="corner c-br"></div>
+        <div class="scanline"></div>
+      </div>
+      <div class="vf-caption">
+        <p class="k">Live capture</p>
+        <p>The camera finds the four page edges in real time, locks onto them, and straightens the shot before it's saved — this is the core interaction the rest of this document is written around.</p>
+      </div>
+    </div>
+
+    <div class="byline">
+      <div class="byline-who"><span class="avatar">AR</span> Written by <strong>Ananya Rao</strong>, Senior PM — Imaging &amp; Capture</div>
+      <span>Reviewed by Marcus Feld, Staff Mobile Engineer</span>
+      <span>Published Jul 12, 2026</span>
+      <span>9 min read</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Table of contents">
+    <p class="toc-title">On this page</p>
+    <ol>
+      <li><span class="n">01</span><a href="#summary">Executive summary</a></li>
+      <li><span class="n">02</span><a href="#problem">Problem &amp; opportunity</a></li>
+      <li><span class="n">03</span><a href="#goals">Goals &amp; success metrics</a></li>
+      <li><span class="n">04</span><a href="#personas">Target users</a></li>
+      <li><span class="n">05</span><a href="#requirements">Functional requirements</a></li>
+      <li><span class="n">06</span><a href="#nfr">Non-functional requirements</a></li>
+      <li><span class="n">07</span><a href="#flow">User flow</a></li>
+      <li><span class="n">08</span><a href="#risks">Risks &amp; mitigations</a></li>
+      <li><span class="n">09</span><a href="#roadmap">Roadmap</a></li>
+      <li><span class="n">10</span><a href="#faq">FAQ</a></li>
+    </ol>
+  </nav>
+
+  <!-- 01 Executive Summary -->
+  <section class="block" id="summary">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Executive summary</h2></div>
+    <p class="lede">Most people already carry a scanner in their pocket. What's missing isn't a camera — it's the software layer that turns a photo of a page into something that reads like it came off a real scanner: straight, cropped, and exported as a proper document.</p>
+    <p>This PRD defines a mobile app that captures one or more pages with the device camera, detects the document's borders automatically, corrects the perspective so the page appears flat, and compiles the result into a single exportable PDF. The scope below covers the MVP feature set, the personas it's built for, functional and non-functional requirements, the primary user flow, key risks, and a phased rollout plan.</p>
+    <div class="callout"><strong>Core promise:</strong> from opening the camera to holding a shareable PDF should take under 20 seconds for a single page, with zero manual cropping required in typical lighting.</div>
+  </section>
+
+  <!-- 02 Problem -->
+  <section class="block" id="problem">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Problem &amp; opportunity</h2></div>
+    <p>People still email themselves photos of receipts, contracts, and forms, then crop and rotate them by hand — or worse, send them as-is: skewed, shadowed, and hard to read. Desktop scanners solve the quality problem but aren't available at the moment the document appears: a signed lease, a whiteboard, a doctor's note.</p>
+    <p>The opportunity is to close that gap with software rather than hardware. Real-time edge detection and perspective correction are well-understood computer vision problems; the product challenge is making the experience fast enough and forgiving enough that people trust it more than a plain camera photo.</p>
+    <h3>Why now</h3>
+    <ul>
+      <li>On-device machine learning frameworks make real-time edge detection practical without a network round-trip.</li>
+      <li>PDF has remained the default format for anything that needs to look "official" when shared or printed.</li>
+      <li>Hybrid work has increased the volume of one-off paper documents that need to become digital files immediately.</li>
+    </ul>
+  </section>
+
+  <!-- 03 Goals -->
+  <section class="block" id="goals">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Goals &amp; success metrics</h2></div>
+    <p>Three goals anchor the MVP. Each has a metric attached so the team can tell, after launch, whether the feature is actually working rather than just shipped.</p>
+    <table>
+      <thead><tr><th>Goal</th><th>Metric</th><th>Target (90 days post-launch)</th></tr></thead>
+      <tbody>
+        <tr><td>Capture is fast and requires no manual correction</td><td>% of scans exported without a manual corner adjustment</td><td>≥ 80%</td></tr>
+        <tr><td>Output quality replaces a desk scanner for everyday use</td><td>Median user rating of exported PDF legibility (in-app prompt)</td><td>≥ 4.4 / 5</td></tr>
+        <tr><td>The habit sticks</td><td>7-day retention of users who complete a first scan</td><td>≥ 35%</td></tr>
+        <tr><td>Export actually gets used</td><td>Scans that are shared or saved outside the app within 24h</td><td>≥ 60%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 04 Personas -->
+  <section class="block" id="personas">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Target users</h2></div>
+    <p>Two personas cover the large majority of expected use cases and were used to prioritize the requirements in the next section.</p>
+    <div class="personas">
+      <div class="persona">
+        <div class="persona-name">Priya, 29</div>
+        <div class="persona-role">Freelance consultant</div>
+        <dl>
+          <dt>Primary job</dt><dd>Turn signed contracts and receipts into PDFs to send to clients and her accountant.</dd>
+          <dt>Frequency</dt><dd>3–5 scans per week, usually 1–2 pages.</dd>
+          <dt>Frustration</dt><dd>Photos look unprofessional; she currently retypes totals from receipts instead of scanning them.</dd>
+        </dl>
+      </div>
+      <div class="persona">
+        <div class="persona-name">Daniel, 41</div>
+        <div class="persona-role">Small business owner</div>
+        <dl>
+          <dt>Primary job</dt><dd>Digitize supplier invoices and multi-page delivery forms for bookkeeping.</dd>
+          <dt>Frequency</dt><dd>Batches of 5–15 pages, a few times a week.</dd>
+          <dt>Frustration</dt><dd>Existing scanner apps are slow per page and bury export behind a paywall.</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 Functional Requirements -->
+  <section class="block" id="requirements">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Functional requirements</h2></div>
+    <p>Each requirement below is written as a self-contained spec with acceptance criteria a QA engineer can test directly.</p>
+
+    <details class="feature" open>
+      <summary>Automatic border detection <span class="tag">MVP</span></summary>
+      <div class="feature-body">
+        <p>While the camera preview is active, the app continuously analyzes frames to locate a rectangular document against its background and overlays a live outline on the four detected corners.</p>
+        <div class="gherkin"><b>Given</b> the camera preview is active and a document with reasonable contrast against its background is in frame
+<b>When</b> the document is held roughly still for more than 400ms
+<b>Then</b> the app draws an outline on the detected edges within 200ms and enables the capture button
+
+<b>Given</b> the detected outline is visible
+<b>When</b> the person taps and drags a corner
+<b>Then</b> the outline updates live and capture uses the manually adjusted corners</div>
+      </div>
+    </details>
+
+    <details class="feature">
+      <summary>Perspective correction <span class="tag">MVP</span></summary>
+      <div class="feature-body">
+        <p>After capture, the four corner points are used to compute a perspective transform that maps the document onto a flat rectangle at the page's natural aspect ratio.</p>
+        <div class="gherkin"><b>Given</b> a photo has been captured with four corner points
+<b>When</b> the correction step runs
+<b>Then</b> the output image shows the document as a flat, un-skewed rectangle within 1 second on a mid-range device</div>
+      </div>
+    </details>
+
+    <details class="feature">
+      <summary>Multi-page capture <span class="tag">MVP</span></summary>
+      <div class="feature-body">
+        <p>After each page is captured and corrected, the person can immediately capture the next page in the same session without leaving the camera screen. A running page counter and thumbnail strip stay visible.</p>
+        <div class="gherkin"><b>Given</b> at least one page has been captured in the current session
+<b>When</b> the person taps capture again
+<b>Then</b> the new page is appended to the session and the thumbnail strip updates with the new page selected</div>
+      </div>
+    </details>
+
+    <details class="feature">
+      <summary>Review, reorder &amp; retake <span class="tag">MVP</span></summary>
+      <div class="feature-body">
+        <p>Before export, the person sees all captured pages as thumbnails, can drag to reorder, delete a page, or retake a specific page without restarting the session.</p>
+        <div class="gherkin"><b>Given</b> a session has two or more pages
+<b>When</b> the person long-presses and drags a thumbnail to a new position
+<b>Then</b> the page order updates and is reflected in the final export</div>
+      </div>
+    </details>
+
+    <details class="feature">
+      <summary>Export to PDF <span class="tag">MVP</span></summary>
+      <div class="feature-body">
+        <p>All pages in the session are compiled, in order, into a single PDF file sized to a standard page format, and handed to the device's native share sheet.</p>
+        <div class="gherkin"><b>Given</b> a session with one or more reviewed pages
+<b>When</b> the person taps "Export"
+<b>Then</b> a single PDF containing all pages in order is generated in under 3 seconds for a 10-page document and the native share sheet opens</div>
+      </div>
+    </details>
+
+    <details class="feature">
+      <summary>Image enhancement filters <span class="tag">V1.1</span></summary>
+      <div class="feature-body">
+        <p>Post-capture filters (black &amp; white, grayscale, color-boost) improve legibility of text-heavy pages, applied per page or to the whole session.</p>
+      </div>
+    </details>
+
+    <details class="feature">
+      <summary>Text recognition (OCR) <span class="tag">V2</span></summary>
+      <div class="feature-body">
+        <p>On-device OCR extracts searchable text and embeds it as an invisible layer in the exported PDF, and powers an in-app search across past scans.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- 06 NFR -->
+  <section class="block" id="nfr">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Non-functional requirements</h2></div>
+    <table>
+      <thead><tr><th>Category</th><th>Requirement</th></tr></thead>
+      <tbody>
+        <tr><td>Performance</td><td>Edge detection runs at ≥ 24fps on devices from the last 4 years; correction and export complete without a visible freeze.</td></tr>
+        <tr><td>Offline support</td><td>Capture, correction, review, and export work with no network connection.</td></tr>
+        <tr><td>Privacy</td><td>Images are processed on-device by default; nothing is uploaded unless the person explicitly enables cloud backup.</td></tr>
+        <tr><td>Storage</td><td>Sessions are cached locally until exported or discarded, and cleared automatically after 30 days of inactivity.</td></tr>
+        <tr><td>Accessibility</td><td>All controls are reachable via screen reader, with haptic and audio cues for successful border detection.</td></tr>
+        <tr><td>Platform support</td><td>iOS 16+ and Android 11+, covering roughly the newest four OS versions on each platform at launch.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 07 Flow -->
+  <section class="block" id="flow">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Primary user flow</h2></div>
+    <p>The flow is deliberately linear with one loop for multi-page capture, so a first-time user never has to guess what comes next.</p>
+    <div class="flow">
+      <div class="flow-step"><b>Open camera</b>permission granted</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><b>Auto-detect</b>corners lock on</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><b>Capture</b>page saved</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><b>Add another?</b>loop or continue</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><b>Review</b>reorder / retake</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><b>Export PDF</b>share sheet</div>
+    </div>
+  </section>
+
+  <!-- 08 Risks -->
+  <section class="block" id="risks">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Risks &amp; mitigations</h2></div>
+    <table>
+      <thead><tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>Poor detection in low light or on low-contrast backgrounds</td><td class="pill high">High</td><td>Fall back to manual corner placement with clear guidance; add a low-light hint.</td></tr>
+        <tr><td>Large multi-page sessions cause slow export or crashes</td><td class="pill med">Medium</td><td>Stream pages into the PDF incrementally instead of holding all images in memory.</td></tr>
+        <tr><td>Perceived privacy risk from camera access</td><td class="pill med">Medium</td><td>Process on-device by default; state this plainly at the permission prompt.</td></tr>
+        <tr><td>Feature overlaps with OS-level scanning built into some devices</td><td class="pill low">Low</td><td>Differentiate on speed, batch flow, and export quality rather than novelty.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 09 Roadmap -->
+  <section class="block" id="roadmap">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Roadmap</h2></div>
+    <div class="phase">
+      <div class="phase-label">MVP</div>
+      <div><p><strong>Capture core.</strong> Border detection, perspective correction, multi-page capture, review/reorder, PDF export. Goal: prove the core loop is fast and trustworthy enough to replace a quick camera photo.</p></div>
+    </div>
+    <div class="phase">
+      <div class="phase-label">V1.1</div>
+      <div><p><strong>Output quality.</strong> Enhancement filters, custom page sizes, batch rename, basic in-app file management.</p></div>
+    </div>
+    <div class="phase">
+      <div class="phase-label">V2</div>
+      <div><p><strong>Findability.</strong> On-device OCR, full-text search across scans, optional encrypted cloud backup and cross-device sync.</p></div>
+    </div>
+  </section>
+
+  <!-- 10 FAQ -->
+  <section class="block" id="faq">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Frequently asked questions</h2></div>
+
+    <div class="faq-item">
+      <p class="faq-q">What does automatic border detection actually do?</p>
+      <p class="faq-a">It analyzes each camera frame in real time to find the four edges of a document against its background, then draws a live outline so the person can confirm or nudge the corners before capture.</p>
+    </div>
+    <div class="faq-item">
+      <p class="faq-q">How is perspective correction different from cropping?</p>
+      <p class="faq-a">Cropping only removes pixels outside a rectangle. Perspective correction also warps the remaining image so a page photographed at an angle appears flat and rectangular, as if scanned straight-on.</p>
+    </div>
+    <div class="faq-item">
+      <p class="faq-q">Why build a native app instead of a web-based scanner?</p>
+      <p class="faq-a">Real-time edge detection at a smooth frame rate and reliable camera control are far steadier with native camera APIs and on-device compute than through a browser, and native apps can save directly to the device's file system and share sheet.</p>
+    </div>
+    <div class="faq-item">
+      <p class="faq-q">Does the app need an internet connection to work?</p>
+      <p class="faq-a">No. Border detection, perspective correction, and PDF export are designed to run fully on-device, so the core flow works offline. Optional features like cloud backup or text recognition may use network access.</p>
+    </div>
+  </section>
+
+  <!-- Author / EEAT -->
+  <section class="block" id="author">
+    <div class="sec-head"><span class="sec-num">＋</span><h2>About this document</h2></div>
+    <div class="author-box">
+      <div class="author-avatar">AR</div>
+      <div>
+        <h4>Ananya Rao</h4>
+        <div class="author-role">Senior Product Manager, Imaging &amp; Capture</div>
+        <p>Eight years writing product requirements for camera and document-capture features across two mobile apps with a combined install base in the tens of millions. This PRD draws on shipped acceptance criteria, post-launch metrics reviews, and QA test plans from that work.</p>
+      </div>
+    </div>
+    <div class="note">Template note: the byline, reviewer, and credentials above are placeholders. Swap in a real name, title, and verifiable background before publishing — genuine experience and a checkable author identity are what actually earn trust with readers, search engines, and ad platforms, not the presence of a bio box.</div>
+  </section>
+
+  <footer>
+    <p>Last updated Jul 12, 2026 · Product Requirements Library · This document is a template for adaptation, not a specification for any shipped product.</p>
+    <a href="#top" class="backtotop">↑ Back to top</a>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var toggle = document.getElementById('themeToggle');
+  var current = 'light';
+
+  function apply(mode){
+    current = mode;
+    if(mode === 'dark'){
+      root.setAttribute('data-theme','dark');
+    } else {
+      root.removeAttribute('data-theme');
+    }
+    var spans = toggle.querySelectorAll('span');
+    spans.forEach(function(s){
+      s.classList.toggle('active', s.getAttribute('data-mode') === mode);
+    });
+  }
+
+  // Respect system preference on first load (in-memory only, no storage APIs)
+  if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+    apply('dark');
+  } else {
+    apply('light');
+  }
+
+  toggle.addEventListener('click', function(){
+    apply(current === 'dark' ? 'light' : 'dark');
+  });
+})();
+</script>
+
+</body>
+</html>
