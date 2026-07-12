@@ -78,6 +78,8 @@
     fallbackImportBtn: $("fallbackImportBtn"),
     demoBtn: $("demoBtn"),
     homeStatus: $("homeStatus"),
+    clearCacheBtn: $("clearCacheBtn"),
+    bootDiag: $("bootDiag"),
     reviewList: $("reviewList"),
     reviewMeta: $("reviewMeta"),
     reviewBack: $("reviewBackBtn"),
@@ -872,4 +874,60 @@
 
   // Expose runDemo on window for easy debugging
   window.runDemo = runDemo;
+
+  // ---- Boot diagnostics ----
+  // Show, at the bottom of the home screen, which modules are loaded
+  // and whether the environment can support the camera. This is the
+  // first thing to look at if the app feels "dummy" (the user's word).
+  function updateBootDiag() {
+    if (!els.bootDiag) return;
+    const have = {
+      edge: !!window.EdgeDetect,
+      perspective: !!window.Perspective,
+      pdf: !!window.PdfExport
+    };
+    const cam = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    const secure = !!window.isSecureContext;
+    const missing = Object.keys(have).filter((k) => !have[k]);
+    if (missing.length) {
+      els.bootDiag.className = "home-foot-diag err";
+      els.bootDiag.textContent =
+        "Boot error — missing modules: " + missing.join(", ") +
+        ". Try \"Clear cache\" below.";
+      return;
+    }
+    els.bootDiag.className = "home-foot-diag " + (cam && secure ? "ok" : "warn");
+    els.bootDiag.textContent =
+      "app: ready · modules: ok · " +
+      "https: " + (secure ? "yes" : "NO") + " · " +
+      "camera: " + (cam ? "available" : "blocked");
+  }
+  updateBootDiag();
+
+  // ---- Clear cache & hard reload ----
+  if (els.clearCacheBtn) {
+    els.clearCacheBtn.addEventListener("click", async function () {
+      els.clearCacheBtn.disabled = true;
+      els.clearCacheBtn.textContent = "Clearing…";
+      try {
+        // 1. Delete every cache
+        if (window.caches && caches.keys) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((k) => caches.delete(k)));
+        }
+        // 2. Unregister all service workers
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((r) => r.unregister()));
+        }
+        // 3. Hard reload (bypasses HTTP cache)
+        var url = new URL(window.location.href);
+        url.searchParams.set("_", Date.now());
+        window.location.replace(url.toString());
+      } catch (err) {
+        // Last-resort reload
+        window.location.reload();
+      }
+    });
+  }
 })();
