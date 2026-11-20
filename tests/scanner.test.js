@@ -119,3 +119,57 @@ test('PDF Export: Page Content scales and centers correctly', () => {
   assert.ok(content.includes('/Im0 Do\n'), 'Must invoke image XObject');
   assert.ok(content.endsWith('Q\n'), 'Must pop graphics state');
 });
+
+test('Perspective Crop: Homography correctly projects angled trapezoid corners to orthogonal rectangle', () => {
+  // Simulating a document photographed at an angle (trapezoid)
+  const angledTrapezoid = [
+    { x: 30, y: 40 },
+    { x: 270, y: 20 },
+    { x: 290, y: 380 },
+    { x: 10, y: 360 }
+  ];
+  const targetRect = [
+    { x: 0, y: 0 },
+    { x: 300, y: 0 },
+    { x: 300, y: 400 },
+    { x: 0, y: 400 }
+  ];
+  const H = computeHomography(angledTrapezoid, targetRect);
+
+  // Four corners should map to exactly the orthogonal target rectangle
+  for (let i = 0; i < 4; i++) {
+    const pt = applyH(H, angledTrapezoid[i].x, angledTrapezoid[i].y);
+    assert.ok(Math.abs(pt.x - targetRect[i].x) < 1e-3, `Corner ${i} x mapped correctly`);
+    assert.ok(Math.abs(pt.y - targetRect[i].y) < 1e-3, `Corner ${i} y mapped correctly`);
+  }
+});
+
+test('Edge Detection: Thresholding and quad search preserves 4-corner polygon geometry', () => {
+  const { threshold, findQuad } = require('../js/edge-detect.js');
+  const w = 100;
+  const h = 100;
+  const nms = new Float32Array(w * h);
+
+  // Draw a bright rectangle border at x=20..80, y=20..80
+  for (let x = 20; x <= 80; x++) {
+    nms[20 * w + x] = 120;
+    nms[80 * w + x] = 120;
+  }
+  for (let y = 20; y <= 80; y++) {
+    nms[y * w + 20] = 120;
+    nms[y * w + 80] = 120;
+  }
+
+  const edges = threshold(nms, 40, 100);
+  assert.ok(edges instanceof Uint8ClampedArray);
+
+  const quad = findQuad(edges, w, h);
+  assert.ok(Array.isArray(quad), 'findQuad should return array of 4 corners');
+  assert.equal(quad.length, 4);
+
+  // Check that TL corner is around (20, 20) and BR corner is around (80, 80)
+  assert.ok(Math.abs(quad[0].x - 20) <= 2, `TL x expected ~20, got ${quad[0].x}`);
+  assert.ok(Math.abs(quad[0].y - 20) <= 2, `TL y expected ~20, got ${quad[0].y}`);
+  assert.ok(Math.abs(quad[2].x - 80) <= 2, `BR x expected ~80, got ${quad[2].x}`);
+  assert.ok(Math.abs(quad[2].y - 80) <= 2, `BR y expected ~80, got ${quad[2].y}`);
+});

@@ -51,11 +51,20 @@
     }
   };
 
+  // ---- Crop / Perspective State (PerspectiveFix Parity) ----
+  const cropState = {
+    sourceCanvas: null,
+    sourceQuad: null,
+    displayQuad: null,
+    editingPageId: null
+  };
+
   // ---- DOM ----
   const $ = (id) => document.getElementById(id);
   const screens = {
     home: $("screen-home"),
     camera: $("screen-camera"),
+    crop: $("screen-crop"),
     review: $("screen-review"),
     edit: $("screen-edit")
   };
@@ -77,6 +86,8 @@
     fileInput: $("fileInput"),
     fallbackImportBtn: $("fallbackImportBtn"),
     demoBtn: $("demoBtn"),
+    resumeBtn: $("resumeBtn"),
+    resumeCount: $("resumeCount"),
     homeStatus: $("homeStatus"),
     clearCacheBtn: $("clearCacheBtn"),
     bootDiag: $("bootDiag"),
@@ -91,6 +102,24 @@
     filters: $("filters"),
     retakeBtn: $("retakeBtn"),
     applyBtn: $("applyBtn"),
+    // Crop screen elements
+    cropBack: $("cropBackBtn"),
+    cropApplyTop: $("cropApplyTopBtn"),
+    cropApplyBtn: $("cropApplyBtn"),
+    cropAutoBtn: $("cropAutoBtn"),
+    cropResetBtn: $("cropResetBtn"),
+    cropStage: $("cropStage"),
+    cropCanvasWrapper: $("cropCanvasWrapper"),
+    cropCanvas: $("cropCanvas"),
+    cropPoly: $("cropPoly"),
+    cropOverlay: $("cropOverlay"),
+    cropHandleTL: $("cropHandleTL"),
+    cropHandleTR: $("cropHandleTR"),
+    cropHandleBR: $("cropHandleBR"),
+    cropHandleBL: $("cropHandleBL"),
+    cropLoupe: $("cropLoupe"),
+    cropLoupeCanvas: $("cropLoupeCanvas"),
+    cropInfo: $("cropInfo"),
     toast: $("toast"),
     toastText: $("toastText"),
     toastIco: $("toastIco"),
@@ -104,11 +133,24 @@
   // ---- Screen navigation ----
   function showScreen(name) {
     Object.entries(screens).forEach(([k, el]) => {
-      el.classList.toggle("active", k === name);
+      if (el) el.classList.toggle("active", k === name);
     });
     if (name !== "camera") stopCamera();
+    if (name === "home") updateHomeSessionBtn();
     if (name === "review") renderReview();
     if (name === "edit") renderEdit();
+    if (name === "crop") setupCropView();
+  }
+
+  function updateHomeSessionBtn() {
+    if (els.resumeBtn && els.resumeCount) {
+      if (state.pages && state.pages.length > 0) {
+        els.resumeCount.textContent = state.pages.length;
+        els.resumeBtn.style.display = "inline-flex";
+      } else {
+        els.resumeBtn.style.display = "none";
+      }
+    }
   }
 
   // ---- Toast ----
@@ -379,7 +421,13 @@
 
   // ---- Capture ----
   els.shutter.addEventListener("click", capturePage);
-  els.closeCam.addEventListener("click", () => showScreen("review"));
+  els.closeCam.addEventListener("click", () => {
+    if (state.pages.length === 0) {
+      showScreen("home");
+    } else {
+      showScreen("review");
+    }
+  });
 
   async function capturePage() {
     if (!state.cam.stream && els.video.readyState < 2) {
@@ -465,38 +513,385 @@
     });
   }
 
+  // ---- Crop / Perspective View & Handlers (PerspectiveFix Parity) ----
+  let activeCropDragIdx = null;
+
+  async function openCropForPage(pageId) {
+    const p = state.pages.find((x) => x.id === pageId);
+    if (!p) return;
+    try {
+      const img = await loadImage(p.original || p.src);
+      startCropWorkflow(img, { pageId: p.id });
+    } catch (err) {
+      console.error(err);
+      toast("Could not open page for cropping", "error");
+    }
+  }
+
+  function startCropWorkflow(source, options = {}) {
+    const sw = source.naturalWidth || source.videoWidth || source.width;
+    const sh = source.naturalHeight || source.videoHeight || source.height;
+    if (!sw || !sh) {
+      toast("Invalid image dimensions", "error");
+      return;
+    }
+
+    const sc = document.createElement("canvas");
+    sc.width = sw;
+    sc.height = sh;
+    const sctx = sc.getContext("2d");
+    sctx.drawImage(source, 0, 0, sw, sh);
+
+    cropState.sourceCanvas = sc;
+    cropState.editingPageId = options.pageId || null;
+
+    // Run automatic edge detection
+    let detectedQuad = null;
+    try {
+      const res = EdgeDetect.detect(sc);
+      if (res && res.quad && res.confidence > 0.1) {
+        const scaleX = sw / res.w;
+        const scaleY = sh / res.h;
+        detectedQuad = res.quad.map((p) => ({
+          x: Math.max(0, Math.min(sw, Math.round(p.x * scaleX))),
+          y: Math.max(0, Math.min(sh, Math.round(p.y * scaleY)))
+        }));
+      }
+    } catch (err) {
+      console.warn("Edge detection exception:", err);
+    }
+
+    if (!detectedQuad) {
+      // Default 6% inset quad
+      detectedQuad = [
+        { x: Math.round(sw * 0.06), y: Math.round(sh * 0.06) },
+        { x: Math.round(sw * 0.94), y: Math.round(sh * 0.06) },
+        { x: Math.round(sw * 0.94), y: Math.round(sh * 0.94) },
+        { x: Math.round(sw * 0.06), y: Math.round(sh * 0.94) }
+      ];
+      if (els.cropInfo) {
+        els.cropInfo.innerHTML = "<span>Drag corners to document edges or tap Auto Detect</span>";
+      }
+    } else {
+      if (els.cropInfo) {
+        els.cropInfo.innerHTML = '<span style="color:var(--accent);font-weight:600;">✓ Border auto-detected</span> &bull; Fine-tune corners if needed';
+      }
+      toast("Document border auto-detected!", "success");
+    }
+
+    cropState.sourceQuad = detectedQuad;
+    showScreen("crop");
+    setupCropView();
+  }
+
+  function setupCropView() {
+    if (!cropState.sourceCanvas || !els.cropCanvas) return;
+    const sc = cropState.sourceCanvas;
+    const cc = els.cropCanvas;
+    cc.width = sc.width;
+    cc.height = sc.height;
+    const ctx = cc.getContext("2d");
+    ctx.drawImage(sc, 0, 0);
+
+    requestAnimationFrame(() => {
+      syncCropDisplayQuad();
+    });
+  }
+
+  function syncCropDisplayQuad() {
+    if (!cropState.sourceCanvas || !cropState.sourceQuad || !els.cropCanvas) return;
+    const rect = els.cropCanvas.getBoundingClientRect();
+    const dispW = rect.width;
+    const dispH = rect.height;
+    if (dispW <= 0 || dispH <= 0) return;
+
+    const sw = cropState.sourceCanvas.width;
+    const sh = cropState.sourceCanvas.height;
+
+    cropState.displayQuad = cropState.sourceQuad.map((p) => ({
+      x: (p.x / sw) * dispW,
+      y: (p.y / sh) * dispH
+    }));
+
+    renderCropOverlay();
+  }
+
+  function renderCropOverlay() {
+    if (!cropState.displayQuad || !els.cropPoly) return;
+    const pts = cropState.displayQuad;
+    const pointsStr = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+    els.cropPoly.setAttribute("points", pointsStr);
+
+    const handles = [els.cropHandleTL, els.cropHandleTR, els.cropHandleBR, els.cropHandleBL];
+    handles.forEach((h, i) => {
+      if (h && pts[i]) {
+        h.style.left = pts[i].x + "px";
+        h.style.top = pts[i].y + "px";
+      }
+    });
+  }
+
+  function updateCropLoupe(idx, clientX, clientY) {
+    if (!els.cropLoupe || !els.cropLoupeCanvas || !cropState.sourceCanvas) return;
+    const stageRect = els.cropStage.getBoundingClientRect();
+    const loupeX = clientX - stageRect.left;
+    const loupeY = clientY - stageRect.top - 80;
+
+    els.cropLoupe.style.display = "block";
+    els.cropLoupe.style.left = loupeX + "px";
+    els.cropLoupe.style.top = Math.max(10, loupeY) + "px";
+
+    const pt = cropState.sourceQuad[idx];
+    const sw = cropState.sourceCanvas.width;
+    const sh = cropState.sourceCanvas.height;
+    const lCtx = els.cropLoupeCanvas.getContext("2d");
+    lCtx.clearRect(0, 0, 110, 110);
+
+    const zoom = 2.4;
+    const cropW = 110 / zoom;
+    const cropH = 110 / zoom;
+    const sx = Math.max(0, Math.min(sw - cropW, pt.x - cropW / 2));
+    const sy = Math.max(0, Math.min(sh - cropH, pt.y - cropH / 2));
+
+    lCtx.drawImage(cropState.sourceCanvas, sx, sy, cropW, cropH, 0, 0, 110, 110);
+  }
+
+  function applyCrop() {
+    if (!cropState.sourceCanvas || !cropState.sourceQuad) return;
+    try {
+      const corrected = Perspective.correct(cropState.sourceCanvas, cropState.sourceQuad);
+      const dataUrl = corrected.toDataURL("image/jpeg", 0.92);
+
+      if (cropState.editingPageId) {
+        const p = state.pages.find((x) => x.id === cropState.editingPageId);
+        if (p) {
+          p.src = dataUrl;
+          p.filter = "original";
+        }
+        showScreen("review");
+        toast("Page perspective straightened!", "success");
+      } else {
+        const page = {
+          id: "p_" + Math.random().toString(36).slice(2, 8),
+          src: dataUrl,
+          filter: "original",
+          original: cropState.sourceCanvas.toDataURL("image/jpeg", 0.92)
+        };
+        state.pages.push(page);
+        showScreen("review");
+        toast("Straightened & added to scan!", "success");
+      }
+      renderThumbs();
+      saveSession();
+      updateHomeSessionBtn();
+    } catch (err) {
+      console.error("Apply crop error:", err);
+      toast("Error straightening page", "error");
+    }
+  }
+
+  function initCropHandles() {
+    const handles = [
+      els.cropHandleTL,
+      els.cropHandleTR,
+      els.cropHandleBR,
+      els.cropHandleBL
+    ];
+
+    handles.forEach((h, idx) => {
+      if (!h) return;
+
+      const onPointerDown = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        activeCropDragIdx = idx;
+        h.classList.add("active");
+        try {
+          h.setPointerCapture(e.pointerId);
+        } catch (_) {}
+        updateCropLoupe(idx, e.clientX, e.clientY);
+      };
+
+      const onPointerMove = (e) => {
+        if (activeCropDragIdx !== idx) return;
+        e.preventDefault();
+        const rect = els.cropCanvas.getBoundingClientRect();
+        const dispW = rect.width;
+        const dispH = rect.height;
+        if (dispW <= 0 || dispH <= 0) return;
+
+        const rawX = e.clientX - rect.left;
+        const rawY = e.clientY - rect.top;
+        const clampedX = Math.max(0, Math.min(dispW, rawX));
+        const clampedY = Math.max(0, Math.min(dispH, rawY));
+
+        cropState.displayQuad[idx] = { x: clampedX, y: clampedY };
+        const sw = cropState.sourceCanvas.width;
+        const sh = cropState.sourceCanvas.height;
+        cropState.sourceQuad[idx] = {
+          x: (clampedX / dispW) * sw,
+          y: (clampedY / dispH) * sh
+        };
+
+        renderCropOverlay();
+        updateCropLoupe(idx, e.clientX, e.clientY);
+      };
+
+      const onPointerUp = (e) => {
+        if (activeCropDragIdx === idx) {
+          h.classList.remove("active");
+          activeCropDragIdx = null;
+          try {
+            h.releasePointerCapture(e.pointerId);
+          } catch (_) {}
+          if (els.cropLoupe) els.cropLoupe.style.display = "none";
+        }
+      };
+
+      h.addEventListener("pointerdown", onPointerDown);
+      h.addEventListener("pointermove", onPointerMove);
+      h.addEventListener("pointerup", onPointerUp);
+      h.addEventListener("pointercancel", onPointerUp);
+    });
+
+    if (els.cropApplyBtn) els.cropApplyBtn.addEventListener("click", applyCrop);
+    if (els.cropApplyTop) els.cropApplyTop.addEventListener("click", applyCrop);
+
+    if (els.cropBack) {
+      els.cropBack.addEventListener("click", () => {
+        if (cropState.editingPageId || (state.pages && state.pages.length > 0)) {
+          showScreen("review");
+        } else {
+          showScreen("home");
+        }
+      });
+    }
+
+    if (els.cropAutoBtn) {
+      els.cropAutoBtn.addEventListener("click", () => {
+        if (!cropState.sourceCanvas) return;
+        try {
+          const res = EdgeDetect.detect(cropState.sourceCanvas);
+          if (res && res.quad && res.confidence > 0.1) {
+            const sw = cropState.sourceCanvas.width;
+            const sh = cropState.sourceCanvas.height;
+            const scaleX = sw / res.w;
+            const scaleY = sh / res.h;
+            cropState.sourceQuad = res.quad.map((p) => ({
+              x: Math.max(0, Math.min(sw, Math.round(p.x * scaleX))),
+              y: Math.max(0, Math.min(sh, Math.round(p.y * scaleY)))
+            }));
+            syncCropDisplayQuad();
+            if (els.cropInfo) {
+              els.cropInfo.innerHTML = '<span style="color:var(--accent);font-weight:600;">✓ Border detected</span>';
+            }
+            toast("Border detected!", "success");
+          } else {
+            toast("No clear border found — adjust manually", "warn");
+          }
+        } catch (err) {
+          console.warn(err);
+          toast("Detection failed", "error");
+        }
+      });
+    }
+
+    if (els.cropResetBtn) {
+      els.cropResetBtn.addEventListener("click", () => {
+        if (!cropState.sourceCanvas) return;
+        const sw = cropState.sourceCanvas.width;
+        const sh = cropState.sourceCanvas.height;
+        cropState.sourceQuad = [
+          { x: 0, y: 0 },
+          { x: sw, y: 0 },
+          { x: sw, y: sh },
+          { x: 0, y: sh }
+        ];
+        syncCropDisplayQuad();
+        if (els.cropInfo) {
+          els.cropInfo.innerHTML = "<span>Full page selected</span>";
+        }
+        toast("Reset to full image", "info");
+      });
+    }
+
+    window.addEventListener("resize", () => {
+      if (screens.crop && screens.crop.classList.contains("active")) {
+        syncCropDisplayQuad();
+      }
+    });
+  }
+
+  // Initialize crop handles
+  initCropHandles();
+
   // ---- File import (fallback / bulk import) ----
   els.importBtn.addEventListener("click", () => els.fileInput.click());
   els.fallbackImportBtn.addEventListener("click", () => els.fileInput.click());
+  if (els.resumeBtn) els.resumeBtn.addEventListener("click", () => showScreen("review"));
+
   els.fileInput.addEventListener("change", async (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    for (const f of files) {
+    els.fileInput.value = "";
+
+    if (files.length === 1) {
+      // Single image: open interactive perspective crop screen with auto-detected edges!
       try {
-        const url = await fileToDataUrl(f);
+        const url = await fileToDataUrl(files[0]);
         const img = await loadImage(url);
-        const canvas = document.createElement("canvas");
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        canvas.getContext("2d").drawImage(img, 0, 0);
-        const page = {
-          id: "p_" + Math.random().toString(36).slice(2, 8),
-          src: canvas.toDataURL("image/jpeg", 0.9),
-          filter: "original",
-          original: canvas.toDataURL("image/jpeg", 0.9)
-        };
-        state.pages.push(page);
+        startCropWorkflow(img, { isNew: true });
       } catch (err) {
-        console.error(err);
+        console.error("Single file import error:", err);
+        toast("Failed to load image", "error");
+      }
+    } else {
+      // Multiple images: auto-detect and correct each one
+      toast(`Processing ${files.length} images...`, "info");
+      let count = 0;
+      for (const f of files) {
+        try {
+          const url = await fileToDataUrl(f);
+          const img = await loadImage(url);
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext("2d").drawImage(img, 0, 0);
+
+          let quad = null;
+          try {
+            const res = EdgeDetect.detect(canvas);
+            if (res && res.quad && res.confidence > 0.1) {
+              const scaleX = canvas.width / res.w;
+              const scaleY = canvas.height / res.h;
+              quad = res.quad.map((p) => ({
+                x: p.x * scaleX,
+                y: p.y * scaleY
+              }));
+            }
+          } catch (_) {}
+
+          const corrected = Perspective.correct(canvas, quad);
+          const page = {
+            id: "p_" + Math.random().toString(36).slice(2, 8),
+            src: corrected.toDataURL("image/jpeg", 0.9),
+            filter: "original",
+            original: canvas.toDataURL("image/jpeg", 0.9)
+          };
+          state.pages.push(page);
+          count++;
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      renderThumbs();
+      if (state.pages.length) {
+        showScreen("review");
+        toast(`Imported & straightened ${count} page(s)`, "success");
       }
     }
-    els.fileInput.value = "";
-    renderThumbs();
-    if (state.pages.length) {
-      showScreen("review");
-      toast(`Imported ${files.length} page(s)`, "success");
-    }
   });
+
   function fileToDataUrl(file) {
     return new Promise((res, rej) => {
       const fr = new FileReader();
@@ -505,6 +900,7 @@
       fr.readAsDataURL(file);
     });
   }
+
   function loadImage(url) {
     return new Promise((res, rej) => {
       const img = new Image();
@@ -515,7 +911,7 @@
   }
 
   // ---- Review screen ----
-  els.reviewBack.addEventListener("click", () => showScreen("camera"));
+  els.reviewBack.addEventListener("click", () => showScreen("home"));
   els.addMoreBtn.addEventListener("click", () => showScreen("camera"));
   els.exportBtn.addEventListener("click", exportPdf);
 
@@ -529,6 +925,8 @@
       empty.innerHTML = `<p>No pages yet</p><p style="font-size:13px;opacity:.7;">Capture a page or import an image to get started.</p>`;
       els.reviewList.appendChild(empty);
       els.exportBtn.disabled = true;
+      saveSession();
+      updateHomeSessionBtn();
       return;
     }
     els.exportBtn.disabled = false;
@@ -545,14 +943,28 @@
       label.textContent = "P" + (i + 1);
       const actions = document.createElement("div");
       actions.className = "actions";
+
+      // Crop / Perspective Button
+      const cropBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></svg>',
+        "Perspective Crop"
+      );
+      cropBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openCropForPage(p.id);
+      });
+
+      // Filter / Edit Button
       const editBtn = actionBtn(
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
-        "Edit"
+        "Filters"
       );
       editBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         openEdit(p.id);
       });
+
+      // Delete Button
       const delBtn = actionBtn(
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
         "Delete"
@@ -563,9 +975,12 @@
         if (confirm("Delete this page?")) {
           state.pages = state.pages.filter((x) => x.id !== p.id);
           renderReview();
+          renderThumbs();
           toast("Page deleted");
         }
       });
+
+      actions.appendChild(cropBtn);
       actions.appendChild(editBtn);
       actions.appendChild(delBtn);
       card.appendChild(img);
@@ -575,6 +990,7 @@
       els.reviewList.appendChild(card);
     });
     saveSession();
+    updateHomeSessionBtn();
   }
 
   const SESSION_KEY = "docscan_session_draft";
@@ -585,6 +1001,7 @@
       } else {
         sessionStorage.removeItem(SESSION_KEY);
       }
+      updateHomeSessionBtn();
     } catch (_) {}
   }
 
@@ -597,6 +1014,7 @@
           state.pages = parsed;
           renderReview();
           renderThumbs();
+          updateHomeSessionBtn();
           toast("Restored " + parsed.length + " pages from previous session");
         }
       }

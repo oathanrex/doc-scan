@@ -161,13 +161,16 @@
       let bestX = cx;
       let bestY = cy;
       let bestScore = -1;
+      let bestDist = Infinity;
       for (let dy = -r; dy <= r; dy += 2) {
         for (let dx = -r; dx <= r; dx += 2) {
           const x = Math.max(0, Math.min(w - 1, cx + dx));
           const y = Math.max(0, Math.min(h - 1, cy + dy));
           const s = edges[(y * w + x) | 0];
-          if (s > bestScore) {
+          const dist = dx * dx + dy * dy;
+          if (s > bestScore || (s === bestScore && dist < bestDist)) {
             bestScore = s;
+            bestDist = dist;
             bestX = x;
             bestY = y;
           }
@@ -186,9 +189,11 @@
 
   // ---------- Public API ----------
   // Returns: { quad: [{x, y}*4] | null, confidence: 0..1 }
-  function detect(video) {
+  function detect(source) {
+    const srcW = source.videoWidth || source.naturalWidth || source.width || 320;
+    const srcH = source.videoHeight || source.naturalHeight || source.height || 240;
     const targetW = 240;
-    const aspect = video.videoHeight / video.videoWidth || 0.75;
+    const aspect = srcH / srcW || 0.75;
     const w = targetW;
     const h = Math.max(1, Math.round(targetW * aspect));
 
@@ -197,7 +202,7 @@
     canvas.height = h;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     try {
-      ctx.drawImage(video, 0, 0, w, h);
+      ctx.drawImage(source, 0, 0, w, h);
     } catch (e) {
       return { quad: null, confidence: 0 };
     }
