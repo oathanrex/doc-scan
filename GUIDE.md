@@ -1,6 +1,6 @@
 # The Zero-Install Scanner: How DocScan Replaces Microsoft Lens on the Web Without Bloatware, Cloud Uploads, or Paywalls
 
-*By the Creator of PerspectiveFix & DocScan*  
+*By the Creator of PerspectiveFix & DocScan* 
 *Last Updated: November 2026 | Technical Category: In-Browser Computer Vision & Digital Archiving*
 
 ---
@@ -11,7 +11,7 @@ In 2021, Microsoft made a quiet decision that left millions of students, account
 
 For years, Office Lens had been the gold standard for desktop and tablet users who wanted to point a webcam or upload a crooked photo of a whiteboard, receipt, or paper agreement and have it flattened into a crisp PDF. When Microsoft pulled the desktop client from the Microsoft Store, they forced users into a rigid mobile-first funnel. To scan a single sheet of paper, you were suddenly required to pick up a smartphone, install a 150-megabyte mobile package, authenticate with a Microsoft Live or Office 365 account, and sync your sensitive files through OneDrive cloud servers.
 
-At the exact same time, the mobile scanner market underwent what software engineers call the "monetization decay cycle." Apps that started as lightweight scanning utilities—most notoriously CamScanner and Adobe Scan—metastasized into bloated commercial platforms:
+At the exact same time, the mobile scanner market underwent what software engineers call the "monetization decay cycle." Apps that started as lightweight scanning utilities, most notoriously CamScanner and Adobe Scan, metastasized into bloated commercial platforms:
 
 ```
 [Traditional Mobile Scanner Funnel]
@@ -23,7 +23,7 @@ For privacy-conscious professionals, this model is an unacceptable operational h
 2. **Platform Inflexibility**: If you are working on a MacBook, a Linux workstation, a Chromebook, or a Windows desktop, you cannot run native mobile scanner binaries without clunky Android emulators.
 3. **Friction & Latency**: Waiting 15 seconds for an ad to finish playing or navigating a subscription modal just to send an urgent signed invoice costs real time and peace of mind.
 
-This frustration sparked a simple question: **Can we bring the entire computer vision pipeline of Microsoft Lens and CamScanner directly into modern web browsers—running 100% on-device, with zero downloads, zero logins, zero tracking, and zero subscription fees?**
+This frustration sparked a simple question: **Can we bring the entire computer vision pipeline of Microsoft Lens and CamScanner directly into modern web browsers, running 100% on-device, with zero downloads, zero logins, zero tracking, and zero subscription fees?**
 
 The answer is **DocScan** ([https://oathanrex.github.io/doc-scan/](https://oathanrex.github.io/doc-scan/)).
 
@@ -35,31 +35,31 @@ DocScan is an open-source, client-side web application that transforms any devic
 
 Whether you access the app on an iPhone in Safari, an Android device in Chrome, a MacBook in Firefox, or a multi-monitor Linux rig in Edge, DocScan operates as a standalone progressive web engine. It does not possess a backend processing server. It does not maintain a user database. It issues zero API calls to external machine learning vendors. 
 
-Every single computation—from edge detection to bilinear homographic warping, dynamic filter synthesis, and binary PDF encoding—happens inside your device's local memory and graphics pipeline.
+Every single computation, from edge detection to bilinear homographic warping, dynamic filter synthesis, and binary PDF encoding, happens inside your device's local memory and graphics pipeline.
 
 ```
-                      +---------------------------------------+
-                      |         User's Web Browser            |
-                      |   (Desktop, Mobile, or Tablet)        |
-                      +---------------------------------------+
-                                          |
-                      +---------------------------------------+
-                      |       On-Device Web APIs              |
-                      |  - HTML5 Canvas & 2D Context          |
-                      |  - MediaDevices (getUserMedia)        |
-                      |  - Web Cryptography & TypedArrays     |
-                      |  - Service Worker Cache Storage       |
-                      +---------------------------------------+
-                                          |
-    +-------------------------------------+-------------------------------------+
-    |                                     |                                     |
-    v                                     v                                     v
-+-----------------------+   +---------------------------+   +---------------------------+
-| Real-Time Edge Detect |   | Perspective Homography    |   | Client-Side PDF Compiler  |
-| - Canny Sobel Filter  |   | - 4-Point Arbitrary Quad  |   | - Pure Binary PDF 1.4     |
-| - Radial Quad Search  |   | - Bilinear Interpolation  |   | - Zero External Deps      |
-| - Sub-ms Downscaling  |   | - 2.5x Loupe Magnifier    |   | - A4 Centered Raster XObj |
-+-----------------------+   +---------------------------+   +---------------------------+
+ +---------------------------------------+
+ | User's Web Browser |
+ | (Desktop, Mobile, or Tablet) |
+ +---------------------------------------+
+ |
+ +---------------------------------------+
+ | On-Device Web APIs |
+ | - HTML5 Canvas & 2D Context |
+ | - MediaDevices (getUserMedia) |
+ | - Web Cryptography & TypedArrays |
+ | - Service Worker Cache Storage |
+ +---------------------------------------+
+ |
+ +-------------------------------------+-------------------------------------+
+ | | |
+ v v v
++-----------------------+ +---------------------------+ +---------------------------+
+| Real-Time Edge Detect | | Perspective Homography | | Client-Side PDF Compiler |
+| - Canny Sobel Filter | | - 4-Point Arbitrary Quad | | - Pure Binary PDF 1.4 |
+| - Radial Quad Search | | - Bilinear Interpolation | | - Zero External Deps |
+| - Sub-ms Downscaling | | - 2.5x Loupe Magnifier | | - A4 Centered Raster XObj |
++-----------------------+ +---------------------------+ +---------------------------+
 ```
 
 When you close the browser tab or disconnect your Wi-Fi, DocScan continues to function without interruption. It is privacy in the absolute mathematical sense: your data cannot be intercepted because it never leaves your hardware.
@@ -77,22 +77,22 @@ When you aim your phone camera or point a desktop webcam at a document on a wood
 DocScan solves this using an optimized, multi-stage Canny pipeline operating on a fixed 240-pixel downscaled buffer:
 
 1. **Luma Extraction (Rec. 601)**:
-   The incoming pixel data is converted to an 8-bit single-channel grayscale buffer using the standard ITU-R BT.601 perceptual luma formula:
-   $$Y = \left\lfloor \frac{299 \cdot R + 587 \cdot G + 114 \cdot B + 500}{1000} \right\rfloor$$
-   This assigns highest weight to the green spectrum where human vision (and paper contrast) is most sensitive.
+ The incoming pixel data is converted to an 8-bit single-channel grayscale buffer using the standard ITU-R BT.601 perceptual luma formula:
+ $$Y = \left\lfloor \frac{299 \cdot R + 587 \cdot G + 114 \cdot B + 500}{1000} \right\rfloor$$
+ This assigns highest weight to the green spectrum where human vision (and paper contrast) is most sensitive.
 
 2. **Separable 3x3 Box Blur**:
-   To suppress high-frequency sensor noise without the computational cost of a large Gaussian kernel, a two-pass separable horizontal and vertical smoothing filter runs over the grayscale array.
+ To suppress high-frequency sensor noise without the computational cost of a large Gaussian kernel, a two-pass separable horizontal and vertical smoothing filter runs over the grayscale array.
 
 3. **Sobel Gradient Convolutions**:
-   Horizontal ($G_x$) and vertical ($G_y$) spatial derivatives are computed using $3 \times 3$ Sobel masks:
-   $$G_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} * I, \quad G_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix} * I$$
-   The gradient magnitude $M = \sqrt{G_x^2 + G_y^2}$ and direction $\theta = \operatorname{atan2}(G_y, G_x)$ highlight continuous paper boundaries against tabletop backgrounds.
+ Horizontal ($G_x$) and vertical ($G_y$) spatial derivatives are computed using $3 \times 3$ Sobel masks:
+ $$G_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} * I, \quad G_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix} * I$$
+ The gradient magnitude $M = \sqrt{G_x^2 + G_y^2}$ and direction $\theta = \operatorname{atan2}(G_y, G_x)$ highlight continuous paper boundaries against tabletop backgrounds.
 
 4. **Non-Maximum Suppression & Radial Corner Snapping**:
-   Thick gradient bands are thinned down to single-pixel edges. The detector then computes horizontal and vertical score projections. To prevent corner coordinates from drifting along parallel margins, our corner-refinement algorithm minimizes Euclidean distance to the bounding quadrant while prioritizing strong edge points:
-   $$\text{Score} = \text{EdgeIntensity} + \frac{1}{1 + \Delta x^2 + \Delta y^2}$$
-   This guarantees that the detected four corners snap cleanly to the physical page edges rather than nearby desk clutter.
+ Thick gradient bands are thinned down to single-pixel edges. The detector then computes horizontal and vertical score projections. To prevent corner coordinates from drifting along parallel margins, our corner-refinement algorithm minimizes Euclidean distance to the bounding quadrant while prioritizing strong edge points:
+ $$\text{Score} = \text{EdgeIntensity} + \frac{1}{1 + \Delta x^2 + \Delta y^2}$$
+ This guarantees that the detected four corners snap cleanly to the physical page edges rather than nearby desk clutter.
 
 ---
 
@@ -112,11 +112,11 @@ Most basic web tools use nearest-neighbor pixel sampling during inverse warping.
 DocScan implements high-precision **bilinear interpolation**:
 
 ```
-        (x0, y0) -------- (x1, y0)
-           |    \           |
-           |     (x, y)     |
-           |                |
-        (x0, y1) -------- (x1, y1)
+ (x0, y0) -------- (x1, y0)
+ | \ |
+ | (x, y) |
+ | |
+ (x0, y1) -------- (x1, y1)
 ```
 
 For every target destination pixel $(u, v)$, the engine maps back to fractional source coordinates $(x, y)$. Let $x_0 = \lfloor x \rfloor$, $x_1 = x_0 + 1$, $y_0 = \lfloor y \rfloor$, $y_1 = y_0 + 1$, with fractional offsets $dx = x - x_0$ and $dy = y - y_0$. The interpolated color $C$ is computed as:
@@ -168,35 +168,35 @@ DocScan was crafted to deliver 100% of the desktop power of Microsoft Lens combi
 Whether you are using a mobile phone on a commuter train or a desktop computer in an office, here is how to achieve flawless results with DocScan.
 
 ```
-       +-------------------------------------------------------------+
-       |                     Step 1: Ingestion                       |
-       |       Tap "Start Scanning" OR "Import from Device"          |
-       +-------------------------------------------------------------+
-                                      |
-                                      v
-       +-------------------------------------------------------------+
-       |                  Step 2: Perspective Crop                   |
-       |  - Auto-detected quad appears around document borders       |
-       |  - Drag any corner: 2.5x Magnifier Loupe opens with cursor   |
-       |  - Optional: Tap "Rotate 90°" if document was shot sideways |
-       |  - Tap "Straighten"                                         |
-       +-------------------------------------------------------------+
-                                      |
-                                      v
-       +-------------------------------------------------------------+
-       |                  Step 3: Document Review                    |
-       |  - Card P1 appears in Review Grid with straightened preview  |
-       |  - Optional: Tap "Filters" to apply Magic Color or B&W Doc  |
-       |  - Optional: Tap "+ Add Page" to append additional sheets   |
-       |  - Optional: Tap document title to rename the file          |
-       +-------------------------------------------------------------+
-                                      |
-                                      v
-       +-------------------------------------------------------------+
-       |                     Step 4: PDF Export                      |
-       |  - Tap "Export PDF"                                         |
-       |  - Instant client-side compile & zero-lag binary download   |
-       +-------------------------------------------------------------+
+ +-------------------------------------------------------------+
+ | Step 1: Ingestion |
+ | Tap "Start Scanning" OR "Import from Device" |
+ +-------------------------------------------------------------+
+ |
+ v
+ +-------------------------------------------------------------+
+ | Step 2: Perspective Crop |
+ | - Auto-detected quad appears around document borders |
+ | - Drag any corner: 2.5x Magnifier Loupe opens with cursor |
+ | - Optional: Tap "Rotate 90°" if document was shot sideways |
+ | - Tap "Straighten" |
+ +-------------------------------------------------------------+
+ |
+ v
+ +-------------------------------------------------------------+
+ | Step 3: Document Review |
+ | - Card P1 appears in Review Grid with straightened preview |
+ | - Optional: Tap "Filters" to apply Magic Color or B&W Doc |
+ | - Optional: Tap "+ Add Page" to append additional sheets |
+ | - Optional: Tap document title to rename the file |
+ +-------------------------------------------------------------+
+ |
+ v
+ +-------------------------------------------------------------+
+ | Step 4: PDF Export |
+ | - Tap "Export PDF" |
+ | - Instant client-side compile & zero-lag binary download |
+ +-------------------------------------------------------------+
 ```
 
 ### Scenario A: Scanning a Crooked Document via Mobile/Laptop Camera
@@ -219,10 +219,10 @@ Whether you are using a mobile phone on a commuter train or a desktop computer i
 1. On the Review screen, locate the page card and tap the **"Filters"** (pencil) button.
 2. You will enter the Edit stage. Notice that your document **remains 100% flat and straightened**.
 3. Select from the filter carousel:
-   - **Magic Color**: Select this for agreements, invoices, and certificates. It lifts dull gray shadows off the paper while intensifying black text and keeping colored logos, red notary stamps, and blue ballpoint signatures vibrant.
-   - **B&W Doc**: Select this for plain text documents, photocopies, or book pages. It uses high-contrast thresholding to eliminate paper wrinkles and background discoloration.
-   - **Grayscale**: Ideal for official photo IDs, driver's licenses, and passports where photographic gradients must remain natural.
-   - **Text Boost**: Perfect for faded receipts or pencil notes with weak contrast.
+ - **Magic Color**: Select this for agreements, invoices, and certificates. It lifts dull gray shadows off the paper while intensifying black text and keeping colored logos, red notary stamps, and blue ballpoint signatures vibrant.
+ - **B&W Doc**: Select this for plain text documents, photocopies, or book pages. It uses high-contrast thresholding to eliminate paper wrinkles and background discoloration.
+ - **Grayscale**: Ideal for official photo IDs, driver's licenses, and passports where photographic gradients must remain natural.
+ - **Text Boost**: Perfect for faded receipts or pencil notes with weak contrast.
 4. Tap **"Done"**. The filter is cleanly baked onto your straightened page.
 
 ### Scenario D: Assembling a Multi-Page PDF & Custom Renaming
@@ -262,18 +262,18 @@ Why did **PerspectiveFix** ([https://perspectivefix.app/](https://perspectivefix
 DocScan takes that identical philosophical foundation and expands it into the full document productivity space:
 
 1. **Utility-First SEO**:
-   Every month, over 450,000 queries search for:
-   - *"Microsoft Lens alternative for PC"*
-   - *"How to straighten a crooked photo of a document online"*
-   - *"Free CamScanner alternative without watermark"*
-   - *"Scan documents directly in browser without uploading"*
-   DocScan directly fulfills the exact search intent of every one of these queries.
+ Every month, over 450,000 queries search for:
+ - *"Microsoft Lens alternative for PC"*
+ - *"How to straighten a crooked photo of a document online"*
+ - *"Free CamScanner alternative without watermark"*
+ - *"Scan documents directly in browser without uploading"*
+ DocScan directly fulfills the exact search intent of every one of these queries.
 
 2. **Hacker News & Developer Community Affinity**:
-   Technical communities (Show HN, r/webdev, Lobste.rs) passionately support tools that demonstrate low-level computer vision and PDF synthesis without multi-megabyte npm dependencies. DocScan's zero-dependency JavaScript pipeline resonates deeply with engineers who respect lean, performant web engineering.
+ Technical communities (Show HN, r/webdev, Lobste.rs) passionately support tools that demonstrate low-level computer vision and PDF synthesis without multi-megabyte npm dependencies. DocScan's zero-dependency JavaScript pipeline resonates deeply with engineers who respect lean, performant web engineering.
 
 3. **Viral Organic Word-of-Mouth**:
-   When a user in an office or classroom needs an urgent PDF and has no scanner hardware nearby, recommending DocScan takes three seconds: send the link, upload the photo, click Straighten, download the PDF. No app store waiting time. No password resets.
+ When a user in an office or classroom needs an urgent PDF and has no scanner hardware nearby, recommending DocScan takes three seconds: send the link, upload the photo, click Straighten, download the PDF. No app store waiting time. No password resets.
 
 ---
 
@@ -286,26 +286,26 @@ Every commercial document scanner today makes money by monetizing your attention
 DocScan is built on the opposite philosophy:
 - **Zero Ads**: No banner ads, no popups, no tracking scripts.
 - **Zero Cloud Extraction**: Your documents remain inside your device's RAM.
-- **Zero Paywalls**: Every feature—from bilinear homography warping to multi-page PDF compilation—is free and open to everyone, forever.
+- **Zero Paywalls**: Every feature, from bilinear homography warping to multi-page PDF compilation, is free and open to everyone, forever.
 
 Developing and maintaining high-performance computer vision algorithms, ensuring cross-browser compatibility across mobile and desktop devices, and keeping open-source tools freely accessible to students, researchers, and professionals across the world requires time, testing hardware, and continuous engineering care.
 
 ```
 +---------------------------------------------------------------------------------+
-|                        SUPPORT INDEPENDENT OPEN-SOURCE                          |
-|                                                                                 |
-| If DocScan saved you time, salvaged an important document scan, or allowed      |
-| you to ditch bloated subscription scanner apps, consider buying a coffee        |
-| to support independent, privacy-first software development:                     |
-|                                                                                 |
-|           ☕ Buy Me a Coffee: https://buymeacoffee.com/oathanrex               |
-|                                                                                 |
-| Every coffee directly funds serverless hosting, open-source computer vision     |
+| SUPPORT INDEPENDENT OPEN-SOURCE |
+| |
+| If DocScan saved you time, salvaged an important document scan, or allowed |
+| you to ditch bloated subscription scanner apps, consider buying a coffee |
+| to support independent, privacy-first software development: |
+| |
+| ☕ Buy Me a Coffee: https://buymeacoffee.com/oathanrex |
+| |
+| Every coffee directly funds serverless hosting, open-source computer vision |
 | research, and the creation of zero-download utilities built for the public good.|
 +---------------------------------------------------------------------------------+
 ```
 
-Whether you contribute through micro-patronage, star the project on GitHub, or share the tool with a colleague who needs a clean scan without the software bloat—thank you for standing behind an open, private, and capable web.
+Whether you contribute through micro-patronage, star the project on GitHub, or share the tool with a colleague who needs a clean scan without the software bloat, thank you for standing behind an open, private, and capable web.
 
 ---
 

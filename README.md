@@ -1,4 +1,4 @@
-# DocScan 📸 — Zero-Dependency In-Browser Document Scanner
+# DocScan 📸 , Zero-Dependency In-Browser Document Scanner
 
 > **High-performance, privacy-first mobile document scanner running 100% in your browser. Real-time Canny edge detection, 8-point homography perspective warp, and direct PDF 1.4 binary generation with zero external dependencies.**
 
@@ -20,7 +20,7 @@ Most web document scanners either require heavy computer vision engines (like Op
 - 🔒 **100% Privacy-First**: Camera frames never leave your device. Zero cloud uploads, zero telemetry.
 - ⚡ **Real-Time Edge Detection (30+ FPS)**: Canny-style pipeline optimized to run well within a mobile frame budget.
 - 📐 **8-Point Homography Perspective Solver**: Maps warped, photographed quadrilaterals into flat, crisp, rectified documents.
-- 📄 **Pure JS PDF 1.4 Compiler**: Emits valid PDF 1.4 binary streams with DCTDecode JPEG XObjects, custom Page trees, and xref tables from scratch—no `jsPDF` or `pdfkit` required.
+- 📄 **Pure JS PDF 1.4 Compiler**: Emits valid PDF 1.4 binary streams with DCTDecode JPEG XObjects, custom Page trees, and xref tables from scratch, no `jsPDF` or `pdfkit` required.
 - 📱 **Installable PWA**: Offline caching, standalone display, and responsive touchscreen corner dragging.
 
 ---
@@ -29,10 +29,10 @@ Most web document scanners either require heavy computer vision engines (like Op
 
 | Metric | DocScan (This Engine) | OpenCV.js Based Scanners | Cloud Scanners (CamScanner, etc.) |
 | :--- | :--- | :--- | :--- |
-| **Bundle Size** | **~45 KB** (Total) | 8.5 MB – 12 MB | Megabytes of proprietary SDKs |
+| **Bundle Size** | **~45 KB** (Total) | 8.5 MB - 12 MB | Megabytes of proprietary SDKs |
 | **External Dependencies** | **0 (Zero)** | 10+ Wasm / C++ bindings | Third-party backend APIs |
 | **Privacy / Network** | **100% On-Device (Offline)** | Local, but heavy init | Frames uploaded to cloud |
-| **Frame Budget** | **< 1.2 ms** (240px downscale) | 15 ms – 40 ms | High latency (upload + wait) |
+| **Frame Budget** | **< 1.2 ms** (240px downscale) | 15 ms - 40 ms | High latency (upload + wait) |
 | **PDF Generation** | **Native PDF 1.4 Compiler** | Relies on external jsPDF | Server-side rendered (watermarked) |
 
 ---
@@ -41,19 +41,19 @@ Most web document scanners either require heavy computer vision engines (like Op
 
 ```mermaid
 flowchart TD
-    A["Camera Video Frame (getUserMedia)"] --> B["Downscale to 240px & Rec. 601 Luma"]
-    B --> C["Separable 3x3 Box Blur & Sobel Kernels"]
-    C --> D["Non-Maximum Suppression & Dual Threshold"]
-    D --> E["Bounding Projection & Corner Quad Search"]
-    E --> F{"Quad Locked?"}
-    F -- "Live Stream" --> G["Render Viewfinder Overlay (30+ FPS)"]
-    F -- "Capture Clicked" --> H["Full-Res Frame Snapshot"]
-    H --> I["Solve 8x8 Linear System for Homography Matrix H"]
-    I --> J["Bilinear Inverse-Mapped Perspective Warp"]
-    J --> K["Apply Document Filters (B&W, Magic, Boost)"]
-    K --> L["Multi-Page Session Queue & Reordering"]
-    L --> M["Zero-Dependency PDF 1.4 Binary Synthesis"]
-    M --> N["Download Clean PDF Document"]
+ A["Camera Video Frame (getUserMedia)"] --> B["Downscale to 240px & Rec. 601 Luma"]
+ B --> C["Separable 3x3 Box Blur & Sobel Kernels"]
+ C --> D["Non-Maximum Suppression & Dual Threshold"]
+ D --> E["Bounding Projection & Corner Quad Search"]
+ E --> F{"Quad Locked?"}
+ F -- "Live Stream" --> G["Render Viewfinder Overlay (30+ FPS)"]
+ F -- "Capture Clicked" --> H["Full-Res Frame Snapshot"]
+ H --> I["Solve 8x8 Linear System for Homography Matrix H"]
+ I --> J["Bilinear Inverse-Mapped Perspective Warp"]
+ J --> K["Apply Document Filters (B&W, Magic, Boost)"]
+ K --> L["Multi-Page Session Queue & Reordering"]
+ L --> M["Zero-Dependency PDF 1.4 Binary Synthesis"]
+ M --> N["Download Clean PDF Document"]
 ```
 
 ---
@@ -62,10 +62,10 @@ flowchart TD
 
 ### 1. Real-Time Edge Detection (`edge-detect.js`)
 Instead of a full, compute-heavy Hough transform, DocScan uses a lightweight, projection-guided pipeline:
-1. **Luma Conversion**: Computes Rec. 601 grayscale:  
-   $$Y = 0.299R + 0.587G + 0.114B$$
-2. **Gradient & Sobel**: Computes gradient magnitude and direction with standard Sobel operators:  
-   $$G = \sqrt{G_x^2 + G_y^2}, \quad \theta = \text{atan2}(G_y, G_x)$$
+1. **Luma Conversion**: Computes Rec. 601 grayscale: 
+ $$Y = 0.299R + 0.587G + 0.114B$$
+2. **Gradient & Sobel**: Computes gradient magnitude and direction with standard Sobel operators: 
+ $$G = \sqrt{G_x^2 + G_y^2}, \quad \theta = \text{atan2}(G_y, G_x)$$
 3. **Non-Maximum Suppression & Thresholding**: Thins edges to 1-pixel ridges and suppresses noise.
 4. **Projection Search**: Projects strong-edge pixels along $X$ and $Y$ axes to locate document boundaries, then searches local windows around corners for candidate quadrilaterals.
 
@@ -95,7 +95,7 @@ DocScan is engineered as a standalone, in-browser Progressive Web App. No instal
 
 - Direct camera scanning with real-time border tracking.
 - Works 100% offline via client-side caching.
-- Zero telemetry & zero data collection — your documents never leave your browser.
+- Zero telemetry & zero data collection , your documents never leave your browser.
 
 ---
 
@@ -125,7 +125,7 @@ Licensed under the [MIT License](LICENSE). Free for open-source and commercial u
 
 <div align="center">
 
-Crafted with 🖤 by **[OathanRex](https://github.com/oathanrex)**  
+Crafted with 🖤 by **[OathanRex](https://github.com/oathanrex)** 
 *Building production-grade, zero-dependency web applications and developer tools.*
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Fuel%20the%20Engine-Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/oathanrex)

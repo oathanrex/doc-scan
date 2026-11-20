@@ -194,30 +194,26 @@
       --shadow: 0 4px 20px rgba(20, 20, 20, 0.08);
     }
 
-    /* Modern Sleek Scrollbar */
+    /* Top 1% Hidden Seamless Scrollbar (Apple/Linear Style)
+       Allows natural smooth wheel, trackpad, and touch scrolling while
+       completely hiding visible scrollbar tracks and thumbs on the right side. */
+    html, body, * {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    *::-webkit-scrollbar,
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
     html {
-      scrollbar-width: thin;
-      scrollbar-color: var(--line-strong) transparent;
       scroll-behavior: smooth;
     }
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
-    }
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--line-strong);
-      border-radius: 9999px;
-      transition: background 0.2s ease;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent);
     }
 
     /* WCAG Focus Visible */
@@ -538,37 +534,6 @@
       color: var(--ink);
       border: 1px solid var(--line-strong);
       box-shadow: none;
-    }
-    .home-guide-banner {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      padding: 8px 16px;
-      border-radius: 9999px;
-      color: var(--ink);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 4px;
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-    .home-guide-banner:hover {
-      border-color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 10%, var(--surface));
-      transform: translateY(-1px);
-    }
-    .guide-badge {
-      background: var(--accent);
-      color: var(--accent-ink);
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 8px;
-      letter-spacing: 0.04em;
     }
     .home-features {
       display: grid;
@@ -1549,6 +1514,123 @@
         display: none;
       }
     }
+      /* =========================================================
+       CREATOR PATRONAGE SECTION (Fatih Telis 10015.io Style)
+       With PerspectiveFix.app showcase & authentic indie story
+       ========================================================= */
+    .creator-patronage-section {
+      max-width: 840px;
+      margin: 20px auto 60px;
+      padding: 0 24px;
+    }
+    .patronage-card {
+      background: var(--surface);
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+    .patronage-title {
+      font-family: var(--display);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .patronage-sub {
+      font-size: 16px;
+      color: var(--ink-soft);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .patronage-story {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+    .external-app-link {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .external-app-link:hover {
+      opacity: 0.85;
+    }
+    .patronage-action-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .patronage-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #FFDD00;
+      color: #000000;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 12px 24px;
+      border-radius: 9999px;
+      text-decoration: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 4px 14px rgba(255, 221, 0, 0.35);
+    }
+    .patronage-cta-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(255, 221, 0, 0.45);
+    }
+    .patronage-cup-icon {
+      width: 20px;
+      height: 20px;
+    }
+    .patronage-sister-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--ink);
+      font-size: 14.5px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 11px 18px;
+      border-radius: 9999px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .patronage-sister-link:hover {
+      background: var(--surface);
+      border-color: var(--line-strong);
+    }
+    .patronage-thanks {
+      font-size: 14.5px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      margin: 8px 0 0;
+      padding-top: 16px;
+      border-top: 1px dashed var(--line);
+    }
+    @media (max-width: 640px) {
+      .patronage-card {
+        padding: 24px 20px;
+      }
+      .patronage-action-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .patronage-cta-btn, .patronage-sister-link {
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1611,11 +1693,6 @@
       <section class="screen home active" id="screen-home" aria-label="Home">
         <div class="topbar">
           <div class="topbar-title">DocScan Studio</div>
-          <div style="display: flex; gap: 6px;">
-            <a href="#guide" class="icon-btn" title="Jump to User Guide" style="text-decoration:none;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            </a>
-          </div>
         </div>
 
         <div class="home-logo">
@@ -1630,12 +1707,6 @@
         </div>
         <h1>Scan anything</h1>
         <p class="home-sub">Capture pages, auto-detect borders, and export clean PDFs directly in your browser on desktop, tablet, or mobile.</p>
-        
-        <a href="#guide" class="home-guide-banner" aria-label="Jump to technical whitepaper">
-          <span class="guide-badge">Guide</span>
-          <span class="guide-text">How In-Browser Homography Works</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
 
         <button class="cta" id="startScanBtn" style="margin-top: 14px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -2141,48 +2212,63 @@
     </div>
   </section>
 
-  <!-- Creator Patronage Section (BuyMeACoffee Optimization) -->
-  <section class="creator-patronage-section">
+  <!-- Creator Patronage Section (Fatih Telis 10015.io Style with PerspectiveFix Showcase) -->
+  <section class="creator-patronage-section" id="support">
     <div class="patronage-card">
-      <div style="width:40px;height:40px;border-radius:50%;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;color:var(--accent-2);">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-          <line x1="6" y1="2" x2="6" y2="4" />
-          <line x1="10" y1="2" x2="10" y2="4" />
-          <line x1="14" y1="2" x2="14" y2="4" />
-        </svg>
+      <h3 class="patronage-title">
+        <span>Hello &#128075; I'm Oathan Rex</span>
+      </h3>
+      <p class="patronage-sub">Software developer and creator of <a href="https://perspectivefix.app" target="_blank" rel="noopener noreferrer" class="external-app-link">PerspectiveFix.app</a> and <strong>DocScan</strong>.</p>
+      
+      <p class="patronage-story">
+        I started developing DocScan to bring clean, zero-install, on-device document scanning and perspective fixing directly into the web browser with a fast and private user interface. No mandatory sign-ups, no software packages, and zero cloud uploads.
+      </p>
+
+      <p class="patronage-story">
+        DocScan and <a href="https://perspectivefix.app" target="_blank" rel="noopener noreferrer" class="external-app-link">PerspectiveFix</a> are completely free to use and will be forever free. For these independent utilities to remain self-sustaining without ads or corporate trackers, you can support my efforts by buying me a coffee.
+      </p>
+
+      <div class="patronage-action-row">
+        <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" class="patronage-cta-btn">
+          <svg class="patronage-cup-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+            <line x1="6" y1="2" x2="6" y2="4" />
+            <line x1="10" y1="2" x2="10" y2="4" />
+            <line x1="14" y1="2" x2="14" y2="4" />
+          </svg>
+          <span>Buy Me a Coffee</span>
+        </a>
+        <a href="https://perspectivefix.app" target="_blank" rel="noopener noreferrer" class="patronage-sister-link">
+          <span>Also check out PerspectiveFix.app &rarr;</span>
+        </a>
       </div>
-      <h3>Support Independent, Open-Source Software</h3>
-      <p>DocScan has zero venture funding, zero corporate telemetry, and zero subscription paywalls. If this tool saved you time today, consider buying a coffee to support continued development and serverless hosting.</p>
-      <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" class="patronage-btn">
-        <span>☕ Support via BuyMeACoffee</span>
-      </a>
+
+      <p class="patronage-thanks">
+        Thank you so much for your support! &#127775;<br>
+        Best,<br>
+        <strong>Oathan Rex</strong>
+      </p>
     </div>
   </section>
 
-  <!-- Mandatory Legal & Trust Foundation (AdSense Pillar 1) -->
+  <!-- Legal & Trust Section (Clean Indie Open Source) -->
   <section class="legal-trust-section" id="privacy">
     <div class="legal-grid">
       <div class="legal-card">
-        <h4>Privacy Policy</h4>
-        <p>DocScan processes all camera streams and images in volatile local RAM. No files are uploaded to any server. Third-party vendors like Google use cookies to serve ads based on visits.</p>
-        <a href="#privacy" id="openPrivacyLink">Read Full Privacy Policy &amp; DART Opt-Out &rarr;</a>
+        <h4>100% Client-Side Privacy</h4>
+        <p>DocScan processes all camera streams and images strictly inside volatile browser memory. No photos, scans, or text documents are ever uploaded to an external server or stored remotely.</p>
+        <a href="#privacy" id="openPrivacyLink">Read Full Privacy Policy &amp; Terms &rarr;</a>
       </div>
       <div class="legal-card">
-        <h4>Terms of Service</h4>
-        <p>DocScan is provided free of charge under the MIT Open Source license without warranties. Users retain complete ownership of all processed files.</p>
+        <h4>MIT Open Source</h4>
+        <p>DocScan is released under the permissive MIT License. You have complete legal freedom to scan personal, commercial, and legal records without paywalls or restrictive terms.</p>
         <a href="#privacy" id="openTermsLink">Read Terms of Service &rarr;</a>
       </div>
       <div class="legal-card">
-        <h4>Author &amp; E-E-A-T Credibility</h4>
-        <p>Developed by Oathan Rex, creator of PerspectiveFix and client-side computer vision utilities. Built for students, legal clerks, and remote workers.</p>
-        <a href="https://github.com/oathanrex" target="_blank" rel="noopener noreferrer">Inspect GitHub Profile &rarr;</a>
-      </div>
-      <div class="legal-card">
-        <h4>Direct Contact</h4>
-        <p>Have questions, feature suggestions, or bug reports? Reach out directly via email or contribute on GitHub.</p>
-        <a href="mailto:oathanrex@gmail.com">Email Developer (oathanrex@gmail.com) &rarr;</a>
+        <h4>Open Source on GitHub</h4>
+        <p>Inspect the complete JavaScript source code, report an edge-case bug, or submit an enhancement on the public GitHub repository.</p>
+        <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer">Visit GitHub Repository &rarr;</a>
       </div>
     </div>
   </section>
