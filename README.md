@@ -3,7 +3,7 @@
 > **High-performance, privacy-first mobile document scanner running 100% in your browser. Real-time Canny edge detection, 8-point homography perspective warp, and direct PDF 1.4 binary generation with zero external dependencies.**
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-oathanrex.github.io%2Fdoc--scan-3FD9C7?style=for-the-badge&logo=googlechrome&logoColor=white)](https://oathanrex.github.io/doc-scan/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-E3A857?style=for-the-badge)](LICENSE)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-E3A857?style=for-the-badge)](LICENSE)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20JS)-success?style=for-the-badge)](package.json)
 [![Tests Passing](https://img.shields.io/badge/Tests-100%25%20Passing-brightgreen?style=for-the-badge)](tests/scanner.test.js)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable%20%26%20Offline-blueviolet?style=for-the-badge)](manifest.json)
@@ -119,7 +119,7 @@ DocScan includes automated verification covering homography mathematics, luma co
 
 ## 📜 License
 
-Licensed under the [MIT License](LICENSE). Free for open-source and commercial use.
+Copyright (c) 2026 Devender Singh (Oathan Rex). All Rights Reserved. Free for end-user web scanning.
 
 ---
 

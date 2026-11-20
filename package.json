@@ -1,7 +1,7 @@
 {
   "name": "doc-scan",
-  "version": "1.1.0",
-  "description": "Zero-dependency, 100% in-browser document scanner with real-time Canny edge detection, 8-point homography perspective warp, and pure JS PDF 1.4 generation.",
+  "version": "1.2.0",
+  "description": "Zero-dependency, 100% on-device document scanner with real-time Canny edge detection, perspective warping, and PDF compilation.",
   "main": "js/app.js",
   "scripts": {
     "test": "node --test tests/scanner.test.js",
@@ -19,17 +19,15 @@
     "perspective-correction",
     "homography",
     "pdf-generator",
-    "pdf-1-4",
     "pwa",
     "vanilla-js",
     "zero-dependencies",
     "privacy-first",
     "camera-scanner",
-    "camscanner-alternative",
     "offline-first"
   ],
   "author": "Devender Singh (OathanRex)",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "bugs": {
     "url": "https://github.com/oathanrex/doc-scan/issues"
   },

@@ -251,7 +251,7 @@ To demonstrate why DocScan represents the modern standard for document capture, 
 | **Export Watermarks** | **Zero Watermark** | None | "Scanned by CamScanner" | None |
 | **Pricing / Subscription** | **100% Free Open Source** | Free (Account gated) | $9.99/mo Pro Paywall | $12.99/mo Cloud Paywall |
 | **Offline Functionality** | **Full (PWA Cached)** | Limited | Limited | Fails without Login |
-| **Source Code Availability** | **Public GitHub (MIT)** | Closed Proprietary | Closed Proprietary | Closed Proprietary |
+| **Source Code Availability** | **Official Web App (All Rights Reserved)** | Closed Proprietary | Closed Proprietary | Closed Proprietary |
 
 ---
 

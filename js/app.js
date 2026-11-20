@@ -1077,7 +1077,165 @@
  els.addMoreBtn.addEventListener("click", () => showScreen("camera"));
  els.exportBtn.addEventListener("click", exportPdf);
 
- function renderReview() {
+ 
+  // ---- Custom Confirmation Modal (Linear/Apple Style, Zero Native Dialogs) ----
+  function showConfirm({ title, message, confirmText = "Confirm", cancelText = "Cancel", isDanger = false } = {}) {
+    return new Promise((resolve) => {
+      const modal = document.getElementById("confirmModal");
+      const titleEl = document.getElementById("confirmTitle");
+      const msgEl = document.getElementById("confirmMessage");
+      const okBtn = document.getElementById("confirmOkBtn");
+      const cancelBtn = document.getElementById("confirmCancelBtn");
+      if (!modal || !okBtn || !cancelBtn) {
+        resolve(true);
+        return;
+      }
+      titleEl.textContent = title || "Confirm Action";
+      msgEl.textContent = message || "Are you sure you want to proceed?";
+      okBtn.textContent = confirmText;
+      cancelBtn.textContent = cancelText;
+      if (isDanger) {
+        okBtn.className = "pill-btn danger";
+      } else {
+        okBtn.className = "pill-btn primary";
+      }
+
+      modal.classList.add("show");
+
+      function cleanup(result) {
+        modal.classList.remove("show");
+        okBtn.removeEventListener("click", onOk);
+        cancelBtn.removeEventListener("click", onCancel);
+        modal.removeEventListener("click", onBackdrop);
+        window.removeEventListener("keydown", onKeyDown);
+        resolve(result);
+      }
+      function onOk() { cleanup(true); }
+      function onCancel() { cleanup(false); }
+      function onBackdrop(e) { if (e.target === modal) cleanup(false); }
+      function onKeyDown(e) {
+        if (e.key === "Escape") cleanup(false);
+        if (e.key === "Enter") cleanup(true);
+      }
+
+      okBtn.addEventListener("click", onOk);
+      cancelBtn.addEventListener("click", onCancel);
+      modal.addEventListener("click", onBackdrop);
+      window.addEventListener("keydown", onKeyDown);
+      okBtn.focus();
+    });
+  }
+
+  // ---- Robust IndexedDB Storage (Bypasses 5MB sessionStorage quota) ----
+  const IDB_NAME = "DocScanDB";
+  const IDB_STORE = "draft_pages";
+
+  function openDatabase() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) {
+        reject(new Error("IndexedDB not supported"));
+        return;
+      }
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE, { keyPath: "id" });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function saveSessionToIDB(pages) {
+    try {
+      const db = await openDatabase();
+      const tx = db.transaction(IDB_STORE, "readwrite");
+      const store = tx.objectStore(IDB_STORE);
+      await new Promise((res, rej) => {
+        const clearReq = store.clear();
+        clearReq.onsuccess = res;
+        clearReq.onerror = rej;
+      });
+      for (const p of pages) {
+        store.put(p);
+      }
+    } catch (_) {}
+  }
+
+  async function loadSessionFromIDB() {
+    try {
+      const db = await openDatabase();
+      const tx = db.transaction(IDB_STORE, "readonly");
+      const store = tx.objectStore(IDB_STORE);
+      return new Promise((resolve) => {
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      });
+    } catch (_) {
+      return [];
+    }
+  }
+
+  // ---- In-Browser OCR / Copy Text (Microsoft Lens Parity) ----
+  async function performOcr(dataUrl) {
+    toast("Loading OCR engine…", "info");
+    if (!window.Tesseract) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+        s.onload = resolve;
+        s.onerror = () => reject(new Error("Failed to load OCR engine"));
+        document.head.appendChild(s);
+      });
+    }
+    toast("Recognizing text from document…", "info");
+    const worker = await Tesseract.createWorker("eng");
+    const ret = await worker.recognize(dataUrl);
+    await worker.terminate();
+    return ret.data.text.trim();
+  }
+
+  async function handleOcrPage(pageSrc, pageNum) {
+    try {
+      const text = await performOcr(pageSrc);
+      if (!text) {
+        toast("No readable text detected in page " + pageNum, "error");
+        return;
+      }
+      const safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      showModal(
+        "Extracted Text - Page " + pageNum,
+        `<div style="text-align:left;">
+          <p style="margin:0 0 8px;font-size:13px;color:var(--ink-soft);">Recognized on-device via browser OCR engine:</p>
+          <textarea id="ocrResultText" style="width:100%;height:160px;font-family:var(--mono);font-size:12.5px;padding:10px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;resize:vertical;" readonly>${safeText}</textarea>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;">
+            <button class="pill-btn primary" id="copyOcrTextBtn" type="button">Copy to Clipboard</button>
+          </div>
+        </div>`
+      );
+      setTimeout(() => {
+        const copyBtn = document.getElementById("copyOcrTextBtn");
+        const area = document.getElementById("ocrResultText");
+        if (copyBtn && area) {
+          copyBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(area.value).then(() => {
+              copyBtn.textContent = "Copied!";
+              toast("Text copied to clipboard!", "success");
+              setTimeout(() => { copyBtn.textContent = "Copy to Clipboard"; }, 2000);
+            });
+          });
+        }
+      }, 50);
+    } catch (err) {
+      console.error(err);
+      toast("OCR recognition failed: " + err.message, "error");
+    }
+  }
+
+  function renderReview() {
     els.reviewList.innerHTML = "";
     els.reviewMeta.textContent =
       state.pages.length + (state.pages.length === 1 ? " page" : " pages");
@@ -1190,7 +1348,18 @@
         openEdit(p.id);
       });
 
-      // 6. Download Single Page as JPG
+      // 6. Copy Text (OCR - Microsoft Lens Parity)
+      const ocrBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>',
+        "Extract Text (OCR)"
+      );
+      ocrBtn.title = "Extract & Copy Text (OCR)";
+      ocrBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleOcrPage(p.src, i + 1);
+      });
+
+      // 7. Download Single Page as JPG
       const downloadImgBtn = actionBtn(
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
         "Save Page as JPG"
@@ -1208,19 +1377,27 @@
         toast(`Downloaded Page ${i + 1} as JPG`, "success");
       });
 
-      // 7. Delete Button
+      // 8. Delete Button with Sleek Aether/Apple Confirmation Modal (Zero Native Alerts)
       const delBtn = actionBtn(
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
         "Delete page"
       );
       delBtn.title = "Delete page";
       delBtn.classList.add("danger");
-      delBtn.addEventListener("click", (e) => {
+      delBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
-        if (confirm("Delete page " + (i + 1) + "?")) {
+        const ok = await showConfirm({
+          title: "Delete Page " + (i + 1) + "?",
+          message: "This page will be removed from your scan. This action cannot be undone.",
+          confirmText: "Delete",
+          cancelText: "Cancel",
+          isDanger: true
+        });
+        if (ok) {
           state.pages = state.pages.filter((x) => x.id !== p.id);
           renderReview();
           renderThumbs();
+          saveSession();
           toast("Page deleted", "info");
         }
       });
@@ -1230,6 +1407,7 @@
       actions.appendChild(rotateBtn);
       actions.appendChild(cropBtn);
       actions.appendChild(editBtn);
+      actions.appendChild(ocrBtn);
       actions.appendChild(downloadImgBtn);
       actions.appendChild(delBtn);
 
@@ -1245,32 +1423,45 @@
 
   const SESSION_KEY = "docscan_session_draft";
  function saveSession() {
- try {
- if (state.pages && state.pages.length > 0) {
- sessionStorage.setItem(SESSION_KEY, JSON.stringify(state.pages));
- } else {
- sessionStorage.removeItem(SESSION_KEY);
- }
- updateHomeSessionBtn();
- } catch (_) {}
- }
+    try {
+      if (state.pages && state.pages.length > 0) {
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(state.pages));
+      } else {
+        sessionStorage.removeItem(SESSION_KEY);
+      }
+    } catch (_) {}
+    if (state.pages) {
+      saveSessionToIDB(state.pages);
+    }
+    updateHomeSessionBtn();
+  }
 
- function restoreSession() {
- try {
- const raw = sessionStorage.getItem(SESSION_KEY);
- if (raw && state.pages.length === 0) {
- const parsed = JSON.parse(raw);
- if (Array.isArray(parsed) && parsed.length > 0) {
- state.pages = parsed;
- renderReview();
- renderThumbs();
- updateHomeSessionBtn();
- toast("Restored " + parsed.length + " pages from previous session");
- }
- }
- } catch (_) {}
- }
- function actionBtn(html, label) {
+  async function restoreSession() {
+    try {
+      const idbPages = await loadSessionFromIDB();
+      if (idbPages && idbPages.length > 0 && state.pages.length === 0) {
+        state.pages = idbPages;
+        renderReview();
+        renderThumbs();
+        updateHomeSessionBtn();
+        toast("Restored " + idbPages.length + " pages from previous session", "info");
+        return;
+      }
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      if (raw && state.pages.length === 0) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          state.pages = parsed;
+          renderReview();
+          renderThumbs();
+          updateHomeSessionBtn();
+          toast("Restored " + parsed.length + " pages from previous session", "info");
+        }
+      }
+    } catch (_) {}
+  }
+
+  function actionBtn(html, label) {
  const b = document.createElement("button");
  b.className = "action";
  b.setAttribute("aria-label", label);
@@ -1760,4 +1951,30 @@
  if (els.shutterBtn) els.shutterBtn.click();
  }
  });
+
+  // ---- PWA Install Prompt Handler ----
+  let deferredPrompt = null;
+  const installBtn = document.getElementById("installAppBtn");
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.style.display = "inline-flex";
+  });
+  if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice.outcome === "accepted") {
+        installBtn.style.display = "none";
+        toast("DocScan installed successfully!", "success");
+      }
+      deferredPrompt = null;
+    });
+  }
+  window.addEventListener("appinstalled", () => {
+    if (installBtn) installBtn.style.display = "none";
+    deferredPrompt = null;
+  });
+
 })();

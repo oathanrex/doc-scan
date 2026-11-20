@@ -1,15 +1,21 @@
-// sw.js — DocScan Progressive Web App Service Worker
-const CACHE_NAME = "docscan-v2.0.0";
+// sw.js - DocScan Progressive Web App Service Worker
+const CACHE_NAME = "docscan-v2.1.0";
 
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
   "./icons/icon.svg",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
   "./js/edge-detect.js",
   "./js/perspective.js",
   "./js/pdf-export.js",
-  "./js/app.js"
+  "./js/app.js",
+  "./edge-detect.js",
+  "./perspective.js",
+  "./pdf-export.js",
+  "./app.js"
 ];
 
 // 1. Install & precache core app shell
@@ -40,11 +46,10 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// 3. Network-first strategy with cache fallback (ensures fresh code without reload loops)
+// 3. Network-first strategy with cache fallback
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  // Skip chrome-extension or external analytics
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
@@ -59,12 +64,17 @@ self.addEventListener("fetch", (event) => {
         }
         return networkResponse;
       })
-      .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-          if (event.request.mode === "navigate") {
-            return caches.match("./index.html");
-          }
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        if (event.request.mode === "navigate") {
+          const fallback = await caches.match("./index.html");
+          if (fallback) return fallback;
+        }
+        return new Response("Offline network error", {
+          status: 503,
+          statusText: "Service Unavailable",
+          headers: { "Content-Type": "text/plain" }
         });
       })
   );
