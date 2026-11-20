@@ -39,8 +39,9 @@
 
   // ---- State ----
   const state = {
-    pages: [], // { id, src, filter, original }
+    pages: [], // { id, src, straightened, original, raw, filter, quad }
     editingId: null,
+    docTitle: "DocScan-" + new Date().toISOString().slice(0, 10),
     cam: {
       stream: null,
       tracking: false,
@@ -88,22 +89,28 @@
     demoBtn: $("demoBtn"),
     resumeBtn: $("resumeBtn"),
     resumeCount: $("resumeCount"),
+    themeToggleBtn: $("themeToggleBtn"),
+    themeIcon: $("themeIcon"),
     homeStatus: $("homeStatus"),
     clearCacheBtn: $("clearCacheBtn"),
     bootDiag: $("bootDiag"),
     reviewList: $("reviewList"),
     reviewMeta: $("reviewMeta"),
     reviewBack: $("reviewBackBtn"),
+    docTitleBtn: $("docTitleBtn"),
+    docTitleText: $("docTitleText"),
     addMoreBtn: $("addMoreBtn"),
     exportBtn: $("exportBtn"),
     editStage: $("editStage"),
     editTitle: $("editTitle"),
     editBack: $("editBackBtn"),
+    editRotateBtn: $("editRotateBtn"),
     filters: $("filters"),
     retakeBtn: $("retakeBtn"),
     applyBtn: $("applyBtn"),
     // Crop screen elements
     cropBack: $("cropBackBtn"),
+    cropRotateBtn: $("cropRotateBtn"),
     cropApplyTop: $("cropApplyTopBtn"),
     cropApplyBtn: $("cropApplyBtn"),
     cropAutoBtn: $("cropAutoBtn"),
@@ -129,6 +136,90 @@
     modalOk: $("modalOk"),
     aboutBtn: $("aboutBtn")
   };
+
+  // ---- Image Rotation Helpers (Top 1% Orientation Control) ----
+  function rotateImageDataUrl(dataUrl, angleDeg = 90) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        if (angleDeg === 90 || angleDeg === 270) {
+          c.width = img.naturalHeight;
+          c.height = img.naturalWidth;
+        } else {
+          c.width = img.naturalWidth;
+          c.height = img.naturalHeight;
+        }
+        const ctx = c.getContext("2d");
+        ctx.translate(c.width / 2, c.height / 2);
+        ctx.rotate((angleDeg * Math.PI) / 180);
+        ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+        resolve(c.toDataURL("image/jpeg", 0.92));
+      };
+      img.onerror = reject;
+      img.src = dataUrl;
+    });
+  }
+
+  function rotateCanvas(canvas, angleDeg = 90) {
+    const c = document.createElement("canvas");
+    if (angleDeg === 90 || angleDeg === 270) {
+      c.width = canvas.height;
+      c.height = canvas.width;
+    } else {
+      c.width = canvas.width;
+      c.height = canvas.height;
+    }
+    const ctx = c.getContext("2d");
+    ctx.translate(c.width / 2, c.height / 2);
+    ctx.rotate((angleDeg * Math.PI) / 180);
+    ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+    return c;
+  }
+
+  // ---- Theme Toggle (Dark / Light) ----
+  function initTheme() {
+    const saved = localStorage.getItem("docscan_theme");
+    if (saved === "light") {
+      document.body.classList.add("light-theme");
+      document.body.classList.remove("dark-theme");
+    } else if (saved === "dark") {
+      document.body.classList.add("dark-theme");
+      document.body.classList.remove("light-theme");
+    }
+  }
+  initTheme();
+
+  if (els.themeToggleBtn) {
+    els.themeToggleBtn.addEventListener("click", () => {
+      const isLight = document.body.classList.contains("light-theme");
+      if (isLight) {
+        document.body.classList.remove("light-theme");
+        document.body.classList.add("dark-theme");
+        localStorage.setItem("docscan_theme", "dark");
+        toast("Switched to dark theme", "info");
+      } else {
+        document.body.classList.remove("dark-theme");
+        document.body.classList.add("light-theme");
+        localStorage.setItem("docscan_theme", "light");
+        toast("Switched to light theme", "info");
+      }
+    });
+  }
+
+  // ---- Document Title Renaming ----
+  if (els.docTitleBtn) {
+    els.docTitleBtn.addEventListener("click", () => {
+      const current = state.docTitle || "DocScan";
+      const userTitle = prompt("Rename document:", current);
+      if (userTitle && userTitle.trim()) {
+        const clean = userTitle.trim().replace(/[/\\?%*:|"<>]/g, "-");
+        state.docTitle = clean;
+        if (els.docTitleText) els.docTitleText.textContent = clean;
+        toast("Document title set to: " + clean, "info");
+      }
+    });
+  }
 
   // ---- Screen navigation ----
   function showScreen(name) {
@@ -520,8 +611,9 @@
     const p = state.pages.find((x) => x.id === pageId);
     if (!p) return;
     try {
-      const img = await loadImage(p.original || p.src);
-      startCropWorkflow(img, { pageId: p.id });
+      const imgSrc = p.raw || p.original || p.src;
+      const img = await loadImage(imgSrc);
+      startCropWorkflow(img, { pageId: p.id, existingQuad: p.quad });
     } catch (err) {
       console.error(err);
       toast("Could not open page for cropping", "error");
@@ -545,20 +637,22 @@
     cropState.sourceCanvas = sc;
     cropState.editingPageId = options.pageId || null;
 
-    // Run automatic edge detection
-    let detectedQuad = null;
-    try {
-      const res = EdgeDetect.detect(sc);
-      if (res && res.quad && res.confidence > 0.1) {
-        const scaleX = sw / res.w;
-        const scaleY = sh / res.h;
-        detectedQuad = res.quad.map((p) => ({
-          x: Math.max(0, Math.min(sw, Math.round(p.x * scaleX))),
-          y: Math.max(0, Math.min(sh, Math.round(p.y * scaleY)))
-        }));
+    let detectedQuad = options.existingQuad ? options.existingQuad.slice() : null;
+    if (!detectedQuad) {
+      // Run automatic edge detection
+      try {
+        const res = EdgeDetect.detect(sc);
+        if (res && res.quad && res.confidence > 0.1) {
+          const scaleX = sw / res.w;
+          const scaleY = sh / res.h;
+          detectedQuad = res.quad.map((p) => ({
+            x: Math.max(0, Math.min(sw, Math.round(p.x * scaleX))),
+            y: Math.max(0, Math.min(sh, Math.round(p.y * scaleY)))
+          }));
+        }
+      } catch (err) {
+        console.warn("Edge detection exception:", err);
       }
-    } catch (err) {
-      console.warn("Edge detection exception:", err);
     }
 
     if (!detectedQuad) {
@@ -574,9 +668,11 @@
       }
     } else {
       if (els.cropInfo) {
-        els.cropInfo.innerHTML = '<span style="color:var(--accent);font-weight:600;">✓ Border auto-detected</span> &bull; Fine-tune corners if needed';
+        els.cropInfo.innerHTML = '<span style="color:var(--accent);font-weight:600;">✓ Border detected</span> &bull; Fine-tune corners if needed';
       }
-      toast("Document border auto-detected!", "success");
+      if (!options.existingQuad) {
+        toast("Document border auto-detected!", "success");
+      }
     }
 
     cropState.sourceQuad = detectedQuad;
@@ -666,7 +762,10 @@
         const p = state.pages.find((x) => x.id === cropState.editingPageId);
         if (p) {
           p.src = dataUrl;
+          p.straightened = dataUrl;
+          p.original = dataUrl; // Keep in sync so edit never reverts to crooked
           p.filter = "original";
+          p.quad = cropState.sourceQuad;
         }
         showScreen("review");
         toast("Page perspective straightened!", "success");
@@ -674,8 +773,11 @@
         const page = {
           id: "p_" + Math.random().toString(36).slice(2, 8),
           src: dataUrl,
+          straightened: dataUrl,
           filter: "original",
-          original: cropState.sourceCanvas.toDataURL("image/jpeg", 0.92)
+          original: dataUrl,
+          raw: cropState.sourceCanvas.toDataURL("image/jpeg", 0.92),
+          quad: cropState.sourceQuad
         };
         state.pages.push(page);
         showScreen("review");
@@ -812,6 +914,36 @@
           els.cropInfo.innerHTML = "<span>Full page selected</span>";
         }
         toast("Reset to full image", "info");
+      });
+    }
+
+    if (els.cropRotateBtn) {
+      els.cropRotateBtn.addEventListener("click", () => {
+        if (!cropState.sourceCanvas) return;
+        cropState.sourceCanvas = rotateCanvas(cropState.sourceCanvas, 90);
+        const sw = cropState.sourceCanvas.width;
+        const sh = cropState.sourceCanvas.height;
+        // Transform previous quad 90 degrees clockwise
+        if (cropState.sourceQuad && cropState.sourceQuad.length === 4) {
+          // old (x,y) -> new (sh - y, x), cycling corners: BL->TL, TL->TR, TR->BR, BR->BL
+          const oldW = sh; // old width was new height
+          const oldH = sw; // old height was new width
+          cropState.sourceQuad = [
+            { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[3].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[3].x)) },
+            { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[0].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[0].x)) },
+            { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[1].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[1].x)) },
+            { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[2].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[2].x)) }
+          ];
+        } else {
+          cropState.sourceQuad = [
+            { x: Math.round(sw * 0.06), y: Math.round(sh * 0.06) },
+            { x: Math.round(sw * 0.94), y: Math.round(sh * 0.06) },
+            { x: Math.round(sw * 0.94), y: Math.round(sh * 0.94) },
+            { x: Math.round(sw * 0.06), y: Math.round(sh * 0.94) }
+          ];
+        }
+        setupCropView();
+        toast("Rotated 90°", "info");
       });
     }
 
@@ -980,6 +1112,24 @@
         }
       });
 
+      // Rotate Button
+      const rotateBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>',
+        "Rotate 90°"
+      );
+      rotateBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const baseImg = p.straightened || p.src;
+        const rotated = await rotateImageDataUrl(baseImg, 90);
+        p.straightened = rotated;
+        p.src = rotated;
+        p.original = rotated;
+        renderReview();
+        saveSession();
+        toast("Page rotated 90°", "info");
+      });
+
+      actions.appendChild(rotateBtn);
       actions.appendChild(cropBtn);
       actions.appendChild(editBtn);
       actions.appendChild(delBtn);
@@ -1055,18 +1205,21 @@
     });
   }
 
-  // ---- Edit / filters (V1.1) ----
+  // ---- Edit / filters (Top 1% Document Enhancement) ----
   const FILTERS = [
     { id: "original", name: "Original", css: "none" },
-    { id: "bw", name: "B&W", css: "grayscale(1) contrast(1.2)" },
-    { id: "grayscale", name: "Gray", css: "grayscale(1)" },
-    { id: "boost", name: "Boost", css: "saturate(1.2) contrast(1.1)" },
-    { id: "magic", name: "Magic", css: "contrast(1.3) brightness(1.05) saturate(0.9)" }
+    { id: "magic", name: "Magic Color", css: "contrast(1.35) brightness(1.08) saturate(1.15)" },
+    { id: "bw", name: "B&W Doc", css: "grayscale(1) contrast(1.7) brightness(1.05)" },
+    { id: "grayscale", name: "Grayscale", css: "grayscale(1) contrast(1.15) brightness(1.02)" },
+    { id: "boost", name: "Text Boost", css: "contrast(1.25) brightness(1.04) saturate(1.3)" },
+    { id: "sharp", name: "Sharp", css: "contrast(1.45) brightness(0.96)" }
   ];
+
   function openEdit(id) {
     state.editingId = id;
     showScreen("edit");
   }
+
   function renderEdit() {
     if (!state.editingId) return;
     const page = state.pages.find((p) => p.id === state.editingId);
@@ -1077,10 +1230,13 @@
     els.editTitle.textContent =
       "Page " + (state.pages.findIndex((p) => p.id === state.editingId) + 1);
 
+    // CRITICAL: Always use the straightened document as the base for filters!
+    const baseImgSrc = page.straightened || page.src;
+
     // Render the filter preview / current image
     els.editStage.innerHTML = "";
     const img = document.createElement("img");
-    img.src = page.original;
+    img.src = baseImgSrc;
     img.id = "editImg";
     const f = FILTERS.find((x) => x.id === page.filter) || FILTERS[0];
     img.style.filter = f.css;
@@ -1093,7 +1249,7 @@
       b.className = "filter-btn" + (page.filter === flt.id ? " active" : "");
       const prev = document.createElement("div");
       prev.className = "preview";
-      prev.style.backgroundImage = `url(${page.original})`;
+      prev.style.backgroundImage = `url(${baseImgSrc})`;
       prev.style.filter = flt.css;
       const name = document.createElement("div");
       name.className = "name";
@@ -1110,31 +1266,51 @@
       els.filters.appendChild(b);
     });
   }
+
+  if (els.editRotateBtn) {
+    els.editRotateBtn.addEventListener("click", async () => {
+      const page = state.pages.find((p) => p.id === state.editingId);
+      if (!page) return;
+      const baseImg = page.straightened || page.src;
+      const rotated = await rotateImageDataUrl(baseImg, 90);
+      page.straightened = rotated;
+      page.src = rotated;
+      page.original = rotated;
+      renderEdit();
+      saveSession();
+      toast("Rotated 90°", "info");
+    });
+  }
+
   els.editBack.addEventListener("click", () => {
-    // Discard filter changes if user backs out
-    const page = state.pages.find((p) => p.id === state.editingId);
-    if (page) {
-      page.filter = "original";
-      page.src = page.original;
-    }
+    // Return to review without reverting perspective or breaking the straightened document!
     state.editingId = null;
     showScreen("review");
   });
+
   els.retakeBtn.addEventListener("click", () => {
     // Remove this page and re-open camera
     state.pages = state.pages.filter((p) => p.id !== state.editingId);
     state.editingId = null;
     showScreen("camera");
   });
+
   els.applyBtn.addEventListener("click", () => {
-    // Bake the filter into the page's src so it persists
+    // Bake the filter into the page's src on top of the straightened image
     const page = state.pages.find((p) => p.id === state.editingId);
     if (!page) return showScreen("review");
+    const baseImgSrc = page.straightened || page.src;
     const f = FILTERS.find((x) => x.id === page.filter) || FILTERS[0];
+
     if (page.filter === "original") {
-      page.src = page.original;
+      page.src = baseImgSrc;
+      page.original = baseImgSrc;
+      state.editingId = null;
+      renderReview();
+      showScreen("review");
+      saveSession();
+      toast("Filter applied", "success");
     } else {
-      // Re-render via canvas with the filter applied
       const img = new Image();
       img.onload = () => {
         const c = document.createElement("canvas");
@@ -1143,17 +1319,17 @@
         const ctx = c.getContext("2d");
         ctx.filter = f.css;
         ctx.drawImage(img, 0, 0);
-        page.src = c.toDataURL("image/jpeg", 0.9);
-        page.original = page.src; // bake permanently
+        page.src = c.toDataURL("image/jpeg", 0.92);
+        // page.straightened remains clean straightened base!
+        page.original = page.src;
         state.editingId = null;
+        renderReview();
         showScreen("review");
+        saveSession();
         toast("Filter applied", "success");
       };
-      img.src = page.original;
-      return;
+      img.src = baseImgSrc;
     }
-    state.editingId = null;
-    showScreen("review");
   });
 
   // ---- Export PDF ----
@@ -1173,13 +1349,13 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const stamp = new Date().toISOString().slice(0, 10);
-      a.download = `DocScan-${stamp}.pdf`;
+      const fileName = (state.docTitle || `DocScan-${new Date().toISOString().slice(0, 10)}`) + ".pdf";
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      toast("PDF exported", "success");
+      toast("PDF exported: " + fileName, "success");
     } catch (err) {
       console.error(err);
       toast("Export failed", "error");
