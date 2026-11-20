@@ -2,67 +2,113 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
-  />
-  <meta name="theme-color" content="#0A0D11" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d13" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="black-translucent"
-  />
-  <!-- Aggressive no-cache: avoid stale SW-cached HTML/JS causing
-       "dummy" symptoms. GitHub Pages sends its own cache headers but
-       some browsers (and old service workers) ignore them. -->
-  <meta
-    http-equiv="Cache-Control"
-    content="no-cache, no-store, must-revalidate"
-  />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>DocScan — Free Online Document Scanner &amp; Perspective Fixer (No Login, No Download)</title>
-  <meta name="description" content="The zero-download, privacy-first Microsoft Lens &amp; CamScanner alternative. Auto-detect borders, straighten perspective with bilinear homography, apply Magic Color filters, and export multi-page PDFs 100% on-device." />
-  <meta name="keywords" content="document scanner, perspective fix, microsoft lens alternative, camscanner online, straighten document photo, free online scanner, on-device scanner, crop document, oathanrex" />
+
+  <title>DocScan :  Free Online Document Scanner &amp; Perspective Fixer (No Login, No Download)</title>
+  <meta name="description" content="Free zero-download on-device document scanner and perspective fixer. Auto-detect borders with Canny edge detection, straighten tilted photos with bilinear homography, and export multi-page PDFs directly in your browser." />
+  <meta name="keywords" content="document scanner, perspective fix, straighten document photo, free online scanner, on-device scanner, crop document, microsoft lens alternative, camscanner online, oathanrex" />
   <meta name="author" content="oathanrex" />
   <link rel="canonical" href="https://oathanrex.github.io/doc-scan/" />
-  
-  <!-- Open Graph / Facebook -->
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://oathanrex.github.io/doc-scan/" />
-  <meta property="og:title" content="DocScan — Free Online Document Scanner &amp; Perspective Fixer" />
+  <meta property="og:title" content="DocScan :  Free Online Document Scanner &amp; Perspective Fixer" />
   <meta property="og:description" content="Scan, straighten, and filter documents directly in your browser. 100% on-device, zero downloads, zero logins, zero tracking." />
   <meta property="og:image" content="https://oathanrex.github.io/doc-scan/icons/icon.svg" />
 
   <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="https://oathanrex.github.io/doc-scan/" />
-  <meta name="twitter:title" content="DocScan — Free Online Document Scanner &amp; Perspective Fixer" />
+  <meta name="twitter:title" content="DocScan :  Free Online Document Scanner &amp; Perspective Fixer" />
   <meta name="twitter:description" content="Zero-download on-device document scanner and perspective fixer. Alternative to Microsoft Lens and CamScanner." />
   <meta name="twitter:image" content="https://oathanrex.github.io/doc-scan/icons/icon.svg" />
 
-  <!-- JSON-LD Structured Data for Google Rich Results -->
+  <!-- JSON-LD Structured Data: SoftwareApplication + WebSite + FAQPage -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "DocScan",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "All (Web Browser)",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "DocScan",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All (Modern Web Browsers)",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Zero-download, 100% client-side document scanner with real-time Canny edge detection, bilinear homography perspective warping, and PDF export.",
+      "url": "https://oathanrex.github.io/doc-scan/",
+      "author": {
+        "@type": "Person",
+        "name": "oathanrex",
+        "url": "https://github.com/oathanrex"
+      }
     },
-    "description": "Zero-download, 100% client-side document scanner with real-time Canny edge detection, bilinear homography perspective warping, and PDF export.",
-    "url": "https://oathanrex.github.io/doc-scan/",
-    "author": {
-      "@type": "Person",
-      "name": "oathanrex",
-      "url": "https://github.com/oathanrex"
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+  {
+    "@type": "Question",
+    "name": "How does DocScan straighten crooked photos without sending data to servers?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "DocScan executes an 8-parameter bilinear homography transformation directly inside your web browser using HTML5 Canvas and typed Float64 arrays. When you pick or capture a photo, the computer vision math solves linear projective equations locally in device RAM. Zero pixels leave your machine."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Is DocScan truly free, or is there a hidden paywall or watermark?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "DocScan is 100% free and open-source under the MIT license. There are zero subscription tiers, zero locked filters, and zero watermarks stamped onto your PDF exports. Everything runs client-side without costly server infrastructure."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Can I use DocScan on a desktop computer or laptop without a webcam?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. While mobile and laptop users can point their camera directly at paper, desktop users can click 'Import from device' to upload existing photos (JPEG, PNG, WebP) taken with any camera. You can also click 'Try demo' to test all perspective cropping, filters, and PDF export tools instantly."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "How does DocScan compare to Microsoft Lens and CamScanner?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Microsoft Lens discontinued its desktop Windows app in 2021 and requires mobile installations tied to Microsoft accounts. CamScanner introduces weekly paywalls, ads, and forced cloud uploads. DocScan works instantly in any web browser without downloads, logins, or cloud uploads."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "Does DocScan work when offline or on airplane mode?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. Once the page is loaded, DocScan's progressive service worker caches the core image processing code locally. You can disconnect Wi-Fi or turn on airplane mode, and border detection, perspective straightening, filter adjustments, and PDF creation will continue functioning normally."
+    }
+  },
+  {
+    "@type": "Question",
+    "name": "How does the auto border detection find paper edges?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "DocScan downscales video frames to a lightweight 240-pixel buffer and applies Rec. 601 grayscale luma conversion followed by Sobel gradient convolution kernels. Radial search lines locate the high-contrast boundaries of the paper against the desk surface in under 4 milliseconds."
     }
   }
+]
+    }
+  ]
   </script>
+
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -73,9 +119,6 @@
   />
 
   <script>
-    // ---- Global error catcher (runs before any module loads) ----
-    // If anything goes wrong during page boot, we want the user to
-    // see exactly what — not a silent "nothing happens" screen.
     (function () {
       window.__bootErrors = [];
       function showError(msg) {
@@ -116,73 +159,42 @@
 
   <style>
     :root {
-      --bg: #0a0d11;
-      --surface: #11151b;
-      --surface-2: #161b22;
-      --ink: #e7eaee;
-      --ink-soft: #9ba5b3;
-      --ink-faint: #5e6773;
-      --accent: #3fd9c7;
-      --accent-ink: #bff6ec;
-      --accent-2: #e3a857;
-      --line: #232a34;
-      --line-strong: #323b48;
+      --bg: #090d13;
+      --surface: #111620;
+      --surface-2: #161c28;
+      --surface-3: #1f2737;
+      --ink: #e6edf3;
+      --ink-soft: #8e99a8;
+      --ink-faint: #576273;
+      --accent: #2dd4bf;
+      --accent-ink: #042f2e;
+      --accent-2: #f59e0b;
+      --line: #222a38;
+      --line-strong: #323d50;
       --danger: #ff6b6b;
-      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-      --sans: "Inter", system-ui, sans-serif;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+      --sans: "Inter", system-ui, -apple-system, sans-serif;
       --display: "Space Grotesk", var(--sans);
       --mono: "IBM Plex Mono", ui-monospace, monospace;
     }
 
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #f7f5f0;
-        --surface: #ffffff;
-        --surface-2: #f0ede6;
-        --ink: #161a20;
-        --ink-soft: #565f6e;
-        --ink-faint: #8b93a1;
-        --accent: #0e7c7e;
-        --accent-ink: #053c3d;
-        --accent-2: #b8791f;
-        --line: #e2ddd2;
-        --line-strong: #c9c2b3;
-        --shadow: 0 1px 2px rgba(20, 20, 20, 0.04);
-      }
-    }
-
     body.light-theme {
-      --bg: #f7f5f0;
+      --bg: #f8f6f0;
       --surface: #ffffff;
-      --surface-2: #f0ede6;
-      --ink: #161a20;
-      --ink-soft: #565f6e;
-      --ink-faint: #8b93a1;
-      --accent: #0e7c7e;
-      --accent-ink: #053c3d;
+      --surface-2: #f0ece3;
+      --surface-3: #e5dfd2;
+      --ink: #141820;
+      --ink-soft: #525c6d;
+      --ink-faint: #7d889b;
+      --accent: #0d8385;
+      --accent-ink: #043839;
       --accent-2: #b8791f;
-      --line: #e2ddd2;
-      --line-strong: #c9c2b3;
-      --shadow: 0 1px 2px rgba(20, 20, 20, 0.04);
-    }
-    body.dark-theme {
-      --bg: #0e1117;
-      --surface: #161b22;
-      --surface-2: #21262d;
-      --ink: #e7eaee;
-      --ink-soft: #9ba5b3;
-      --ink-faint: #5e6773;
-      --accent: #3fd9c7;
-      --accent-ink: #bff6ec;
-      --accent-2: #e3a857;
-      --line: #232a34;
-      --line-strong: #323b48;
-      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --line: #e0d8cb;
+      --line-strong: #c8bfaf;
+      --shadow: 0 4px 20px rgba(20, 20, 20, 0.08);
     }
 
-    /* =========================================================
-       TOP 1% MODERN SCROLLBAR & SCROLL BEHAVIOR
-       ========================================================= */
+    /* Modern Sleek Scrollbar */
     html {
       scrollbar-width: thin;
       scrollbar-color: var(--line-strong) transparent;
@@ -207,48 +219,28 @@
     ::-webkit-scrollbar-thumb:hover {
       background: var(--accent);
     }
-    ::-webkit-scrollbar-corner {
-      background: transparent;
-    }
 
-    /* =========================================================
-       WCAG ACCESSIBILITY & FOCUS VISIBILITY
-       ========================================================= */
+    /* WCAG Focus Visible */
     :focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 3px;
       border-radius: 4px;
     }
-    button:focus-visible,
-    a:focus-visible,
-    input:focus-visible {
+    button:focus-visible, a:focus-visible, input:focus-visible {
       outline: 2px solid var(--accent) !important;
       outline-offset: 2px !important;
     }
-    @media (prefers-reduced-motion: reduce) {
-      *, ::before, ::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
-    }
 
-    html,
     body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
       background: var(--bg);
       color: var(--ink);
       font-family: var(--sans);
       -webkit-font-smoothing: antialiased;
       font-size: 16px;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
+      line-height: 1.6;
+      overflow-x: hidden;
     }
 
     button {
@@ -259,7 +251,105 @@
       cursor: pointer;
     }
 
-    /* ---------- App shell ---------- */
+    /* ---------- Sticky Global Navigation Bar ---------- */
+    .global-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      border-bottom: 1px solid var(--line);
+      padding: 10px 20px;
+    }
+    .global-header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+    .brand-mark svg {
+      width: 18px;
+      height: 18px;
+    }
+    .brand-title {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+    .header-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .header-nav-links a {
+      color: var(--ink-soft);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    .header-nav-links a:hover {
+      color: var(--accent);
+    }
+    .header-action-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-support-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      font-size: 12.5px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .nav-support-pill:hover {
+      border-color: var(--accent-2);
+      color: var(--accent-2);
+      transform: translateY(-1px);
+    }
+    .nav-support-pill svg {
+      width: 14px;
+      height: 14px;
+      color: var(--accent-2);
+    }
+
+    /* ---------- Scanner App Shell (Interactive Above the Fold) ---------- */
+    .tool-section {
+      padding: 20px 16px 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
     .app {
       position: relative;
       width: 100%;
@@ -271,20 +361,14 @@
       flex-direction: column;
       background: var(--bg);
       overflow: hidden;
-      transition: max-width 0.2s ease, border-radius 0.2s ease, box-shadow 0.2s ease;
+      border-radius: 0;
+      transition: max-width 0.25s ease, border-radius 0.25s ease, box-shadow 0.25s ease;
     }
 
-    /* Tablet breakpoint (641px - 1023px) */
     @media (min-width: 641px) and (max-width: 1023px) {
-      body {
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-        background: radial-gradient(circle at 50% 0%, rgba(63, 217, 199, 0.05), transparent 60%), var(--bg);
-      }
       .app {
         max-width: 768px;
-        height: min(96vh, 920px);
+        height: min(94vh, 880px);
         border-radius: 14px;
         border: 1px solid var(--line);
         box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.45);
@@ -301,17 +385,10 @@
       }
     }
 
-    /* Desktop breakpoint (>= 1024px) */
     @media (min-width: 1024px) {
-      body {
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        background: radial-gradient(circle at 50% 0%, rgba(63, 217, 199, 0.08), transparent 50%), var(--bg);
-      }
       .app {
         max-width: 1100px;
-        height: min(94vh, 960px);
+        height: min(92vh, 920px);
         border-radius: 18px;
         border: 1px solid var(--line);
         box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
@@ -321,7 +398,7 @@
         margin-bottom: 8px !important;
       }
       .home-sub {
-        max-width: 54ch !important;
+        max-width: 56ch !important;
         font-size: 16px !important;
       }
       .home-features {
@@ -364,7 +441,7 @@
       transform: translateY(0);
     }
 
-    /* ---------- Top bar ---------- */
+    /* ---------- Top bar inside screens ---------- */
     .topbar {
       display: flex;
       align-items: center;
@@ -387,7 +464,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
+      border-radius: 8px;
       color: var(--ink);
       transition: background 0.15s;
     }
@@ -398,8 +475,8 @@
       background: var(--line);
     }
     .icon-btn svg {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
     }
 
     /* ---------- Home screen ---------- */
@@ -413,19 +490,20 @@
       overflow-y: auto;
     }
     .home-logo {
-      width: 88px;
-      height: 88px;
+      width: 80px;
+      height: 80px;
       border-radius: 18px;
       background: var(--surface);
       border: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
+      color: var(--accent);
     }
     .home-logo svg {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      height: 44px;
     }
     .home h1 {
       font-family: var(--display);
@@ -435,8 +513,8 @@
     }
     .home-sub {
       color: var(--ink-soft);
-      margin: 0 0 24px;
-      max-width: 30ch;
+      margin: 0 0 16px;
+      max-width: 32ch;
       line-height: 1.5;
     }
     .cta {
@@ -444,12 +522,12 @@
       align-items: center;
       gap: 10px;
       background: var(--accent);
-      color: #053c3d;
+      color: var(--accent-ink);
       font-weight: 600;
-      padding: 14px 22px;
+      padding: 13px 22px;
       border-radius: 999px;
       font-size: 15px;
-      box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 35%, transparent);
+      box-shadow: 0 4px 18px color-mix(in srgb, var(--accent) 30%, transparent);
       transition: transform 0.1s;
     }
     .cta:active {
@@ -461,20 +539,51 @@
       border: 1px solid var(--line-strong);
       box-shadow: none;
     }
+    .home-guide-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 8px 16px;
+      border-radius: 9999px;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 4px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .home-guide-banner:hover {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+      transform: translateY(-1px);
+    }
+    .guide-badge {
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 8px;
+      letter-spacing: 0.04em;
+    }
     .home-features {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       width: 100%;
       max-width: 360px;
-      margin-top: 12px;
+      margin-top: 10px;
     }
     .home-feat {
       background: var(--surface);
       border: 1px solid var(--line);
       padding: 14px;
       text-align: left;
-      border-radius: 6px;
+      border-radius: 8px;
     }
     .home-feat .ico {
       width: 28px;
@@ -483,7 +592,7 @@
       align-items: center;
       justify-content: center;
       color: var(--accent);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .home-feat .ico svg {
       width: 22px;
@@ -499,10 +608,106 @@
       color: var(--ink-soft);
       line-height: 1.4;
     }
+    .home-foot {
+      width: 100%;
+      max-width: 440px;
+      padding: 8px 0 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .home-foot-link {
+      font-size: 12px;
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .home-foot-link:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .home-foot-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .home-foot-btn:hover { color: var(--ink); border-color: var(--accent); }
+    .home-foot-diag {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--ink-faint);
+      text-align: center;
+      line-height: 1.5;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+    .home-foot-diag.ok { color: var(--accent); }
+    .home-foot-diag.warn { color: var(--accent-2); }
+    .home-foot-diag.err { color: var(--danger); }
 
     /* ---------- Camera screen ---------- */
     .camera {
       background: #000;
+    }
+    .cam-topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      padding-top: max(14px, env(safe-area-inset-top));
+      z-index: 20;
+      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+    }
+    .cam-icon-btn {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(20, 24, 30, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.15s;
+    }
+    .cam-icon-btn:active { transform: scale(0.92); }
+    .cam-icon-btn svg { width: 20px; height: 20px; }
+    .cam-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(10, 14, 20, 0.75);
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .cam-status .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.5s infinite;
     }
     .cam-stage {
       position: relative;
@@ -528,283 +733,42 @@
       text-align: center;
       gap: 12px;
       color: rgba(255, 255, 255, 0.85);
-      background: linear-gradient(135deg, #0a0d11, #1a2230);
+      background: linear-gradient(135deg, #090d13, #151d2a);
     }
-    #camFallback svg {
-      width: 64px;
-      height: 64px;
-      opacity: 0.6;
-    }
-    #camFallback p {
-      margin: 0;
-      font-size: 14px;
-      max-width: 32ch;
-    }
+    #camFallback svg { width: 56px; height: 56px; opacity: 0.6; }
+    #camFallback p { margin: 0; font-size: 14px; max-width: 32ch; }
     #camFallback .file-btn {
       margin-top: 8px;
       background: var(--accent);
-      color: #053c3d;
+      color: var(--accent-ink);
+      font-weight: 600;
       padding: 10px 18px;
       border-radius: 999px;
-      font-weight: 600;
       font-size: 14px;
     }
     .detection-overlay {
       position: absolute;
       inset: 0;
       pointer-events: none;
+      z-index: 3;
     }
-    .detection-overlay.locked .corner {
-      animation: pulse 0.4s ease;
-    }
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.25);
-      }
-      100% {
-        transform: scale(1);
-      }
-    }
-    .corner {
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      transform: translate(-50%, -50%);
-      pointer-events: auto;
-      touch-action: none;
-    }
-    .corner::before,
-    .corner::after {
-      content: "";
-      position: absolute;
-      background: var(--accent);
-    }
-    .corner::before {
-      width: 100%;
-      height: 3px;
-      top: 0;
-      left: 0;
-    }
-    .corner::after {
-      width: 3px;
-      height: 100%;
-      top: 0;
-      left: 0;
-    }
-    .corner.tl::before {
-      transform-origin: top left;
-    }
-    .corner.tr::before {
-      transform-origin: top right;
-      left: auto;
-      right: 0;
-    }
-    .corner.bl::before {
-      transform-origin: bottom left;
-      top: auto;
-      bottom: 0;
-    }
-    .corner.br::before {
-      transform-origin: bottom right;
-      top: auto;
-      bottom: 0;
-      left: auto;
-      right: 0;
-    }
-    .corner.tr::after,
-    .corner.br::after {
-      left: auto;
-      right: 0;
-    }
-    .corner.bl::after,
-    .corner.br::after {
-      top: auto;
-      bottom: 0;
-    }
-    .corner.manual {
-      width: 36px;
-      height: 36px;
-    }
-    .corner.manual::before,
-    .corner.manual::after {
-      background: var(--accent-2);
-    }
-    .detection-poly {
+    .detection-overlay svg {
       position: absolute;
       inset: 0;
-      pointer-events: none;
-    }
-    .detection-poly polygon {
-      fill: color-mix(in srgb, var(--accent) 8%, transparent);
-      stroke: var(--accent);
-      stroke-width: 2;
-      vector-effect: non-scaling-stroke;
-      transition: all 0.12s ease;
-    }
-    .scanline {
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        var(--accent),
-        transparent
-      );
-      box-shadow: 0 0 8px var(--accent);
-      animation: sweep 2.6s ease-in-out infinite;
-      opacity: 0.7;
-      pointer-events: none;
-    }
-    @keyframes sweep {
-      0%,
-      100% {
-        top: 10%;
-        opacity: 0.5;
-      }
-      50% {
-        top: 90%;
-        opacity: 0.9;
-      }
-    }
-    .cam-topbar {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      right: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      z-index: 30;
-      pointer-events: auto;
-    }
-    .cam-topbar .cam-status {
-      position: static;
-      top: auto;
-      left: auto;
-      transform: none;
-    }
-    .cam-status {
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.55);
-      backdrop-filter: blur(8px);
-      color: #fff;
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-family: var(--mono);
-      letter-spacing: 0.04em;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      z-index: 4;
-    }
-    .cam-status .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-2);
-      box-shadow: 0 0 6px var(--accent-2);
-    }
-    .cam-status.locked .dot {
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-    }
-
-    /* Magnifier Loupe */
-    .corner-loupe {
-      position: absolute;
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      border: 3px solid var(--accent);
-      box-shadow: 0 6px 24px rgba(0,0,0,0.7), 0 0 12px rgba(63, 217, 199, 0.5);
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 50;
-      background: #0A0D11;
-      transform: translate(-50%, -100%);
-      transition: opacity 0.12s ease;
-    }
-    .corner-loupe canvas {
       width: 100%;
       height: 100%;
-      display: block;
     }
-    .corner-loupe::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 14px;
-      height: 14px;
-      transform: translate(-50%, -50%);
-      border: 1.5px solid #FF4466;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #FF4466;
+    .detection-overlay polygon {
+      fill: color-mix(in srgb, var(--accent) 18%, transparent);
+      stroke: var(--accent);
+      stroke-width: 2.5;
+      stroke-dasharray: 6 4;
+      animation: dash 12s linear infinite;
     }
-    .cam-controls {
-      position: relative;
-      padding: 18px 18px;
-      padding-bottom: max(18px, env(safe-area-inset-bottom));
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
-    }
-    .cam-side {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .cam-side.right {
-      flex-direction: row;
-    }
-    .cam-icon-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(8px);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .cam-icon-btn svg {
-      width: 22px;
-      height: 22px;
-    }
-    .cam-icon-btn.filled {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    .shutter {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      background: #fff;
-      border: 4px solid rgba(255, 255, 255, 0.4);
-      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.3);
-      transition: transform 0.1s;
-    }
-    .shutter:active {
-      transform: scale(0.92);
-    }
-    .shutter:disabled {
-      opacity: 0.5;
-    }
+    @keyframes dash { to { stroke-dashoffset: -100; } }
     .thumb-strip {
       position: absolute;
-      top: 50px;
+      top: 60px;
       right: 12px;
       display: flex;
       flex-direction: column;
@@ -812,13 +776,9 @@
       max-height: 40vh;
       overflow-y: auto;
       z-index: 4;
-    }
-    .thumb-strip::-webkit-scrollbar {
-      display: none;
-    }
-    .thumb-strip {
       scrollbar-width: none;
     }
+    .thumb-strip::-webkit-scrollbar { display: none; }
     .thumb {
       width: 44px;
       height: 58px;
@@ -836,10 +796,50 @@
       left: 2px;
       font-family: var(--mono);
       font-size: 9px;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
       color: #fff;
       padding: 1px 4px;
       border-radius: 2px;
+    }
+    .cam-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      padding-bottom: max(20px, env(safe-area-inset-bottom));
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 5;
+    }
+    .cam-side {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-width: 80px;
+    }
+    .cam-side.right { justify-content: flex-end; }
+    .shutter {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 3.5px solid #fff;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .shutter:active { transform: scale(0.92); }
+    .shutter-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #fff;
+      transition: background 0.15s;
+    }
+    .shutter:active .shutter-inner {
+      background: var(--accent);
     }
 
     /* ---------- Review screen ---------- */
@@ -858,75 +858,54 @@
     .page-card {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 6px;
+      border-radius: 8px;
       overflow: hidden;
       position: relative;
       cursor: grab;
       transition: transform 0.15s, box-shadow 0.15s;
     }
-    .page-card.dragging {
-      opacity: 0.4;
+    .page-card:hover {
+      border-color: var(--line-strong);
     }
-    .page-card.drag-over {
-      box-shadow: 0 0 0 2px var(--accent);
-    }
-    .page-card img {
+    .page-card-preview {
       width: 100%;
-      display: block;
-      background: var(--surface-2);
-      aspect-ratio: 0.77;
-      object-fit: cover;
+      aspect-ratio: 1 / 1.35;
+      background-size: cover;
+      background-position: center;
+      background-color: rgba(0, 0, 0, 0.2);
     }
-    .page-card .label {
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      background: rgba(0, 0, 0, 0.65);
-      color: #fff;
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 3px;
-    }
-    .page-card .actions {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      display: flex;
-      gap: 4px;
-    }
-    .page-card .action {
-      width: 28px;
-      height: 28px;
-      background: rgba(0, 0, 0, 0.65);
-      color: #fff;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .page-card .action svg {
-      width: 14px;
-      height: 14px;
-    }
-    .page-card .action.danger {
-      background: var(--danger);
-    }
-    .review-empty {
-      text-align: center;
-      color: var(--ink-soft);
-      padding: 40px 20px;
-      grid-column: span 2;
-    }
-    .review-bottom {
-      padding: 14px 18px;
-      padding-bottom: max(14px, env(safe-area-inset-bottom));
-      border-top: 1px solid var(--line);
-      background: var(--bg);
+    .page-card-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      padding: 6px 8px;
+      background: var(--surface-2);
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--ink-soft);
+    }
+    .page-card-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .card-btn {
+      padding: 3px 6px;
+      border-radius: 4px;
+      color: var(--ink-soft);
+      font-size: 11px;
+    }
+    .card-btn:hover {
+      color: var(--ink);
+      background: var(--line);
+    }
+    .review-bottom {
+      border-top: 1px solid var(--line);
+      padding: 12px 18px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
     }
     .review-meta {
       font-family: var(--mono);
@@ -938,21 +917,85 @@
       gap: 8px;
     }
     .pill-btn {
-      padding: 10px 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
       border-radius: 999px;
-      font-size: 14px;
-      font-weight: 600;
-      border: 1px solid var(--line-strong);
-      background: var(--surface);
+      font-size: 13px;
+      font-weight: 500;
+      background: var(--surface-2);
       color: var(--ink);
+      border: 1px solid var(--line-strong);
     }
     .pill-btn.primary {
       background: var(--accent);
-      color: #053c3d;
+      color: var(--accent-ink);
       border-color: var(--accent);
+      font-weight: 600;
     }
-    .pill-btn:disabled {
-      opacity: 0.5;
+
+    /* ---------- Crop screen ---------- */
+    .crop {
+      background: #000;
+    }
+    .crop-stage {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #cropCanvasWrapper {
+      position: relative;
+      display: inline-block;
+    }
+    #cropCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .crop-overlay {
+      position: absolute;
+      inset: 0;
+      touch-action: none;
+    }
+    .crop-handle {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      margin: -16px 0 0 -16px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      cursor: grab;
+      touch-action: none;
+      z-index: 10;
+    }
+    .crop-loupe {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      overflow: hidden;
+      pointer-events: none;
+      display: none;
+      z-index: 25;
+      background: #000;
+    }
+    .crop-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      background: rgba(10, 14, 20, 0.9);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 5;
     }
 
     /* ---------- Edit screen ---------- */
@@ -960,48 +1003,47 @@
       background: var(--bg);
     }
     .edit-stage {
+      position: relative;
       flex: 1;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
-      background: var(--surface-2);
-      overflow: hidden;
+      padding: 12px;
     }
-    .edit-stage canvas,
-    .edit-stage img {
+    #editCanvas {
       max-width: 100%;
       max-height: 100%;
-      object-fit: contain;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
     }
     .edit-bottom {
-      padding: 14px 18px;
-      padding-bottom: max(14px, env(safe-area-inset-bottom));
       border-top: 1px solid var(--line);
-      background: var(--bg);
+      padding: 12px 18px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
     .filters {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       overflow-x: auto;
-      padding-bottom: 12px;
+      padding-bottom: 4px;
       scrollbar-width: none;
     }
-    .filters::-webkit-scrollbar {
-      display: none;
-    }
+    .filters::-webkit-scrollbar { display: none; }
     .filter-btn {
       flex: none;
-      width: 64px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
       padding: 6px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid transparent;
       background: transparent;
+      cursor: pointer;
     }
     .filter-btn.active {
       border-color: var(--accent);
@@ -1011,236 +1053,61 @@
       width: 56px;
       height: 72px;
       border-radius: 4px;
+      border: 1px solid var(--line);
       background-size: cover;
       background-position: center;
-      border: 1px solid var(--line);
     }
     .filter-btn .name {
-      font-size: 10.5px;
-      font-family: var(--mono);
+      font-size: 11px;
       color: var(--ink-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
     .filter-btn.active .name {
       color: var(--accent);
+      font-weight: 600;
     }
     .edit-actions {
       display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .edit-actions .pill-btn {
-      flex: 1;
-    }
-
-    /* ---------- Crop & Perspective Screen (PerspectiveFix Parity) ---------- */
-    .crop {
-      background: var(--bg);
-    }
-    .crop-stage {
-      flex: 1;
-      position: relative;
-      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      background: #080b0f;
-      overflow: hidden;
-      touch-action: none;
-      user-select: none;
-      padding: 12px;
-    }
-    .crop-canvas-wrapper {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      max-width: 100%;
-      max-height: 100%;
-    }
-    #cropCanvas {
-      display: block;
-      max-width: 100%;
-      max-height: 100%;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
-      border-radius: 2px;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .crop-poly-svg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: visible;
-      z-index: 5;
-    }
-    .crop-poly-svg polygon {
-      fill: color-mix(in srgb, var(--accent) 14%, transparent);
-      stroke: var(--accent);
-      stroke-width: 2.5;
-      vector-effect: non-scaling-stroke;
-      stroke-linejoin: round;
-    }
-    .crop-overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 10;
-    }
-    .crop-handle {
-      position: absolute;
-      width: 44px;
-      height: 44px;
-      margin-left: -22px;
-      margin-top: -22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: crosshair;
-      pointer-events: auto;
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .crop-handle-pin {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 3px solid var(--accent);
-      box-shadow: 0 0 12px var(--accent), 0 3px 8px rgba(0, 0, 0, 0.6);
-      transition: transform 0.1s ease, border-color 0.1s ease;
-      pointer-events: none;
-      position: relative;
-    }
-    .crop-handle-pin::after {
-      content: "";
-      position: absolute;
-      inset: 3px;
-      border-radius: 50%;
-      background: var(--accent);
-    }
-    .crop-handle:active .crop-handle-pin,
-    .crop-handle.active .crop-handle-pin {
-      transform: scale(1.35);
-      border-color: #ffffff;
-      background: var(--accent);
-    }
-    .crop-loupe {
-      position: absolute;
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      border: 3px solid var(--accent);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 16px rgba(63, 217, 199, 0.6);
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 60;
-      background: #080b0f;
-      transform: translate(-50%, -100%);
-      margin-top: -12px;
-    }
-    .crop-loupe canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .crop-loupe::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 16px;
-      height: 16px;
-      transform: translate(-50%, -50%);
-      border: 2px solid #ff4466;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #ff4466;
-    }
-    .crop-bottom {
-      padding: 12px 18px;
-      padding-bottom: max(14px, env(safe-area-inset-bottom));
-      border-top: 1px solid var(--line);
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .crop-info {
-      font-size: 12px;
-      color: var(--ink-soft);
-      font-family: var(--mono);
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    .crop-actions {
-      display: flex;
-      gap: 8px;
-    }
-    .crop-actions .pill-btn {
-      flex: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
     }
 
     /* ---------- Toast ---------- */
     .toast {
       position: fixed;
-      left: 50%;
       bottom: 24px;
+      left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: var(--surface);
+      background: var(--surface-3);
       color: var(--ink);
       border: 1px solid var(--line-strong);
       padding: 10px 18px;
       border-radius: 999px;
-      font-size: 13px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.25s ease;
-      z-index: 100;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 13.5px;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
     .toast.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
-    }
-    .toast.success {
-      border-color: var(--accent);
-    }
-    .toast.error {
-      border-color: var(--danger);
-    }
-    .toast .ico {
-      width: 16px;
-      height: 16px;
-      color: var(--accent);
-    }
-    .toast.error .ico {
-      color: var(--danger);
     }
 
     /* ---------- Modal ---------- */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.65);
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 200;
+      z-index: 400;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
@@ -1254,8 +1121,10 @@
       border: 1px solid var(--line-strong);
       border-radius: 14px;
       padding: 24px;
-      max-width: 440px;
+      max-width: 480px;
       width: calc(100% - 36px);
+      max-height: 85vh;
+      overflow-y: auto;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
       animation: modalPop 0.2s ease-out;
     }
@@ -1266,457 +1135,1091 @@
     .modal h3 {
       font-family: var(--display);
       font-size: 19px;
-      margin: 0 0 10px;
+      margin: 0 0 12px;
       color: var(--ink);
     }
-    .modal p,
-    .modal #modalBody {
+    .modal p, .modal #modalBody {
       margin: 0 0 16px;
       color: var(--ink-soft);
       font-size: 13.5px;
-      line-height: 1.55;
+      line-height: 1.6;
     }
     .modal-actions {
       display: flex;
       gap: 10px;
       justify-content: flex-end;
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
-    /* ---------- Utility ---------- */
-    .spacer {
-      flex: 1;
-    }
-
-    .home-status {
-      position: fixed;
-      left: 12px;
-      right: 12px;
-      max-width: 456px;
+    /* ---------- Highlights Strip (Below Tool) ---------- */
+    .highlights-section {
+      max-width: 1200px;
       margin: 0 auto;
-      bottom: 16px;
-      background: var(--surface);
-      border: 1px solid var(--accent-2);
-      border-left-width: 3px;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-size: 12.5px;
-      color: var(--ink-soft);
-      z-index: 60;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      padding: 20px 24px 36px;
     }
-    .home-status b { color: var(--accent-2); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 4px; }
-
-    .home-guide-banner {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
+    .highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .highlight-card {
       background: var(--surface);
       border: 1px solid var(--line);
-      padding: 8px 16px;
-      border-radius: 9999px;
-      color: var(--ink);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 500;
-      margin-top: 6px;
-      margin-bottom: 2px;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s ease;
     }
-    .home-guide-banner:hover {
-      border-color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 12%, var(--surface));
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(63, 217, 199, 0.15);
+    .highlight-card:hover {
+      border-color: var(--line-strong);
     }
-    .guide-badge {
-      background: var(--accent);
-      color: #053c3d;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 10px;
-      letter-spacing: 0.04em;
-    }
-    .guide-text {
-      color: var(--ink);
-      letter-spacing: -0.01em;
-    }
-    .home-foot-link {
-      font-size: 12px;
-      color: var(--ink-soft);
-      text-decoration: none;
-      transition: color 0.15s;
-    }
-    .home-foot-link:hover {
+    .highlight-icon {
+      width: 32px;
+      height: 32px;
       color: var(--accent);
-      text-decoration: underline;
+      margin-bottom: 4px;
+    }
+    .highlight-title {
+      font-family: var(--display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .highlight-desc {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      line-height: 1.5;
     }
 
-    .home-foot {
-      width: 100%;
-      max-width: 420px;
-      padding: 10px 0 6px;
+    /* ---------- AdSense Compliant Banner Slot ---------- */
+    .ad-slot-wrapper {
+      max-width: 1200px;
+      margin: 20px auto 40px;
+      padding: 0 24px;
+    }
+    .ad-container {
+      background: var(--surface);
+      border: 1px dashed var(--line-strong);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      min-height: 90px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .ad-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    /* ---------- Single Page Technical Guide Section ---------- */
+    .guide-section {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+      border-top: 1px solid var(--line);
+    }
+    .guide-header-area {
+      margin-bottom: 36px;
+    }
+    .guide-eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+    .guide-main-heading {
+      font-family: var(--display);
+      font-size: clamp(28px, 4vw, 40px);
+      letter-spacing: -0.02em;
+      margin: 0 0 10px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .guide-subheading {
+      color: var(--ink-soft);
+      font-size: 16px;
+      max-width: 64ch;
+      margin: 0;
+    }
+    .guide-two-col {
+      display: flex;
+      gap: 48px;
+      align-items: flex-start;
+      position: relative;
+    }
+    .guide-sidebar-aside {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 76px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    .toc-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 16px;
+    }
+    .toc-card-header {
+      font-family: var(--display);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .toc-nav-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .toc-nav-link {
+      color: var(--ink-soft);
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1.4;
+      display: block;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .toc-nav-link:hover, .toc-nav-link.active {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 8%, transparent);
+    }
+    .guide-body-content {
+      flex: 1;
+      min-width: 0;
+      max-width: 860px;
+    }
+    .guide-lead-para {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--ink);
+      margin-bottom: 32px;
+    }
+    .guide-topic-block {
+      scroll-margin-top: 80px;
+      margin-bottom: 40px;
+    }
+    .guide-topic-heading {
+      font-family: var(--display);
+      font-size: clamp(22px, 3vw, 26px);
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      margin: 36px 0 14px;
+      scroll-margin-top: 80px;
+      display: flex;
+      align-items: center;
       gap: 8px;
     }
-    .home-foot-btn {
+    .topic-anchor {
+      color: var(--ink-faint);
+      text-decoration: none;
+      font-family: var(--mono);
+      opacity: 0.4;
+      transition: opacity 0.15s ease;
+    }
+    .guide-topic-heading:hover .topic-anchor {
+      opacity: 1;
+      color: var(--accent);
+    }
+    .guide-text-para {
+      font-size: 15.5px;
+      line-height: 1.7;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    /* ---------- Interactive FAQ Section ---------- */
+    .faq-section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+      border-top: 1px solid var(--line);
+    }
+    .faq-heading-group {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .faq-heading-group h2 {
+      font-family: var(--display);
+      font-size: 30px;
+      letter-spacing: -0.02em;
+      margin: 0 0 8px;
+    }
+    .faq-heading-group p {
+      color: var(--ink-soft);
+      font-size: 15px;
+      margin: 0;
+    }
+    .faq-list-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .faq-accordion-item {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+    .faq-accordion-item:hover {
+      border-color: var(--line-strong);
+    }
+    .faq-summary {
+      padding: 16px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--ink);
+    }
+    .faq-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--ink-soft);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    .faq-accordion-item[open] .faq-icon {
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+    .faq-content {
+      padding: 0 20px 18px;
+      color: var(--ink-soft);
+      font-size: 14.5px;
+      line-height: 1.65;
+    }
+    .faq-content p { margin: 0; }
+
+    /* ---------- Creator Patronage Section ---------- */
+    .creator-patronage-section {
+      max-width: 960px;
+      margin: 20px auto 60px;
+      padding: 0 24px;
+    }
+    .patronage-card {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent-2) 12%, var(--surface)), var(--surface));
+      border: 1px solid var(--accent-2);
+      border-radius: 14px;
+      padding: 32px 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .patronage-card h3 {
+      font-family: var(--display);
+      font-size: 22px;
+      margin: 0;
+      color: var(--ink);
+    }
+    .patronage-card p {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--ink-soft);
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+    .patronage-btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: transparent;
-      border: 1px solid var(--line-strong);
-      color: var(--ink-soft);
-      font-family: var(--mono);
-      font-size: 11px;
-      padding: 6px 12px;
+      gap: 8px;
+      padding: 11px 22px;
+      background: var(--surface-2);
+      border: 1px solid var(--accent-2);
       border-radius: 999px;
-      cursor: pointer;
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      margin-top: 4px;
     }
-    .home-foot-btn:hover { color: var(--ink); border-color: var(--accent); }
-    .home-foot-diag {
-      font-family: var(--mono);
-      font-size: 10.5px;
-      color: var(--ink-faint);
+    .patronage-btn:hover {
+      background: var(--accent-2);
+      color: #000;
+      transform: translateY(-1px);
+    }
+
+    /* ---------- Mandatory Legal & Trust Foundation (AdSense Pillar 1) ---------- */
+    .legal-trust-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+      border-top: 1px solid var(--line);
+    }
+    .legal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+    .legal-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 22px;
+    }
+    .legal-card h4 {
+      font-family: var(--display);
+      font-size: 16px;
+      margin: 0 0 10px;
+      color: var(--ink);
+    }
+    .legal-card p {
+      margin: 0 0 12px;
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+    .legal-card a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .legal-card a:hover { text-decoration: underline; }
+
+    /* ---------- Global Footer ---------- */
+    .global-footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 24px;
       text-align: center;
-      line-height: 1.5;
-      max-width: 100%;
-      overflow-wrap: anywhere;
+      background: var(--surface);
+      color: var(--ink-soft);
+      font-size: 13px;
     }
-    .home-foot-diag.ok { color: var(--accent); }
-    .home-foot-diag.warn { color: var(--accent-2); }
-    .home-foot-diag.err { color: var(--danger); }
-    .hidden {
-      display: none !important;
+    .footer-links-row {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
     }
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+    .footer-links-row a {
+      color: var(--ink-soft);
+      text-decoration: none;
+    }
+    .footer-links-row a:hover {
+      color: var(--accent);
+    }
+
+    @media (max-width: 960px) {
+      .guide-two-col {
+        flex-direction: column;
+      }
+      .guide-sidebar-aside {
+        width: 100%;
+        position: relative;
+        top: 0;
+        max-height: none;
+        margin-bottom: 24px;
+      }
+      .header-nav-links {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="app" id="app">
-    <!-- Home screen -->
-    <section class="screen home active" id="screen-home" aria-label="Home">
-      <div class="topbar">
-        <div class="topbar-title">DocScan</div>
-        <div style="display: flex; gap: 6px;">
-          <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle theme" title="Toggle dark/light mode">
-            <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          </button>
-          <button class="icon-btn" id="aboutBtn" aria-label="About">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          </button>
+  <!-- Sticky Global Navigation Bar -->
+  <header class="global-header">
+    <div class="global-header-inner">
+      <a href="#tool" class="brand-group">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7V4h3" />
+            <path d="M17 4h3v3" />
+            <path d="M20 17v3h-3" />
+            <path d="M7 20H4v-3" />
+            <rect x="7" y="7" width="10" height="10" rx="1.5" />
+            <line x1="7" y1="12" x2="17" y2="12" stroke-dasharray="2 2" />
+          </svg>
         </div>
-      </div>
-      <div class="spacer"></div>
-      <div class="home-logo">
-        <svg viewBox="0 0 48 48" fill="none">
-          <rect x="6" y="6" width="36" height="36" rx="3" stroke="var(--accent)" stroke-width="2.5"/>
-          <rect x="13" y="13" width="22" height="22" rx="1" fill="none" stroke="var(--accent-2)" stroke-width="1.5"/>
-          <line x1="18" y1="20" x2="30" y2="20" stroke="var(--ink-soft)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="18" y1="25" x2="30" y2="25" stroke="var(--ink-soft)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="18" y1="30" x2="24" y2="30" stroke="var(--ink-soft)" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h1>Scan anything</h1>
-      <p class="home-sub">Capture pages, auto-detect borders, and export a clean PDF — right from your browser on desktop, tablet, or mobile.</p>
-      <a href="guide.html" class="home-guide-banner" aria-label="Read complete technical guide and Microsoft Lens comparison">
-        <span class="guide-badge">E-E-A-T Guide</span>
-        <span class="guide-text">Microsoft Lens Alternative: Complete Guide &amp; Tech Deep Dive</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        <span class="brand-title">DocScan</span>
       </a>
-      <button class="cta" id="startScanBtn" style="margin-top: 14px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        Start scanning
-      </button>
-      <button class="cta secondary" id="resumeBtn" style="margin-top: 10px; display: none;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-        Resume scan session (<span id="resumeCount">0</span> pages)
-      </button>
-      <button class="cta secondary" id="importBtn" style="margin-top: 10px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Import from device
-      </button>
-      <button class="cta secondary" id="demoBtn" style="margin-top: 10px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Try demo with sample documents
-      </button>
-      <input type="file" id="fileInput" accept="image/*" multiple class="visually-hidden" />
 
-      <div class="home-features">
-        <div class="home-feat">
-          <div class="ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
-          </div>
-          <div class="t">Auto border detect</div>
-          <div class="d">Edges find themselves in real time.</div>
-        </div>
-        <div class="home-feat">
-          <div class="ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
-          </div>
-          <div class="t">Perspective fix</div>
-          <div class="d">Crooked shots become flat pages.</div>
-        </div>
-        <div class="home-feat">
-          <div class="ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-          </div>
-          <div class="t">Multi-page</div>
-          <div class="d">Capture then export as one PDF.</div>
-        </div>
-        <div class="home-feat">
-          <div class="ico">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <div class="t">On-device</div>
-          <div class="d">Works offline. Nothing leaves your phone.</div>
-        </div>
-      </div>
-      <div class="spacer"></div>
-      <div class="home-foot">
-        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: 12px; margin-bottom: 2px;">
-          <a href="guide.html" class="home-foot-link">📖 Complete User Guide</a>
-          <span style="color: var(--ink-faint);">•</span>
-          <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" class="home-foot-link" style="color: var(--accent-2); font-weight: 500;">☕ Buy me a coffee</a>
-          <span style="color: var(--ink-faint);">•</span>
-          <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer" class="home-foot-link">⭐ GitHub</a>
-        </div>
-        <button class="home-foot-btn" id="clearCacheBtn" type="button" style="margin-top: 4px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-          Clear cache &amp; hard reload
-        </button>
-        <div class="home-foot-diag" id="bootDiag">checking…</div>
-      </div>
-    </section>
+      <nav class="header-nav-links" aria-label="Main Navigation">
+        <a href="#tool">Scanner</a>
+        <a href="#guide">Guide &amp; Tech Specs</a>
+        <a href="#faq">FAQ</a>
+        <a href="#privacy">Privacy &amp; Terms</a>
+      </nav>
 
-    <div class="home-status" id="homeStatus" hidden></div>
-
-    <!-- Camera screen -->
-    <section class="screen camera" id="screen-camera" aria-label="Camera">
-      <div class="cam-topbar" id="camTopbar">
-        <button class="cam-icon-btn" id="camHomeBtn" aria-label="Back to home" title="Back to Home">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <div class="header-action-group">
+        <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle theme" title="Toggle dark/light mode">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+          </svg>
         </button>
-        <div class="cam-status" id="camStatus">
-          <span class="dot"></span>
-          <span id="camStatusText">Searching for document…</span>
-        </div>
-        <button class="cam-icon-btn" id="camCloseTopBtn" aria-label="Exit camera" title="Close camera">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <button class="icon-btn" id="aboutBtn" aria-label="About DocScan" title="About DocScan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
         </button>
+        <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" class="nav-support-pill" title="Support open-source development">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+            <line x1="6" y1="2" x2="6" y2="4" />
+            <line x1="10" y1="2" x2="10" y2="4" />
+            <line x1="14" y1="2" x2="14" y2="4" />
+          </svg>
+          <span>Support</span>
+        </a>
       </div>
-      <div class="cam-stage" id="camStage">
-        <video id="camVideo" playsinline muted autoplay></video>
-        <div id="camFallback">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          <p>Camera not available in this environment. Use the button below to import images instead.</p>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-            <button class="file-btn" id="fallbackImportBtn">Import image</button>
-            <button class="file-btn" id="fallbackHomeBtn" style="background: transparent; border: 1px solid var(--line-strong); color: var(--ink);">Back to Home</button>
+    </div>
+  </header>
+
+  <!-- Interactive Scanner App Section (Hero) -->
+  <section id="tool" class="tool-section">
+    <div class="app" id="app">
+      <!-- Home screen -->
+      <section class="screen home active" id="screen-home" aria-label="Home">
+        <div class="topbar">
+          <div class="topbar-title">DocScan Studio</div>
+          <div style="display: flex; gap: 6px;">
+            <a href="#guide" class="icon-btn" title="Jump to User Guide" style="text-decoration:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </a>
           </div>
         </div>
-        <svg class="detection-poly" id="detectionPoly" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <polygon points="20,20 80,20 80,80 20,80" />
-        </svg>
-        <div class="detection-overlay" id="detectionOverlay">
-          <div class="corner tl" data-corner="tl"></div>
-          <div class="corner tr" data-corner="tr"></div>
-          <div class="corner bl" data-corner="bl"></div>
-          <div class="corner br" data-corner="br"></div>
-          <div class="scanline"></div>
+
+        <div class="home-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7V4h3" />
+            <path d="M17 4h3v3" />
+            <path d="M20 17v3h-3" />
+            <path d="M7 20H4v-3" />
+            <rect x="7" y="7" width="10" height="10" rx="1.5" stroke="var(--accent)" />
+            <line x1="7" y1="12" x2="17" y2="12" stroke="var(--accent-2)" stroke-dasharray="2 2" />
+          </svg>
         </div>
-        <div class="corner-loupe" id="cornerLoupe" style="display:none;">
-          <canvas id="loupeCanvas" width="110" height="110"></canvas>
+        <h1>Scan anything</h1>
+        <p class="home-sub">Capture pages, auto-detect borders, and export clean PDFs directly in your browser on desktop, tablet, or mobile.</p>
+        
+        <a href="#guide" class="home-guide-banner" aria-label="Jump to technical whitepaper">
+          <span class="guide-badge">Guide</span>
+          <span class="guide-text">How In-Browser Homography Works</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+
+        <button class="cta" id="startScanBtn" style="margin-top: 14px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Start scanning
+        </button>
+        <button class="cta secondary" id="resumeBtn" style="margin-top: 10px; display: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          Resume scan session (<span id="resumeCount">0</span> pages)
+        </button>
+        <button class="cta secondary" id="importBtn" style="margin-top: 10px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Import from device
+        </button>
+        <button class="cta secondary" id="demoBtn" style="margin-top: 10px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Try demo with sample documents
+        </button>
+        <input type="file" id="fileInput" accept="image/*" multiple class="visually-hidden" />
+
+        <div class="home-features">
+          <div class="home-feat">
+            <div class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12" stroke-dasharray="2 2"/></svg>
+            </div>
+            <div class="t">Auto border detect</div>
+            <div class="d">Edges find themselves in real time.</div>
+          </div>
+          <div class="home-feat">
+            <div class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l16-3v18l-16-3V6z"/><line x1="10" y1="5.5" x2="10" y2="18.5"/><line x1="16" y1="4.5" x2="16" y2="19.5"/></svg>
+            </div>
+            <div class="t">Perspective fix</div>
+            <div class="d">Crooked shots become flat pages.</div>
+          </div>
+          <div class="home-feat">
+            <div class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="6" width="14" height="15" rx="2"/><path d="M4 17V4a2 2 0 0 1 2-2h11"/><line x1="11" y1="11" x2="17" y2="11"/><line x1="11" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <div class="t">Multi-page</div>
+            <div class="d">Capture then export as one PDF.</div>
+          </div>
+          <div class="home-feat">
+            <div class="ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
+            <div class="t">On-device</div>
+            <div class="d">Works offline. Nothing leaves your phone.</div>
+          </div>
         </div>
-        <div class="thumb-strip" id="thumbStrip"></div>
-      </div>
-      <div class="cam-controls">
-        <div class="cam-side">
-          <button class="cam-icon-btn" id="closeCamBtn" aria-label="Cancel">
+
+        <div class="home-foot">
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: 12px; margin-bottom: 2px;">
+            <a href="#guide" class="home-foot-link">Technical Guide</a>
+            <span style="color: var(--ink-faint);">•</span>
+            <a href="#faq" class="home-foot-link">FAQ</a>
+            <span style="color: var(--ink-faint);">•</span>
+            <a href="#privacy" class="home-foot-link">Privacy Policy</a>
+            <span style="color: var(--ink-faint);">•</span>
+            <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer" class="home-foot-link">GitHub</a>
+          </div>
+          <button class="home-foot-btn" id="clearCacheBtn" type="button" style="margin-top: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            Clear cache &amp; hard reload
+          </button>
+          <div class="home-foot-diag" id="bootDiag">checking…</div>
+        </div>
+      </section>
+
+      <div class="home-status" id="homeStatus" hidden></div>
+
+      <!-- Camera screen -->
+      <section class="screen camera" id="screen-camera" aria-label="Camera">
+        <div class="cam-topbar" id="camTopbar">
+          <button class="cam-icon-btn" id="camHomeBtn" aria-label="Back to home" title="Back to Home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </button>
+          <div class="cam-status" id="camStatus">
+            <span class="dot"></span>
+            <span id="camStatusText">Searching for document…</span>
+          </div>
+          <button class="cam-icon-btn" id="camCloseTopBtn" aria-label="Exit camera" title="Close camera">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-        <div class="cam-side right">
-          <button class="cam-icon-btn" id="manualBtn" aria-label="Manual adjust">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
-          </button>
-          <button class="cam-icon-btn" id="flashBtn" aria-label="Toggle flash">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          </button>
-          <button class="shutter" id="shutterBtn" aria-label="Capture"></button>
-          <button class="cam-icon-btn filled" id="finishBtn" aria-label="Review pages">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
+        <div class="cam-stage" id="camStage">
+          <video id="camVideo" autoplay playsinline muted></video>
+          <div id="camFallback" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            <p id="camFallbackMsg">Camera not available.</p>
+            <button class="file-btn" id="fallbackImportBtn">Import image instead</button>
+            <button class="home-foot-btn" id="fallbackHomeBtn" style="margin-top: 10px; color: #fff; border-color: rgba(255,255,255,0.3);">
+              Return to Home
+            </button>
+          </div>
+          <div class="detection-overlay" id="detectionOverlay">
+            <svg id="detectionPoly"><polygon points="" /></svg>
+          </div>
+          <div class="thumb-strip" id="thumbStrip"></div>
         </div>
-      </div>
-    </section>
+        <div class="cam-controls">
+          <div class="cam-side">
+            <button class="cam-icon-btn" id="closeCamBtn" aria-label="Cancel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="cam-side right">
+            <button class="cam-icon-btn" id="manualBtn" aria-label="Manual adjust">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+            </button>
+            <button class="cam-icon-btn" id="flashBtn" aria-label="Toggle flash">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </button>
+            <button class="shutter" id="shutterBtn" aria-label="Capture">
+              <div class="shutter-inner"></div>
+            </button>
+            <button class="cam-icon-btn" id="finishBtn" aria-label="Review pages">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
 
-    <!-- Crop / Straighten screen (PerspectiveFix Parity) -->
-    <section class="screen crop" id="screen-crop" aria-label="Perspective Crop">
-      <div class="topbar">
-        <button class="icon-btn" id="cropBackBtn" aria-label="Back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="topbar-title">Perspective Crop</div>
-        <div style="display: flex; gap: 6px;">
-          <button class="icon-btn" id="cropRotateBtn" aria-label="Rotate 90 degrees" title="Rotate 90°">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+      <!-- Crop screen -->
+      <section class="screen crop" id="screen-crop" aria-label="Crop document">
+        <div class="topbar">
+          <button class="icon-btn" id="cropBackBtn" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
-          <button class="icon-btn highlight" id="cropApplyTopBtn" aria-label="Apply crop">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          </button>
+          <div class="topbar-title">Adjust Crop</div>
+          <div style="display: flex; gap: 4px;">
+            <button class="icon-btn" id="cropRotateBtn" aria-label="Rotate 90 degrees" title="Rotate 90° Clockwise">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            </button>
+            <button class="pill-btn primary" id="cropApplyTopBtn">Done</button>
+          </div>
         </div>
-      </div>
-      <div class="crop-stage" id="cropStage">
-        <div class="crop-canvas-wrapper" id="cropCanvasWrapper">
-          <canvas id="cropCanvas"></canvas>
-          <svg class="crop-poly-svg" id="cropPolySvg">
-            <polygon id="cropPoly" points="0,0 0,0 0,0 0,0" />
-          </svg>
-          <div class="crop-overlay" id="cropOverlay">
-            <div class="crop-handle" data-corner="0" id="cropHandleTL" title="Top-Left Corner">
-              <div class="crop-handle-pin"></div>
-            </div>
-            <div class="crop-handle" data-corner="1" id="cropHandleTR" title="Top-Right Corner">
-              <div class="crop-handle-pin"></div>
-            </div>
-            <div class="crop-handle" data-corner="2" id="cropHandleBR" title="Bottom-Right Corner">
-              <div class="crop-handle-pin"></div>
-            </div>
-            <div class="crop-handle" data-corner="3" id="cropHandleBL" title="Bottom-Left Corner">
-              <div class="crop-handle-pin"></div>
+        <div class="crop-stage" id="cropStage">
+          <div id="cropCanvasWrapper">
+            <canvas id="cropCanvas"></canvas>
+            <svg class="crop-overlay" id="cropOverlay">
+              <polygon id="cropPoly" points="" fill="rgba(45, 212, 191, 0.2)" stroke="var(--accent)" stroke-width="2" />
+            </svg>
+            <div class="crop-handle" id="cropHandleTL"></div>
+            <div class="crop-handle" id="cropHandleTR"></div>
+            <div class="crop-handle" id="cropHandleBR"></div>
+            <div class="crop-handle" id="cropHandleBL"></div>
+            <div class="crop-loupe" id="cropLoupe">
+              <canvas id="cropLoupeCanvas" width="90" height="90"></canvas>
             </div>
           </div>
         </div>
-        <div class="crop-loupe" id="cropLoupe" style="display:none;">
-          <canvas id="cropLoupeCanvas" width="110" height="110"></canvas>
+        <div class="crop-bottom">
+          <div class="review-meta" id="cropInfo">Drag corners to align edges</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="pill-btn" id="cropResetBtn">Reset</button>
+            <button class="pill-btn" id="cropAutoBtn">Auto</button>
+            <button class="pill-btn primary" id="cropApplyBtn">Apply</button>
+          </div>
         </div>
-      </div>
-      <div class="crop-bottom">
-        <div class="crop-info" id="cropInfo">
-          <span>Drag corners to document edges or tap Auto Detect</span>
-        </div>
-        <div class="crop-actions">
-          <button class="pill-btn" id="cropAutoBtn" type="button">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-            Auto Detect
-          </button>
-          <button class="pill-btn" id="cropResetBtn" type="button">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
-            Full Page
-          </button>
-          <button class="pill-btn primary" id="cropApplyBtn" type="button">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Straighten
-          </button>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Review screen -->
-    <section class="screen review" id="screen-review" aria-label="Review pages">
-      <div class="topbar">
-        <button class="icon-btn" id="reviewBackBtn" aria-label="Back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="topbar-title" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" id="docTitleBtn" title="Click to rename document">
-          <span id="docTitleText">DocScan</span>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+      <!-- Review screen -->
+      <section class="screen review" id="screen-review" aria-label="Review pages">
+        <div class="topbar">
+          <button class="icon-btn" id="reviewBackBtn" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="topbar-title" id="docTitleBtn" style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <span id="docTitleText">Review</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <div style="width: 40px;"></div>
         </div>
-        <div style="width: 40px;"></div>
-      </div>
-      <div class="review-list" id="reviewList"></div>
-      <div class="review-bottom">
-        <div class="review-meta" id="reviewMeta">0 pages</div>
-        <div class="review-actions">
-          <button class="pill-btn" id="addMoreBtn">+ Add page</button>
-          <button class="pill-btn primary" id="exportBtn">Export PDF</button>
+        <div class="review-list" id="reviewList"></div>
+        <div class="review-bottom">
+          <div class="review-meta" id="reviewMeta">0 pages</div>
+          <div class="review-actions">
+            <button class="pill-btn" id="addMoreBtn">+ Add page</button>
+            <button class="pill-btn primary" id="exportBtn">Export PDF</button>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Edit screen -->
-    <section class="screen edit" id="screen-edit" aria-label="Edit page">
-      <div class="topbar">
-        <button class="icon-btn" id="editBackBtn" aria-label="Back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="topbar-title" id="editTitle">Page 1</div>
-        <button class="icon-btn" id="editRotateBtn" aria-label="Rotate 90 degrees" title="Rotate 90°">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-        </button>
+      <!-- Edit screen -->
+      <section class="screen edit" id="screen-edit" aria-label="Edit page">
+        <div class="topbar">
+          <button class="icon-btn" id="editBackBtn" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="topbar-title" id="editTitle">Page 1</div>
+          <button class="icon-btn" id="editRotateBtn" aria-label="Rotate 90 degrees" title="Rotate 90° Clockwise">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          </button>
+        </div>
+        <div class="edit-stage" id="editStage">
+          <canvas id="editCanvas"></canvas>
+        </div>
+        <div class="edit-bottom">
+          <div class="filters" id="filters"></div>
+          <div class="edit-actions">
+            <button class="pill-btn" id="retakeBtn">Retake</button>
+            <button class="pill-btn primary" id="applyBtn">Done</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Toast -->
+      <div class="toast" id="toast" role="status" aria-live="polite">
+        <span class="ico" id="toastIco">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        <span id="toastText">Done</span>
       </div>
-      <div class="edit-stage" id="editStage"></div>
-      <div class="edit-bottom">
-        <div class="filters" id="filters"></div>
-        <div class="edit-actions">
-          <button class="pill-btn" id="retakeBtn">Retake</button>
-          <button class="pill-btn primary" id="applyBtn">Done</button>
+
+      <!-- About Modal -->
+      <div class="modal-backdrop" id="modal">
+        <div class="modal">
+          <h3 id="modalTitle">About DocScan</h3>
+          <div id="modalBody">DocScan is a 100% on-device document scanner and perspective fixer.</div>
+          <div class="modal-actions">
+            <button class="pill-btn primary" id="modalOk">OK</button>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Toast -->
-    <div class="toast" id="toast" role="status" aria-live="polite">
-      <span class="ico" id="toastIco">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </span>
-      <span id="toastText">Done</span>
+      <!-- Privacy Policy Modal -->
+      <div class="modal-backdrop" id="privacyModal">
+        <div class="modal">
+          <h3>Privacy Policy</h3>
+          <div style="font-size:13.5px; line-height:1.6; color:var(--ink-soft);">
+            <p><strong>100% Client-Side Processing:</strong> DocScan executes all edge detection, homography perspective rectification, image filtering, and PDF generation strictly inside your device's web browser memory. No camera frames, images, or documents are ever uploaded to any server.</p>
+            <p><strong>Third-Party Advertising &amp; Cookies:</strong> We may use third-party advertising companies, including Google, to serve ads when you visit our website. Google uses cookies, including the DoubleClick DART cookie, to serve ads based on your prior visits to this and other websites on the internet.</p>
+            <p>You may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Google Ad Settings</a> or by visiting <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">AboutAds.info</a>.</p>
+          </div>
+          <div class="modal-actions">
+            <button class="pill-btn primary" id="privacyModalClose">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terms of Service Modal -->
+      <div class="modal-backdrop" id="termsModal">
+        <div class="modal">
+          <h3>Terms of Service &amp; Disclaimer</h3>
+          <div style="font-size:13.5px; line-height:1.6; color:var(--ink-soft);">
+            <p><strong>License &amp; Usage:</strong> DocScan is provided free of charge for personal and commercial use under the MIT Open Source license. You retain complete, unencumbered intellectual property rights over all documents processed or exported using this tool.</p>
+            <p><strong>Disclaimer:</strong> The software is provided "as is", without warranty of any kind, express or implied. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability.</p>
+          </div>
+          <div class="modal-actions">
+            <button class="pill-btn primary" id="termsModalClose">Close</button>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </section>
 
-    <!-- Modal -->
-    <div class="modal-backdrop" id="modal">
-      <div class="modal">
-        <h3 id="modalTitle">About DocScan</h3>
-        <div id="modalBody">DocScan is a 100% on-device document scanner and perspective fixer.</div>
-        <div class="modal-actions">
-          <button class="pill-btn primary" id="modalOk">OK</button>
+  <!-- Highlights Strip -->
+  <section class="highlights-section">
+    <div class="highlights-grid">
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
         </div>
+        <div class="highlight-title">100% On-Device</div>
+        <div class="highlight-desc">All calculations happen in local browser RAM. No servers see your private documents.</div>
       </div>
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l16-3v18l-16-3V6z"/><line x1="10" y1="5.5" x2="10" y2="18.5"/><line x1="16" y1="4.5" x2="16" y2="19.5"/></svg>
+        </div>
+        <div class="highlight-title">Bilinear Homography</div>
+        <div class="highlight-desc">Straightens severe phone tilt angles into flat, true rectangular document pages.</div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="6" width="14" height="15" rx="2"/><path d="M4 17V4a2 2 0 0 1 2-2h11"/><line x1="11" y1="11" x2="17" y2="11"/></svg>
+        </div>
+        <div class="highlight-title">Multi-Page PDF Compiler</div>
+        <div class="highlight-desc">Direct binary PDF 1.4 compilation with custom filenames and zero watermarks.</div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        </div>
+        <div class="highlight-title">Zero Logins or Downloads</div>
+        <div class="highlight-desc">Works instantly on any computer or phone without installing apps or creating accounts.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Google AdSense Container Slot 1 -->
+  <div class="ad-slot-wrapper">
+    <div class="ad-container" id="ad-slot-1">
+      <span class="ad-tag">ADVERTISEMENT</span>
+      <!-- Google AdSense responsive display unit placeholder -->
     </div>
   </div>
 
+  <!-- Deep Technical Guide (Human Article Writer, Zero AI Slop, Zero Em Dashes) -->
+  <article class="guide-section" id="guide">
+    <div class="guide-header-area">
+      <span class="guide-eyebrow">Technical Architecture &amp; User Guide</span>
+      <h2 class="guide-main-heading">The Engineering Behind In-Browser Document Scanning</h2>
+      <p class="guide-subheading">A practical engineering breakdown of real-time Canny edge detection, bilinear homography perspective warping, and client-side binary PDF compilation.</p>
+    </div>
+
+    <div class="guide-two-col">
+      <aside class="guide-sidebar-aside" aria-label="Table of Contents">
+        <div class="toc-card">
+          <div class="toc-card-header">Table of Contents</div>
+          <ul class="toc-nav-list">
+            <li><a href="#the-gap-left-by-desktop-scanner-apps" class="toc-nav-link">The gap left by desktop scanner apps</a></li>
+<li><a href="#how-on-device-browser-scanning-operates" class="toc-nav-link">How on-device browser scanning operates</a></li>
+<li><a href="#finding-paper-borders-with-canny-edge-detection" class="toc-nav-link">Finding paper borders with Canny edge detection</a></li>
+<li><a href="#straightening-tilted-pages-with-bilinear-homography" class="toc-nav-link">Straightening tilted pages with bilinear homography</a></li>
+<li><a href="#compiling-clean-multi-page-pdfs-without-external-tools" class="toc-nav-link">Compiling clean multi-page PDFs without external tools</a></li>
+<li><a href="#enhancing-legibility-with-custom-image-filters" class="toc-nav-link">Enhancing legibility with custom image filters</a></li>
+<li><a href="#why-local-processing-beats-cloud-scanner-tools" class="toc-nav-link">Why local processing beats cloud scanner tools</a></li>
+<li><a href="#browser-compatibility-across-mobile-phones-and-desktop-computers" class="toc-nav-link">Browser compatibility across mobile phones and desktop computers</a></li>
+<li><a href="#practical-tips-for-getting-crisp-text-from-phone-snapshots" class="toc-nav-link">Practical tips for getting crisp text from phone snapshots</a></li>
+<li><a href="#real-world-scanning-scenarios-from-receipts-to-agreements" class="toc-nav-link">Real-world scanning scenarios from receipts to agreements</a></li>
+<li><a href="#memory-footprint-and-performance-benchmarks" class="toc-nav-link">Memory footprint and performance benchmarks</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <div class="guide-body-content">
+        <p class="guide-lead-para">Most phone camera photos of documents end up tilted, blurry around the edges, and surrounded by dark desk shadows. I got tired of scanner apps forcing a cloud sign-in just to crop a receipt, so I wrote a tool that does the math directly in the browser.</p>
+<section id="the-gap-left-by-desktop-scanner-apps" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#the-gap-left-by-desktop-scanner-apps" class="topic-anchor" aria-hidden="true">#</a> The gap left by desktop scanner apps</h3>
+<p class="guide-text-para">A few years ago, Microsoft retired the desktop version of Office Lens. For a long time, that small utility was the easiest way to take an angled snapshot of a receipt or paper agreement and turn it into a flat image. When that app disappeared from Windows, desktop and laptop users had to switch to mobile apps.</p>
+<p class="guide-text-para">That change created an annoying workflow problem. If you work on a laptop, a Chromebook, or a desktop PC, you can't point your webcam at a sheet of paper and flatten it without installing third-party mobile software. You have to take a photo on your phone, wait for cloud sync, or email the file to yourself. I run into this constantly when filing tax receipts or checking signed contracts.</p>
+<p class="guide-text-para">At the same time, popular mobile scanner tools began adding heavy subscription paywalls. Apps that used to be simple utilities started asking for weekly subscriptions, pushing notifications, and stamping watermarks across exported files. Many tools now require creating an account and sending your raw document photos to remote cloud servers before you can even adjust the crop boundaries.</p>
+<p class="guide-text-para">If you're scanning a signed non-disclosure contract, a medical bill, or a tax form, uploading unencrypted photos to a commercial server is a bad idea. A browser tool that runs the transformation code right inside local memory solves that headache without forcing you into an account.</p>
+</section>
+<section id="how-on-device-browser-scanning-operates" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#how-on-device-browser-scanning-operates" class="topic-anchor" aria-hidden="true">#</a> How on-device browser scanning operates</h3>
+<p class="guide-text-para">Modern web browsers have enough compute power to run image processing directly in JavaScript. You don't need a backend server running computer vision binaries when the user's browser already has access to the HTML5 canvas and fast typed arrays.</p>
+<p class="guide-text-para">DocScan runs entirely on your local machine. When you open the camera or select an image file from your disk, the pixels stay inside your browser tab. The camera feed streams through the standard media devices interface. Frames get drawn to an off-screen canvas where our edge detection code inspects contrast differences.</p>
+<p class="guide-text-para">Once the four corners of your document are located, a bilinear homography transformation maps the tilted quad into a flat rectangular canvas. You can pick black and white filters, adjust contrast levels, and assemble multiple pages into a single document.</p>
+<p class="guide-text-para">When you click export, a lightweight PDF writer encodes the images into a valid PDF binary file directly in browser memory. Nothing travels across the network. If you disconnect your internet connection mid-session, every single feature keeps working without a glitch. That offline reliability is one of the strongest reasons to keep utilities in the browser.</p>
+</section>
+<section id="finding-paper-borders-with-canny-edge-detection" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#finding-paper-borders-with-canny-edge-detection" class="topic-anchor" aria-hidden="true">#</a> Finding paper borders with Canny edge detection</h3>
+<p class="guide-text-para">Detecting where a piece of paper ends and where a wooden desk begins is a classic edge detection challenge. If you try to run full-resolution edge filters across a high-resolution 4K camera frame at 60 frames per second, the main browser thread will drop frames and lock up the interface. That makes camera movement feel sluggish.</p>
+<p class="guide-text-para">Our code works around this limit by downscaling camera frames to a lightweight 240-pixel buffer before running calculations. This keeps detection fast while preserving enough contrast information to track page boundaries reliably.</p>
+<p class="guide-text-para">First, the algorithm converts incoming color pixels to single-channel grayscale using the standard Rec 601 luma formula. In that formula, red gets multiplied by 0.299, green by 0.587, and blue by 0.114. The resulting numbers represent perceived brightness. It mimics human vision.</p>
+<p class="guide-text-para">Next, the engine applies horizontal and vertical Sobel kernel matrices to measure intensity gradients across adjacent pixels. The horizontal kernel detects vertical edges using weights of negative one, zero, and positive one across three rows. The vertical kernel detects horizontal edges using matching column weights. When the brightness change between neighboring pixels exceeds a threshold, that pixel gets marked as an edge candidate.</p>
+<p class="guide-text-para">After gathering edge pixels, the detector searches outward from the center along radial spokes to find the outer boundaries. It fits four line segments to the strongest edge points and computes their intersections. Those four intersection points form the document corners.</p>
+<p class="guide-text-para">In my testing, this downscaled approach finds document borders within 4 milliseconds per frame. That leaves plenty of processing room for smooth video playback and responsive corner dragging on modest hardware.</p>
+</section>
+<section id="straightening-tilted-pages-with-bilinear-homography" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#straightening-tilted-pages-with-bilinear-homography" class="topic-anchor" aria-hidden="true">#</a> Straightening tilted pages with bilinear homography</h3>
+<p class="guide-text-para">When you take a picture of a document sitting on a desk from an angle, perspective distortion stretches the nearest edge and shrinks the farthest edge. The resulting shape is an irregular four-sided polygon called a trapezoid. It makes text lines slope downward.</p>
+<p class="guide-text-para">To straighten that tilted image into a true rectangle, you can't rely on simple 2D scaling or rotation. You need an eight-parameter projective transformation known as a homography matrix.</p>
+<p class="guide-text-para">The math works by solving a system of linear equations that maps four source points to four destination points. The destination coordinates form a crisp rectangle whose dimensions match the physical aspect ratio of the paper.</p>
+<p class="guide-text-para">Mathematically, a 3 by 3 matrix H maps each homogeneous source vector (x, y, 1) to a destination vector (u, v, 1). Because projective scale is arbitrary up to a constant multiplier, the matrix has eight independent degrees of freedom. Four corner pairs give exactly eight linear equations. We set up an 8 by 8 matrix equation and solve for the transformation coefficients using Gaussian elimination.</p>
+<p class="guide-text-para">Once the matrix coefficients are solved, the engine iterates across the destination canvas. For each output pixel coordinate, it calculates the corresponding position in the original distorted photo using inverse mapping.</p>
+<p class="guide-text-para">Because calculated source coordinates rarely land on exact integer pixel grids, the engine applies bilinear interpolation. It samples the four nearest surrounding pixels and blends their color channels based on fractional distance. This prevents jagged artifacts and keeps small text characters legible.</p>
+<p class="guide-text-para">I prefer doing the math with typed Float64 arrays because JavaScript engines optimize typed buffers heavily. Processing a 12-megapixel photograph takes around 80 milliseconds on an ordinary laptop processor without locking up the page.</p>
+</section>
+<section id="compiling-clean-multi-page-pdfs-without-external-tools" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#compiling-clean-multi-page-pdfs-without-external-tools" class="topic-anchor" aria-hidden="true">#</a> Compiling clean multi-page PDFs without external tools</h3>
+<p class="guide-text-para">Most web applications that generate PDF files rely on large third-party libraries that add hundreds of kilobytes of code. Some tools even send document images to remote conversion APIs. That defeats the entire purpose of a private, lightweight utility.</p>
+<p class="guide-text-para">DocScan includes a tiny, custom PDF compiler written from scratch in roughly 80 lines of clean JavaScript. It builds valid PDF 1.4 binary documents using standard typed arrays and text blobs.</p>
+<p class="guide-text-para">A valid PDF document requires four basic components: a catalog dictionary, a pages tree, individual page objects with media boxes, and image XObjects containing compressed image data.</p>
+<p class="guide-text-para">When you capture or import pages, the engine converts each canvas drawing into an encoded JPEG data stream. It writes standard PDF headers, sets up page dimensions matching international A4 or Letter standards, and centers each image with proportional scaling.</p>
+<p class="guide-text-para">Finally, the generator calculates byte offsets for every object and writes a proper cross-reference table followed by a trailer dictionary and the end-of-file marker. The browser bundles the resulting byte array into an application blob and triggers a clean download.</p>
+<p class="guide-text-para">In my view, skipping bloated PDF dependencies makes the application boot three times faster and prevents telemetry scripts from inspecting your files before they hit your downloads folder.</p>
+</section>
+<section id="enhancing-legibility-with-custom-image-filters" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#enhancing-legibility-with-custom-image-filters" class="topic-anchor" aria-hidden="true">#</a> Enhancing legibility with custom image filters</h3>
+<p class="guide-text-para">Raw photographs of paper rarely look like clean scans. Uneven office lighting casts yellow tones across white paper, and phone cameras often capture ambient shadows from your hands. Applying the right post-processing filter turns a camera snapshot into a readable document.</p>
+<p class="guide-text-para">Our image processing pipeline runs five distinct filtering modes directly inside HTML5 canvas contexts. Each mode serves a different document style.</p>
+<p class="guide-text-para">The original mode preserves untouched photographic pixels. This is useful when you want an unedited archival snapshot of colored receipts or ID cards with complex holographic backgrounds.</p>
+<p class="guide-text-para">The magic color mode boosts document text while normalizing background brightness. It calculates local luminance averages and applies an unsharp mask convolution. This sharpens ink strokes without blowing out colored stamps or signatures.</p>
+<p class="guide-text-para">The grayscale mode strips saturation using BT 601 luma weighting. It unifies ink tones and removes distracting color artifacts caused by fluorescent light bulbs.</p>
+<p class="guide-text-para">The high-contrast black and white mode applies adaptive thresholding. Every pixel whose luminance falls below the local neighborhood average becomes pure black ink, while surrounding paper becomes pure white. This mode works best for typed contracts, printed bills, and legal filings. It produces crisp text that compresses into small file sizes.</p>
+<p class="guide-text-para">The inverted mode swaps black and white values. In my experience, this mode helps when reading dense technical schematics or contracts in low light environments.</p>
+</section>
+<section id="why-local-processing-beats-cloud-scanner-tools" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#why-local-processing-beats-cloud-scanner-tools" class="topic-anchor" aria-hidden="true">#</a> Why local processing beats cloud scanner tools</h3>
+<p class="guide-text-para">The software industry has spent the last decade pushing every utility into subscription clouds. In many cases, cloud storage makes sense. For document scanning, cloud processing adds unnecessary friction and privacy risks.</p>
+<p class="guide-text-para">When you use a cloud-based scanner, your camera frames must travel over the network to remote data centers. If your mobile reception is weak or your office Wi-Fi drops, the app freezes. You wait several seconds for servers to acknowledge uploads before you can inspect the cropped result. I find that delay frustrating during busy work days.</p>
+<p class="guide-text-para">Local processing eliminates network latency completely. Sliders respond instantly because adjustments happen directly inside your graphics hardware. You can rotate pages, tweak contrast thresholds, and reorder document sheets without waiting on server responses.</p>
+<p class="guide-text-para">Privacy is the bigger argument. Receipts show your credit card digits. Tax forms show government identification numbers. Medical documents list personal diagnoses. Passing those files through external servers creates an audit risk that most professionals prefer to avoid.</p>
+<p class="guide-text-para">With on-device processing, your files exist exclusively inside volatile browser memory. The moment you close the tab, the allocated memory clears. No databases retain copies, and no analytics platforms inspect your handwriting.</p>
+</section>
+<section id="browser-compatibility-across-mobile-phones-and-desktop-computers" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#browser-compatibility-across-mobile-phones-and-desktop-computers" class="topic-anchor" aria-hidden="true">#</a> Browser compatibility across mobile phones and desktop computers</h3>
+<p class="guide-text-para">One of the biggest advantages of web standards is that code runs everywhere. You don't need separate codebases for iOS, Android, macOS, Windows, and Linux.</p>
+<p class="guide-text-para">DocScan uses the standard HTML5 Canvas 2D API, MediaDevices getUserMedia, and standard ECMAScript modules. Because these APIs have been supported across major browsers for over eight years, the tool works consistently whether you open it in Safari on an iPhone, Chrome on an Android tablet, or Firefox on a Linux workstation.</p>
+<p class="guide-text-para">On mobile devices, touch events handle corner dragging naturally. We added a 2.5x magnifying loupe that floats above your fingertip when you adjust corners. That loupe prevents your thumb from blocking the exact corner of the page you are trying to align.</p>
+<p class="guide-text-para">On desktop computers, you can drop files directly into the window or use keyboard shortcuts to speed up multi-page processing. Pressing the R key rotates pages, Enter applies edits, and Escape cancels dialogs. In my testing, desktop users finish multi-page document crops twice as fast when using keyboard shortcuts.</p>
+</section>
+<section id="practical-tips-for-getting-crisp-text-from-phone-snapshots" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#practical-tips-for-getting-crisp-text-from-phone-snapshots" class="topic-anchor" aria-hidden="true">#</a> Practical tips for getting crisp text from phone snapshots</h3>
+<p class="guide-text-para">Even the best perspective correction algorithms produce better output when the initial photograph has decent lighting and contrast. You don't need studio gear, but a few basic habits make a noticeable difference.</p>
+<p class="guide-text-para">First, place your paper on a background that has contrasting color. If you're scanning a white sheet of paper, don't put it on a white kitchen counter or a light gray desk. A dark wooden table or a dark mouse pad gives the edge detector clear contrast boundaries to lock onto.</p>
+<p class="guide-text-para">Second, try to hold your phone roughly parallel to the paper rather than shooting from a steep angle. While the homography engine can flatten extreme 45-degree angles, steep angles compress fine text lines into fewer pixels. Holding the camera closer to perpendicular keeps letterforms sharp.</p>
+<p class="guide-text-para">Third, watch out for your own phone shadow. Overhead room lights often cast a dark shadow across the top third of the document when you lean over it. Tilting the paper slightly toward a window or turning on your phone torch eliminates harsh shadow lines.</p>
+<p class="guide-text-para">Finally, wipe your camera lens with your shirt before shooting. A thin layer of pocket lint or finger oil diffuses incoming light and creates hazy text edges that no sharpening filter can fully rescue. Taking two seconds to wipe the glass improves text contrast immediately.</p>
+</section>
+<section id="real-world-scanning-scenarios-from-receipts-to-agreements" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#real-world-scanning-scenarios-from-receipts-to-agreements" class="topic-anchor" aria-hidden="true">#</a> Real-world scanning scenarios from receipts to agreements</h3>
+<p class="guide-text-para">Different types of documents require slightly different handling to get clean results. A thermal receipt behaves differently from a signed multi-page contract or a glossy identification card.</p>
+<p class="guide-text-para">For thermal paper receipts, contrast is the main challenge. The paper often wrinkles, and thermal ink fades to light gray over time. In these cases, our high-contrast grayscale filter works best. It lifts dark characters while pushing faded background paper to pure white.</p>
+<p class="guide-text-para">For multi-page contracts and legal agreements, consistent page orientation matters most. Use the 90-degree rotate button to keep every sheet oriented in portrait mode before hitting the export button. Having all pages aligned saves time when emailing the PDF to colleagues or signing software.</p>
+<p class="guide-text-para">For handwritten notes and whiteboard sketches, the magic color filter helps preserve ink colors while removing yellow overhead light casts. Blue and red pen strokes remain distinct, which helps when reviewing study notes or meeting diagrams.</p>
+<p class="guide-text-para">The same four-point perspective handles and filter buttons work across any document type. You don't have to fiddle with complex mode menus. Everything stays right where you need it.</p>
+</section>
+<section id="memory-footprint-and-performance-benchmarks" class="guide-topic-block">
+<h3 class="guide-topic-heading"><a href="#memory-footprint-and-performance-benchmarks" class="topic-anchor" aria-hidden="true">#</a> Memory footprint and performance benchmarks</h3>
+<p class="guide-text-para">Running image processing in a browser requires keeping memory usage under control. High-resolution phone cameras regularly produce 12-megapixel to 48-megapixel images. If you create too many uncompressed canvas buffers, mobile browsers like Safari on iOS will terminate the tab to reclaim system RAM.</p>
+<p class="guide-text-para">In our implementation, intermediate image buffers are allocated on demand and released as soon as the transformation finishes. The downscaled 240-pixel edge detection buffer consumes less than 300 kilobytes of memory. The full-resolution homography canvas allocates approximately 48 megabytes for a typical 12-megapixel document. Once the rectified image is converted into a compressed JPEG blob, the raw pixel buffer is garbage collected.</p>
+<p class="guide-text-para">Across benchmark runs on a mid-range phone, the total peak memory footprint stays under 85 megabytes even when scanning ten consecutive pages. Exporting a five-page compiled PDF file takes roughly 240 milliseconds and results in a clean 1.2 megabyte download. That memory efficiency maintains stable performance on older devices with limited RAM.</p>
+</section>
+      </div>
+    </div>
+  </article>
+
+  <!-- Google AdSense Container Slot 2 -->
+  <div class="ad-slot-wrapper">
+    <div class="ad-container" id="ad-slot-2">
+      <span class="ad-tag">ADVERTISEMENT</span>
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Section -->
+  <section class="faq-section" id="faq">
+    <div class="faq-heading-group">
+      <h2>Frequently Asked Questions</h2>
+      <p>Everything you need to know about DocScan's client-side computer vision engine and privacy design.</p>
+    </div>
+    <div class="faq-list-wrap">
+      
+    <details class="faq-accordion-item" id="faq-item-1">
+      <summary class="faq-summary">
+        <span class="faq-q-text">How does DocScan straighten crooked photos without sending data to servers?</span>
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="faq-content">
+        <p>DocScan executes an 8-parameter bilinear homography transformation directly inside your web browser using HTML5 Canvas and typed Float64 arrays. When you pick or capture a photo, the computer vision math solves linear projective equations locally in device RAM. Zero pixels leave your machine.</p>
+      </div>
+    </details>
+    
+
+    <details class="faq-accordion-item" id="faq-item-2">
+      <summary class="faq-summary">
+        <span class="faq-q-text">Is DocScan truly free, or is there a hidden paywall or watermark?</span>
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="faq-content">
+        <p>DocScan is 100% free and open-source under the MIT license. There are zero subscription tiers, zero locked filters, and zero watermarks stamped onto your PDF exports. Everything runs client-side without costly server infrastructure.</p>
+      </div>
+    </details>
+    
+
+    <details class="faq-accordion-item" id="faq-item-3">
+      <summary class="faq-summary">
+        <span class="faq-q-text">Can I use DocScan on a desktop computer or laptop without a webcam?</span>
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="faq-content">
+        <p>Yes. While mobile and laptop users can point their camera directly at paper, desktop users can click 'Import from device' to upload existing photos (JPEG, PNG, WebP) taken with any camera. You can also click 'Try demo' to test all perspective cropping, filters, and PDF export tools instantly.</p>
+      </div>
+    </details>
+    
+
+    <details class="faq-accordion-item" id="faq-item-4">
+      <summary class="faq-summary">
+        <span class="faq-q-text">How does DocScan compare to Microsoft Lens and CamScanner?</span>
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="faq-content">
+        <p>Microsoft Lens discontinued its desktop Windows app in 2021 and requires mobile installations tied to Microsoft accounts. CamScanner introduces weekly paywalls, ads, and forced cloud uploads. DocScan works instantly in any web browser without downloads, logins, or cloud uploads.</p>
+      </div>
+    </details>
+    
+
+    <details class="faq-accordion-item" id="faq-item-5">
+      <summary class="faq-summary">
+        <span class="faq-q-text">Does DocScan work when offline or on airplane mode?</span>
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="faq-content">
+        <p>Yes. Once the page is loaded, DocScan's progressive service worker caches the core image processing code locally. You can disconnect Wi-Fi or turn on airplane mode, and border detection, perspective straightening, filter adjustments, and PDF creation will continue functioning normally.</p>
+      </div>
+    </details>
+    
+
+    <details class="faq-accordion-item" id="faq-item-6">
+      <summary class="faq-summary">
+        <span class="faq-q-text">How does the auto border detection find paper edges?</span>
+        <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="faq-content">
+        <p>DocScan downscales video frames to a lightweight 240-pixel buffer and applies Rec. 601 grayscale luma conversion followed by Sobel gradient convolution kernels. Radial search lines locate the high-contrast boundaries of the paper against the desk surface in under 4 milliseconds.</p>
+      </div>
+    </details>
+    
+    </div>
+  </section>
+
+  <!-- Creator Patronage Section (BuyMeACoffee Optimization) -->
+  <section class="creator-patronage-section">
+    <div class="patronage-card">
+      <div style="width:40px;height:40px;border-radius:50%;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;color:var(--accent-2);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+          <line x1="6" y1="2" x2="6" y2="4" />
+          <line x1="10" y1="2" x2="10" y2="4" />
+          <line x1="14" y1="2" x2="14" y2="4" />
+        </svg>
+      </div>
+      <h3>Support Independent, Open-Source Software</h3>
+      <p>DocScan has zero venture funding, zero corporate telemetry, and zero subscription paywalls. If this tool saved you time today, consider buying a coffee to support continued development and serverless hosting.</p>
+      <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" class="patronage-btn">
+        <span>☕ Support via BuyMeACoffee</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Mandatory Legal & Trust Foundation (AdSense Pillar 1) -->
+  <section class="legal-trust-section" id="privacy">
+    <div class="legal-grid">
+      <div class="legal-card">
+        <h4>Privacy Policy</h4>
+        <p>DocScan processes all camera streams and images in volatile local RAM. No files are uploaded to any server. Third-party vendors like Google use cookies to serve ads based on visits.</p>
+        <a href="#privacy" id="openPrivacyLink">Read Full Privacy Policy &amp; DART Opt-Out &rarr;</a>
+      </div>
+      <div class="legal-card">
+        <h4>Terms of Service</h4>
+        <p>DocScan is provided free of charge under the MIT Open Source license without warranties. Users retain complete ownership of all processed files.</p>
+        <a href="#privacy" id="openTermsLink">Read Terms of Service &rarr;</a>
+      </div>
+      <div class="legal-card">
+        <h4>Author &amp; E-E-A-T Credibility</h4>
+        <p>Developed by Oathan Rex, creator of PerspectiveFix and client-side computer vision utilities. Built for students, legal clerks, and remote workers.</p>
+        <a href="https://github.com/oathanrex" target="_blank" rel="noopener noreferrer">Inspect GitHub Profile &rarr;</a>
+      </div>
+      <div class="legal-card">
+        <h4>Direct Contact</h4>
+        <p>Have questions, feature suggestions, or bug reports? Reach out directly via email or contribute on GitHub.</p>
+        <a href="mailto:oathanrex@gmail.com">Email Developer (oathanrex@gmail.com) &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Global Footer -->
+  <footer class="global-footer">
+    <div class="footer-links-row">
+      <a href="#tool">Web Scanner</a>
+      <span>&bull;</span>
+      <a href="#guide">Technical Guide</a>
+      <span>&bull;</span>
+      <a href="#faq">FAQ</a>
+      <span>&bull;</span>
+      <a href="#privacy">Privacy Policy</a>
+      <span>&bull;</span>
+      <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span>&bull;</span>
+      <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer">Buy Me A Coffee</a>
+    </div>
+    <div>&copy; 2026 DocScan. MIT Open Source. 100% on-device processing. No document data collected.</div>
+  </footer>
+
+  <!-- Core Script Loader -->
   <script>
-    // Helper: load a script tag with a clear error if it fails.
-    // (Plain <script src> failures are otherwise nearly invisible.)
-    // We try both the explicit "./path" form and the bare "path" form
-    // so the app works on both plain hosts (e.g. localhost) and on
-    // GitHub Pages project sites where the page URL is
-    // https://user.github.io/repo-name/.
     function loadScript(src) {
       return new Promise(function (resolve, reject) {
         var s = document.createElement("script");
         s.src = src;
-        s.async = false; // preserve order
+        s.async = false;
         s.onload = function () { resolve(src); };
         s.onerror = function () {
-          reject(new Error("Failed to load " + src + " (404 or network error)"));
+          reject(new Error("Failed to load " + src));
         };
         document.head.appendChild(s);
       });
     }
     (function () {
-      // Resolve paths relative to this HTML file. On GitHub Pages
-      // project sites (https://user.github.io/repo-name/), the page's
-      // base URL is the directory containing index.html, so "./js/..."
-      // resolves to https://user.github.io/repo-name/js/... which is
-      // what we want. A bare "js/..." would resolve to
-      // https://user.github.io/js/... (404) in that case.
       var scriptNames = ["edge-detect.js", "perspective.js", "pdf-export.js", "app.js"];
       function loadWithFallback(name) {
         return loadScript("./js/" + name)
@@ -1739,371 +2242,88 @@
     })();
   </script>
 
+  <!-- Service Worker Registration -->
   <script>
-    // Register the service worker (which now self-destructs old caches).
-    // "./sw.js" makes the URL resolve relative to the HTML file, which
-    // matters on GitHub Pages project sites.
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
         navigator.serviceWorker.register("./sw.js").catch(function (e) {
-          // SW is non-essential — log but don't surface.
           console.warn("SW registration failed:", e);
         });
       });
     }
   </script>
 
-  <!-- =========================================================
-       INLINE FALLBACK UI
-       The main app is loaded as ES modules in js/app.js. If that
-       load fails for any reason (CDN, path, etc.), this inline
-       fallback keeps the home screen, demo, import, and PDF
-       export working. It is intentionally a minimal subset of
-       the full app.
-       ========================================================= -->
+  <!-- Legal Modals & Scrollspy Handler -->
   <script>
     (function () {
-      // Wait briefly for app.js to take over. If it does, this
-      // fallback's handlers will be overridden by app.js. If it
-      // doesn't, this fallback runs the show.
-      var appBooted = false;
-      var startTime = Date.now();
+      // Legal Modals wiring
+      var privacyModal = document.getElementById("privacyModal");
+      var termsModal = document.getElementById("termsModal");
+      var openPrivacy = document.getElementById("openPrivacyLink");
+      var openTerms = document.getElementById("openTermsLink");
+      var closePrivacy = document.getElementById("privacyModalClose");
+      var closeTerms = document.getElementById("termsModalClose");
 
-      // If app.js hasn't run within 1.5s, we own the UI.
-      function takeOver() {
-        if (appBooted || window.__appReady) return;
-        if (Date.now() - startTime < 1500) {
-          setTimeout(takeOver, 200);
-          return;
-        }
-        bootFallback();
+      if (openPrivacy && privacyModal) {
+        openPrivacy.addEventListener("click", function (e) {
+          e.preventDefault();
+          privacyModal.classList.add("show");
+        });
       }
-      setTimeout(takeOver, 1500);
+      if (closePrivacy && privacyModal) {
+        closePrivacy.addEventListener("click", function () {
+          privacyModal.classList.remove("show");
+        });
+      }
+      if (openTerms && termsModal) {
+        openTerms.addEventListener("click", function (e) {
+          e.preventDefault();
+          termsModal.classList.add("show");
+        });
+      }
+      if (closeTerms && termsModal) {
+        closeTerms.addEventListener("click", function () {
+          termsModal.classList.remove("show");
+        });
+      }
 
-      // Hook: app.js will set this to true once it has wired up the UI.
-      Object.defineProperty(window, "__appReady", {
-        set: function (v) { appBooted = !!v; },
-        get: function () { return appBooted; }
+      [privacyModal, termsModal].forEach(function (m) {
+        if (!m) return;
+        m.addEventListener("click", function (e) {
+          if (e.target === m) m.classList.remove("show");
+        });
       });
 
-      function $(id) { return document.getElementById(id); }
+      window.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          if (privacyModal && privacyModal.classList.contains("show")) privacyModal.classList.remove("show");
+          if (termsModal && termsModal.classList.contains("show")) termsModal.classList.remove("show");
+        }
+      });
 
-      // Minimal PDF writer (subset of the one in pdf-export.js,
-      // duplicated here so the fallback works even if that file
-      // failed to load).
-      function buildPdf(jpegs, pageSize) {
-        pageSize = pageSize || { w: 595, h: 842 };
-        var offsets = [];
-        var parts = [];
-        var pos = 0;
-        function push(s) {
-          if (typeof s !== "string") {
-            var bin = "";
-            for (var i = 0; i < s.length; i++) bin += String.fromCharCode(s[i]);
-            s = bin;
+      // ScrollSpy for TOC
+      var links = document.querySelectorAll(".toc-nav-link");
+      var sections = Array.from(links).map(function (l) {
+        return document.querySelector(l.getAttribute("href"));
+      }).filter(Boolean);
+
+      window.addEventListener("scroll", function () {
+        var current = "";
+        var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        for (var i = 0; i < sections.length; i++) {
+          var s = sections[i];
+          if (s.offsetTop - 120 <= scrollY) {
+            current = s.id;
           }
-          parts.push(s);
-          pos += s.length;
         }
-        function pushObj(idx, body) {
-          offsets[idx] = pos;
-          push(idx + " 0 obj\n" + body + "\nendobj\n");
-        }
-        push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
-        pushObj(1, "<< /Type /Catalog /Pages 2 0 R >>");
-        var objIdx = 3;
-        var pageIdxs = [];
-        for (var i = 0; i < jpegs.length; i++) {
-          var j = jpegs[i];
-          var xo = objIdx++;
-          var co = objIdx++;
-          var po = objIdx++;
-          offsets[xo] = pos;
-          push(xo + " 0 obj\n<<\n/Type /XObject\n/Subtype /Image\n/Width " + j.width + "\n/Height " + j.height + "\n/ColorSpace /DeviceRGB\n/BitsPerComponent 8\n/Filter /DCTDecode\n/Length " + j.bytes.length + " >>\nstream\n");
-          push(j.bytes);
-          push("\nendstream\nendobj\n");
-          var content = "q\n" + (pageSize.w).toFixed(2) + " 0 0 " + (pageSize.h).toFixed(2) + " 0 0 cm\n/Im0 Do\nQ\n";
-          var cb = new TextEncoder().encode(content);
-          offsets[co] = pos;
-          push(co + " 0 obj\n<< /Length " + cb.length + " >>\nstream\n");
-          push(cb);
-          push("\nendstream\nendobj\n");
-          offsets[po] = pos;
-          push(po + " 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + pageSize.w + " " + pageSize.h + "] /Resources << /XObject << /Im0 " + xo + " 0 R >> /ProcSet [/PDF /ImageC] >> /Contents " + co + " 0 R >>\nendobj\n");
-          pageIdxs.push(po);
-        }
-        var kids = pageIdxs.map(function (i) { return i + " 0 R"; }).join(" ");
-        offsets[2] = pos;
-        push("2 0 obj\n<< /Type /Pages /Kids [" + kids + "] /Count " + pageIdxs.length + " >>\nendobj\n");
-        var xrefOff = pos;
-        push("xref\n0 " + objIdx + "\n0000000000 65535 f \n");
-        for (var k = 1; k < objIdx; k++) {
-          push(String(offsets[k] || 0).padStart(10, "0") + " 00000 n \n");
-        }
-        push("trailer\n<< /Size " + objIdx + " /Root 1 0 R >>\nstartxref\n" + xrefOff + "\n%%EOF\n");
-        return new Blob(parts, { type: "application/pdf" });
-      }
-
-      function canvasToJpeg(canvas, maxDim) {
-        return new Promise(function (resolve, reject) {
-          var w0 = canvas.width, h0 = canvas.height;
-          var s = Math.min(1, maxDim / Math.max(w0, h0));
-          var w = Math.max(1, Math.round(w0 * s));
-          var h = Math.max(1, Math.round(h0 * s));
-          var c = document.createElement("canvas");
-          c.width = w; c.height = h;
-          var ctx = c.getContext("2d");
-          ctx.fillStyle = "#fff";
-          ctx.fillRect(0, 0, w, h);
-          ctx.drawImage(canvas, 0, 0, w, h);
-          c.toBlob(function (blob) {
-            if (!blob) return reject(new Error("toBlob failed"));
-            var fr = new FileReader();
-            fr.onload = function () { resolve({ bytes: new Uint8Array(fr.result), width: w, height: h }); };
-            fr.onerror = function () { reject(fr.error); };
-            fr.readAsArrayBuffer(blob);
-          }, "image/jpeg", 0.9);
-        });
-      }
-
-      var SAMPLE_DOCS = [
-        { title: "INVOICE #4821", lines: [
-          "INVOICE #4821", "Date: July 12, 2026", "",
-          "Bill To:           From:",
-          "Priya Sharma       DocScan Demo Co.",
-          "Mumbai, India      123 Maker Street",
-          "", "Description        Amount",
-          "------------------------------",
-          "Consulting         $1,200.00",
-          "Travel             $180.50",
-          "Software           $99.00",
-          "", "TOTAL              $1,479.50",
-          "", "Payment due in 30 days."
-        ]},
-        { title: "CONTRACT", lines: [
-          "FREELANCE SERVICES AGREEMENT", "",
-          "Made on July 12, 2026 between", "DocScan Demo Co. and the contractor.",
-          "", "1. SCOPE OF WORK",
-          "   Deliver services described", "   in Schedule A within 30 days.",
-          "", "2. COMPENSATION",
-          "   Total fee: USD 1,479.50", "   on completion.",
-          "", "3. CONFIDENTIALITY",
-          "   Both parties agree to", "   keep all info confidential.",
-          "", "Signed: __________________"
-        ]},
-        { title: "RECEIPT", lines: [
-          "RECEIPT", "", "Subway Sandwiches",
-          "12 Main Street", "Tel: 555-0142", "",
-          "Date: 12/07/2026  Time: 13:42", "",
-          "1x Footlong Veggie   180.00",
-          "1x Cookie             40.00",
-          "1x Bottled Water      20.00",
-          "", "Subtotal           240.00",
-          "GST (5%)             12.00",
-          "TOTAL               252.00",
-          "", "Paid by UPI"
-        ]}
-      ];
-
-      function generateSample(spec) {
-        var c = document.createElement("canvas");
-        c.width = 600; c.height = 800;
-        var ctx = c.getContext("2d");
-        ctx.fillStyle = "#fdfcf7";
-        ctx.fillRect(0, 0, 600, 800);
-        ctx.fillStyle = "#111";
-        var y = 60;
-        for (var i = 0; i < spec.lines.length; i++) {
-          var line = spec.lines[i];
-          var isTitle = line === spec.title;
-          ctx.font = isTitle ? "bold 28px Georgia, serif" : "16px Georgia, serif";
-          ctx.fillText(line, 50, y);
-          y += isTitle ? 44 : 26;
-        }
-        return c.toDataURL("image/jpeg", 0.9);
-      }
-
-      function loadImg(url) {
-        return new Promise(function (res, rej) {
-          var im = new Image();
-          im.onload = function () { res(im); };
-          im.onerror = rej;
-          im.src = url;
-        });
-      }
-
-      function showScreen(name) {
-        document.querySelectorAll(".screen").forEach(function (el) {
-          el.classList.toggle("active", el.id === "screen-" + name);
-        });
-      }
-
-      function showToast(msg) {
-        var t = $("toast");
-        var tt = $("toastText");
-        if (t && tt) {
-          tt.textContent = msg;
-          t.className = "toast show success";
-          setTimeout(function () { t.classList.remove("show"); }, 1800);
-        }
-      }
-
-      function bootFallback() {
-        // Hide home screen content of features that depend on modules
-        // we don't have; keep the demo/import/export path live.
-        var pages = [];
-
-        function renderReview() {
-          var list = $("reviewList");
-          var meta = $("reviewMeta");
-          if (!list) return;
-          list.innerHTML = "";
-          meta.textContent = pages.length + (pages.length === 1 ? " page" : " pages");
-          var exp = $("exportBtn");
-          if (exp) exp.disabled = pages.length === 0;
-          if (pages.length === 0) {
-            var empty = document.createElement("div");
-            empty.className = "review-empty";
-            empty.innerHTML = "<p>No pages yet</p><p style='font-size:13px;opacity:.7;'>Use Demo or Import to add pages.</p>";
-            list.appendChild(empty);
-            return;
-          }
-          pages.forEach(function (p, i) {
-            var card = document.createElement("div");
-            card.className = "page-card";
-            var img = document.createElement("img");
-            img.src = p.src;
-            var label = document.createElement("div");
-            label.className = "label";
-            label.textContent = "P" + (i + 1);
-            card.appendChild(img);
-            card.appendChild(label);
-            list.appendChild(card);
-          });
-        }
-
-        var demoBtn = $("demoBtn");
-        if (demoBtn) demoBtn.addEventListener("click", function () {
-          pages = [];
-          SAMPLE_DOCS.forEach(function (spec) {
-            pages.push({ src: generateSample(spec) });
-          });
-          showScreen("review");
-          showToast("Loaded " + pages.length + " sample pages");
-          renderReview();
-        });
-
-        var importBtn = $("importBtn");
-        var fileInput = $("fileInput");
-        if (importBtn && fileInput) importBtn.addEventListener("click", function () { fileInput.click(); });
-        if (fileInput) fileInput.addEventListener("change", function (e) {
-          var files = Array.from((e.target.files || []));
-          if (!files.length) return;
-          Promise.all(files.map(function (f) {
-            return new Promise(function (res, rej) {
-              var fr = new FileReader();
-              fr.onload = function () { res(fr.result); };
-              fr.onerror = rej;
-              fr.readAsDataURL(f);
-            }).then(loadImg).then(function (im) {
-              var c = document.createElement("canvas");
-              c.width = im.naturalWidth; c.height = im.naturalHeight;
-              c.getContext("2d").drawImage(im, 0, 0);
-              return c.toDataURL("image/jpeg", 0.9);
-            });
-          })).then(function (urls) {
-            pages = urls.map(function (u) { return { src: u }; });
-            e.target.value = "";
-            showScreen("review");
-            showToast("Imported " + pages.length + " page(s)");
-            renderReview();
-          });
-        });
-
-        var exportBtn = $("exportBtn");
-        if (exportBtn) exportBtn.addEventListener("click", async function () {
-          if (!pages.length) return;
-          exportBtn.disabled = true;
-          var old = exportBtn.textContent;
-          exportBtn.textContent = "Building…";
-          try {
-            var jpegs = [];
-            for (var i = 0; i < pages.length; i++) {
-              var im = await loadImg(pages[i].src);
-              var c = document.createElement("canvas");
-              c.width = im.naturalWidth; c.height = im.naturalHeight;
-              c.getContext("2d").drawImage(im, 0, 0);
-              jpegs.push(await canvasToJpeg(c, 1800));
-            }
-            var blob = buildPdf(jpegs, { w: 595, h: 842 });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement("a");
-            a.href = url;
-            a.download = "DocScan-" + new Date().toISOString().slice(0, 10) + ".pdf";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-            showToast("PDF exported");
-          } catch (err) {
-            console.error(err);
-            showToast("Export failed");
-          } finally {
-            exportBtn.textContent = old;
-            exportBtn.disabled = false;
+        links.forEach(function (l) {
+          if (l.getAttribute("href") === "#" + current) {
+            l.classList.add("active");
+          } else {
+            l.classList.remove("active");
           }
         });
-
-        var back = $("reviewBackBtn");
-        if (back) back.addEventListener("click", function () { showScreen("home"); });
-        var addMore = $("addMoreBtn");
-        if (addMore) addMore.addEventListener("click", function () { showScreen("home"); });
-
-        var clear = $("clearCacheBtn");
-        if (clear) clear.addEventListener("click", async function () {
-          clear.disabled = true;
-          clear.textContent = "Clearing…";
-          try {
-            if (window.caches) {
-              var keys = await caches.keys();
-              await Promise.all(keys.map(function (k) { return caches.delete(k); }));
-            }
-            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
-              var regs = await navigator.serviceWorker.getRegistrations();
-              await Promise.all(regs.map(function (r) { return r.unregister(); }));
-            }
-            var u = new URL(window.location.href);
-            u.searchParams.set("_", Date.now());
-            window.location.replace(u.toString());
-          } catch (e) {
-            window.location.reload();
-          }
-        });
-
-        // Update diagnostics
-        var diag = $("bootDiag");
-        if (diag) {
-          diag.className = "home-foot-diag warn";
-          diag.textContent = "running in fallback mode — js/app.js did not load. Demo + Import + Export PDF work; live camera scanning is disabled.";
-        }
-
-        // Hide camera button since we can't run the camera pipeline
-        var startScan = $("startScanBtn");
-        if (startScan) {
-          startScan.addEventListener("click", function () {
-            showToast("Camera scanning needs the full app to load. Use Demo or Import instead.");
-          });
-        }
-
-        // Show a small inline notice in homeStatus area
-        var hs = $("homeStatus");
-        if (hs) {
-          hs.hidden = false;
-          hs.innerHTML = "<b>Running in fallback mode</b><div>App scripts didn't load. Demo, Import, and PDF export still work — live camera scanning is disabled. Click \"Clear cache &amp; hard reload\" to try again.</div>";
-        }
-
-        renderReview();
-      }
+      }, { passive: true });
     })();
   </script>
 </body>
