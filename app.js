@@ -2047,29 +2047,105 @@
  }
  });
 
-  // ---- PWA Install Prompt Handler ----
+  // ---- Top 1% PWA Installation Manager ----
   let deferredPrompt = null;
-  const installBtn = document.getElementById("installAppBtn");
+  const pwaCard = document.getElementById("pwaCard");
+  const pwaInstallBtn = document.getElementById("pwaCardInstallBtn");
+  const pwaDismissBtn = document.getElementById("pwaCardDismissBtn");
+  const footerInstallBtn = document.getElementById("footerInstallBtn");
+  const iosModal = document.getElementById("iosInstallModal");
+  const closeIosBtn = document.getElementById("closeIosInstallBtn");
+
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  function showPwaBanner() {
+    if (isStandalone) return;
+    try {
+      if (localStorage.getItem("docscan_pwa_dismissed") === "true") return;
+    } catch (_) {}
+    if (pwaCard) pwaCard.classList.add("visible");
+  }
+
+  function hidePwaBanner() {
+    if (pwaCard) pwaCard.classList.remove("visible");
+  }
+
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (installBtn) installBtn.style.display = "inline-flex";
+    setTimeout(showPwaBanner, 2200);
   });
-  if (installBtn) {
-    installBtn.addEventListener("click", async () => {
-      if (!deferredPrompt) return;
+
+  if (isIos && !isStandalone) {
+    setTimeout(showPwaBanner, 3000);
+  }
+
+  async function triggerInstallFlow() {
+    if (isStandalone) {
+      toast("DocScan is already running as an installed app", "info");
+      return;
+    }
+    if (deferredPrompt) {
       deferredPrompt.prompt();
       const choice = await deferredPrompt.userChoice;
       if (choice.outcome === "accepted") {
-        installBtn.style.display = "none";
+        hidePwaBanner();
         toast("DocScan installed successfully!", "success");
       }
       deferredPrompt = null;
+    } else if (isIos) {
+      if (iosModal) iosModal.classList.add("open"); iosModal.classList.add("show");
+    } else {
+      toast("To install DocScan, tap the Install icon in your browser address bar", "info");
+    }
+  }
+
+  if (pwaInstallBtn) pwaInstallBtn.addEventListener("click", triggerInstallFlow);
+  if (footerInstallBtn) footerInstallBtn.addEventListener("click", triggerInstallFlow);
+
+  if (pwaDismissBtn) {
+    pwaDismissBtn.addEventListener("click", () => {
+      hidePwaBanner();
+      try {
+        localStorage.setItem("docscan_pwa_dismissed", "true");
+      } catch (_) {}
     });
   }
+
+    const iosOkBtn = document.getElementById("iosModalOkBtn");
+  if (iosOkBtn && iosModal) {
+    iosOkBtn.addEventListener("click", () => iosModal.classList.remove("open"));
+  }
+  if (closeIosBtn && iosModal) {
+    closeIosBtn.addEventListener("click", () => iosModal.classList.remove("open"));
+    iosModal.addEventListener("click", (e) => {
+      if (e.target === iosModal) iosModal.classList.remove("open"); iosModal.classList.remove("show");
+    });
+  }
+
+  
+  // Test query parameter hooks for automation
+  if (typeof window !== "undefined" && window.location) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("testPwa")) {
+      setTimeout(() => {
+        const c = document.getElementById("pwaCard");
+        if (c) c.classList.add("visible");
+      }, 150);
+    }
+    if (params.has("testIos")) {
+      setTimeout(() => {
+        const m = document.getElementById("iosInstallModal");
+        if (m) m.classList.add("open"); m.classList.add("show");
+      }, 150);
+    }
+  }
+
   window.addEventListener("appinstalled", () => {
-    if (installBtn) installBtn.style.display = "none";
+    hidePwaBanner();
     deferredPrompt = null;
+    toast("DocScan installed successfully!", "success");
   });
 
 })();

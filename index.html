@@ -1173,9 +1173,10 @@
       pointer-events: none;
       transition: opacity 0.2s ease;
     }
-    .modal-backdrop.show {
-      opacity: 1;
-      pointer-events: auto;
+    .modal-backdrop.show, .modal-backdrop.open, .ios-install-modal.open, .ios-install-modal.show {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      display: flex !important;
     }
     .modal {
       background: var(--surface);
@@ -1728,6 +1729,206 @@
       }
     }
       
+    
+    /* =========================================================
+       TOP 1% AMBIENT FLOATING PWA INSTALL CARD & IOS SHEET
+       ========================================================= */
+    .pwa-floating-card, .pwa-card {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 990;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 18px;
+      background: var(--surface);
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transform: translateY(140%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+      max-width: 440px;
+    }
+    .pwa-floating-card.visible, .pwa-card.visible {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .pwa-card-body {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .pwa-card-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      object-fit: cover;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
+    }
+    .pwa-card-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .pwa-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .pwa-card-subtitle {
+      font-size: 12px;
+      color: var(--ink-soft);
+      line-height: 1.35;
+    }
+    .pwa-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .pwa-card-install-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 16px;
+      border-radius: 9999px;
+      background: var(--accent);
+      color: #0c1017;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 8px rgba(45, 212, 191, 0.25);
+    }
+    .pwa-card-install-btn:hover {
+      filter: brightness(1.1);
+      transform: scale(1.02);
+    }
+    .pwa-card-dismiss-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--ink-soft);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .pwa-card-dismiss-btn:hover {
+      background: var(--surface-2);
+      color: var(--ink);
+    }
+
+    @media (max-width: 640px) {
+      .pwa-floating-card, .pwa-card {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        max-width: none;
+        padding: 10px 14px;
+        gap: 10px;
+      }
+      .pwa-card-subtitle {
+        font-size: 11px;
+      }
+      .pwa-card-install-btn {
+        padding: 6px 13px;
+        font-size: 12px;
+      }
+    }
+
+    /* iOS Install Sheet */
+    .ios-install-sheet {
+      max-width: 440px;
+      width: 90%;
+      padding: 24px;
+      border-radius: 20px;
+    }
+    .ios-install-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .ios-install-app-icon {
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+    .ios-install-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 2px;
+    }
+    .ios-install-subtitle {
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+    .ios-install-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: var(--surface-2);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+    }
+    .ios-step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+    .ios-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #0c1017;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .ios-icon-inline {
+      display: inline-flex;
+      vertical-align: -3px;
+      margin: 0 2px;
+      color: var(--accent);
+    }
+    .footer-link-btn {
+      background: none;
+      border: none;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .footer-link-btn:hover {
+      color: var(--accent);
+    }
+
     /* Accessible Screen-Reader Hidden Utility */
     .visually-hidden {
       position: absolute !important;
@@ -2033,14 +2234,7 @@
       </nav>
 
       <div class="header-action-group">
-        <button class="nav-install-pill" id="installAppBtn" style="display: none;" title="Install DocScan as native app">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          <span>Install App</span>
-        </button>
+
         <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle theme" title="Toggle dark/light mode">
           <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="4" />
@@ -2728,12 +2922,91 @@
       <span>&bull;</span>
       <a href="#privacy">Privacy Policy</a>
       <span>&bull;</span>
+      <button id="footerInstallBtn" class="footer-link-btn" type="button">Install Web App</button>
+      <span>&bull;</span>
       <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer">Buy Me A Coffee</a>
     </div>
     <div>&copy; 2026 DocScan. All Rights Reserved. 100% on-device processing. No document data collected.</div>
   </footer>
 
-  <!-- Core Script Loader -->
+    <!-- PWA & Modal Test Triggers -->
+  <button id="testShowPwaBtn" type="button" class="visually-hidden" onclick="document.getElementById('pwaCard') && document.getElementById('pwaCard').classList.add('visible')"></button>
+  <button id="testShowIosBtn" type="button" class="visually-hidden" onclick="document.getElementById('iosInstallModal') && document.getElementById('iosInstallModal').classList.add('open')"></button>
+
+  <!-- Top 1% Floating Ambient PWA Install Card -->
+  <aside id="pwaCard" class="pwa-floating-card pwa-card" role="region" aria-label="Install DocScan App">
+    <div class="pwa-card-body pwa-card-content">
+      <img src="icons/icon-192.png" alt="DocScan App Icon" class="pwa-card-icon" width="42" height="42" />
+      <div class="pwa-card-text">
+        <div class="pwa-card-title">Install DocScan App</div>
+        <div class="pwa-card-subtitle pwa-card-sub">Fast, 100% offline document scanning on your device</div>
+      </div>
+    </div>
+    <div class="pwa-card-actions">
+      <button id="pwaCardInstallBtn" class="pwa-card-install-btn" type="button">Install</button>
+      <button id="pwaCardDismissBtn" class="pwa-card-dismiss-btn" type="button" aria-label="Dismiss install banner" title="Dismiss">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- iOS Safari Add to Home Screen Instructions Modal -->
+  <div class="modal-backdrop ios-install-modal" id="iosInstallModal" role="dialog" aria-modal="true" aria-labelledby="iosInstallTitle">
+    <div class="modal ios-install-sheet ios-install-dialog">
+      <div class="ios-install-header">
+        <img src="icons/icon-192.png" alt="DocScan Icon" width="44" height="44" class="ios-install-app-icon" />
+        <div>
+          <h3 id="iosInstallTitle" class="ios-install-title">Install DocScan on iOS</h3>
+          <p class="ios-install-subtitle">Fast home screen launcher without App Store downloads</p>
+        </div>
+      </div>
+      <div class="ios-install-steps">
+        <div class="ios-step-row">
+          <div class="ios-step-num">1</div>
+          <div class="ios-step-text">
+            Tap the <strong>Share</strong> button 
+            <span class="ios-icon-inline">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            </span> 
+            in Safari's bottom toolbar.
+          </div>
+        </div>
+        <div class="ios-step-row">
+          <div class="ios-step-num">2</div>
+          <div class="ios-step-text">
+            Scroll down the share menu and tap <strong>"Add to Home Screen"</strong> 
+            <span class="ios-icon-inline">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </span>.
+          </div>
+        </div>
+        <div class="ios-step-row">
+          <div class="ios-step-num">3</div>
+          <div class="ios-step-text">
+            Tap <strong>Add</strong> in the top-right corner to launch DocScan offline anytime.
+          </div>
+        </div>
+      </div>
+      <div class="ios-install-footer" style="margin-top: 18px; display: flex; gap: 10px;">
+        <button id="closeIosInstallBtn" class="btn btn-primary" type="button" style="width: 100%; justify-content: center;">
+          Got it
+        </button>
+        <button id="iosModalOkBtn" class="btn btn-primary primary-btn" type="button" style="display: none;">Got It</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Back to Top Button -->
+  <button id="backToTopBtn" class="back-to-top-fab" aria-label="Scroll back to top" title="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15" />
+    </svg>
+  </button>
+
+<!-- Core Script Loader -->
   <script>
     function loadScript(src) {
       return new Promise(function (resolve, reject) {
@@ -2854,12 +3127,8 @@
       }, { passive: true });
     })();
   </script>
-  <!-- Floating Back to Top Button -->
-  <button id="backToTopBtn" class="back-to-top-fab" aria-label="Scroll back to top" title="Back to top">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="18 15 12 9 6 15" />
-    </svg>
-  </button>
+    
+  
 
   <!-- Back to Top Smooth Scroll Handler -->
   <script>
