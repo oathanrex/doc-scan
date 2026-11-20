@@ -114,30 +114,6 @@ DocScan includes automated verification covering homography mathematics, luma co
 ℹ All 6 core algorithm suites verified (pass 6 | fail 0)
 ```
 
----
-
-## 📂 Repository Structure
-
-```text
-doc-scan/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml      # Automated GitHub Actions test & Pages deployment
-├── icons/
-│   └── icon.svg            # Dark-mode viewfinder vector icon
-├── js/
-│   ├── app.js              # State machine, camera lifecycle & UI controller
-│   ├── edge-detect.js      # Real-time Canny & projection-based quad search
-│   ├── perspective.js      # 8x8 homography solver & inverse bilinear warp
-│   └── pdf-export.js       # Zero-dependency PDF 1.4 binary stream writer
-├── tests/
-│   └── scanner.test.js     # Pure logic unit tests (Node.js test runner)
-├── index.html              # Multi-screen application shell (Camera/Review/Edit)
-├── manifest.json           # Web App Manifest (PWA)
-├── sw.js                   # Service Worker
-├── package.json            # Scripts & project metadata
-└── README.md               # Architecture documentation & benchmarks
-```
 
 ---
 
