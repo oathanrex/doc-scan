@@ -598,8 +598,11 @@
  const page = {
  id: "p_" + Math.random().toString(36).slice(2, 8),
  src: corrected.toDataURL("image/jpeg", 0.9),
+ straightened: corrected.toDataURL("image/jpeg", 0.9),
  filter: "original",
- original: corrected.toDataURL("image/jpeg", 0.9)
+ original: corrected.toDataURL("image/jpeg", 0.9),
+ raw: canvas.toDataURL("image/jpeg", 0.92),
+ quad: sourceQuad
  };
  state.pages.push(page);
  renderThumbs();
@@ -1029,8 +1032,11 @@
  const page = {
  id: "p_" + Math.random().toString(36).slice(2, 8),
  src: corrected.toDataURL("image/jpeg", 0.9),
+ straightened: corrected.toDataURL("image/jpeg", 0.9),
  filter: "original",
- original: canvas.toDataURL("image/jpeg", 0.9)
+ original: canvas.toDataURL("image/jpeg", 0.9),
+ raw: canvas.toDataURL("image/jpeg", 0.92),
+ quad: quad
  };
  state.pages.push(page);
  count++;

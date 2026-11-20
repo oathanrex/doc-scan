@@ -4,7 +4,6 @@ const CACHE_NAME = "docscan-v2.0.0";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
-  "./guide.html",
   "./manifest.json",
   "./icons/icon.svg",
   "./js/edge-detect.js",
