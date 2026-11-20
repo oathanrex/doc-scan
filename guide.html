@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>DocScan Technical Guide: Free Online Microsoft Lens &amp; CamScanner Alternative</title>
+  <meta name="description" content="In-depth technical whitepaper and user guide for DocScan: the zero-download, 100% on-device document scanner and perspective fixer. Learn how Canny edge detection, bilinear homography, and client-side PDF export work." />
+  <meta name="keywords" content="microsoft lens alternative, camscanner alternative, online document scanner, perspective fixer, canny edge detection javascript, homography warp canvas, client side pdf generator, privacy scanner, oathanrex" />
+  <meta name="author" content="oathanrex" />
+  <link rel="canonical" href="https://oathanrex.github.io/doc-scan/guide.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://oathanrex.github.io/doc-scan/guide.html" />
+  <meta property="og:title" content="DocScan Technical Guide: Free Online Microsoft Lens &amp; CamScanner Alternative" />
+  <meta property="og:description" content="Why millions need a zero-install document scanner: complete breakdown of on-device Canny edge detection, homography perspective rectification, and client-side PDF generation." />
+  <meta property="og:image" content="https://oathanrex.github.io/doc-scan/icons/icon.svg" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://oathanrex.github.io/doc-scan/guide.html" />
+  <meta name="twitter:title" content="DocScan Technical Guide: Free Online Microsoft Lens Alternative" />
+  <meta name="twitter:description" content="The technical architecture behind zero-download in-browser document scanning and perspective fixing." />
+  <meta name="twitter:image" content="https://oathanrex.github.io/doc-scan/icons/icon.svg" />
+
+  <!-- Schema.org TechArticle JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "The Zero-Install Scanner: How DocScan Replaces Microsoft Lens on the Web Without Bloatware, Cloud Uploads, or Paywalls",
+    "description": "Comprehensive technical guide and architectural analysis of in-browser computer vision document scanning, bilinear homography, and client-side PDF compilation.",
+    "author": {
+      "@type": "Person",
+      "name": "oathanrex",
+      "url": "https://github.com/oathanrex"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "DocScan",
+      "url": "https://oathanrex.github.io/doc-scan/"
+    },
+    "url": "https://oathanrex.github.io/doc-scan/guide.html",
+    "datePublished": "2026-11-20",
+    "dateModified": "2026-11-20",
+    "articleSection": "Computer Vision",
+    "inLanguage": "en-US"
+  }
+  </script>
+
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg: #0a0d11;
+      --surface: #11151b;
+      --surface-2: #161b22;
+      --surface-3: #1f242c;
+      --ink: #e7eaee;
+      --ink-soft: #9ba5b3;
+      --ink-faint: #646e7c;
+      --accent: #3fd9c7;
+      --accent-ink: #053c3d;
+      --accent-2: #e3a857;
+      --line: #232a34;
+      --line-strong: #323b48;
+      --sans: "Inter", system-ui, -apple-system, sans-serif;
+      --display: "Space Grotesk", var(--sans);
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    body.light-theme {
+      --bg: #f8f6f0;
+      --surface: #ffffff;
+      --surface-2: #f0ede5;
+      --surface-3: #e5e1d7;
+      --ink: #161a20;
+      --ink-soft: #4f5765;
+      --ink-faint: #788292;
+      --accent: #0d8385;
+      --accent-ink: #043839;
+      --accent-2: #b8791f;
+      --line: #e2ddd2;
+      --line-strong: #cac3b4;
+    }
+
+    /* Modern Sleek Scrollbar */
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: var(--line-strong) transparent;
+      scroll-behavior: smooth;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 9999px;
+      transition: background 0.2s ease;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+
+    /* WCAG Focus Visible */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: 2px !important;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sticky Top Header */
+    .guide-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: color-mix(in srgb, var(--surface) 85%, transparent);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .guide-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .brand-logo svg {
+      width: 18px;
+      height: 18px;
+    }
+    .brand-text {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+    }
+    .brand-badge {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .back-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .icon-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .bmc-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      background: #FFDD00;
+      color: #000;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: transform 0.15s ease;
+    }
+    .bmc-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Page Layout */
+    .guide-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      display: flex;
+      gap: 48px;
+      position: relative;
+    }
+
+    /* Sidebar / Sticky TOC */
+    .guide-sidebar {
+      width: 290px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 80px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      padding-right: 12px;
+    }
+    .toc-nav {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 16px;
+    }
+    .toc-header {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-soft);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .toc-list, .toc-sublist {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .toc-item {
+      margin-bottom: 8px;
+    }
+    .toc-link {
+      color: var(--ink-soft);
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1.4;
+      display: block;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .toc-link:hover, .toc-link.active {
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 8%, transparent);
+      font-weight: 500;
+    }
+    .toc-sublist {
+      padding-left: 12px;
+      margin-top: 4px;
+      border-left: 1px solid var(--line);
+    }
+    .toc-sublink {
+      color: var(--ink-faint);
+      text-decoration: none;
+      font-size: 12px;
+      line-height: 1.4;
+      display: block;
+      padding: 3px 6px;
+      border-radius: 4px;
+      transition: color 0.15s ease;
+    }
+    .toc-sublink:hover {
+      color: var(--accent);
+    }
+
+    /* Main Article Content */
+    .guide-content {
+      flex: 1;
+      min-width: 0;
+      max-width: 860px;
+    }
+
+    .guide-main-title {
+      font-family: var(--display);
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin: 0 0 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .guide-author-meta {
+      font-family: var(--sans);
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .guide-date-meta {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      margin-bottom: 24px;
+    }
+    .guide-divider {
+      border: none;
+      border-top: 1px solid var(--line);
+      margin: 36px 0;
+    }
+
+    .guide-section {
+      scroll-margin-top: 80px;
+      margin-bottom: 44px;
+    }
+    .guide-h2 {
+      font-family: var(--display);
+      font-size: clamp(22px, 3vw, 28px);
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin: 40px 0 16px;
+      color: var(--ink);
+      scroll-margin-top: 80px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .guide-h3 {
+      font-family: var(--display);
+      font-size: 20px;
+      font-weight: 600;
+      margin: 28px 0 12px;
+      color: var(--ink);
+      scroll-margin-top: 80px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .heading-anchor {
+      color: var(--ink-faint);
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 18px;
+      opacity: 0.4;
+      transition: opacity 0.15s ease;
+    }
+    .guide-h2:hover .heading-anchor, .guide-h3:hover .heading-anchor {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    .guide-p {
+      margin: 0 0 16px;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+    .guide-ul, .guide-ol {
+      margin: 0 0 20px;
+      padding-left: 24px;
+      color: var(--ink);
+    }
+    .guide-ul li, .guide-ol li {
+      margin-bottom: 8px;
+      line-height: 1.65;
+    }
+
+    /* Code & Diagrams */
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 13.5px;
+      line-height: 1.5;
+      margin: 20px 0;
+      color: var(--ink);
+    }
+    pre.box-diagram {
+      background: var(--surface-2);
+      border-color: var(--line-strong);
+      color: var(--accent);
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+    code {
+      font-family: var(--mono);
+      font-size: 0.9em;
+      background: color-mix(in srgb, var(--line) 40%, transparent);
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      color: inherit;
+    }
+
+    /* Tables */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin: 24px 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      text-align: left;
+    }
+    th {
+      background: var(--surface-2);
+      color: var(--ink);
+      font-weight: 600;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--display);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-soft);
+      line-height: 1.5;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    td.feature-col {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* Links */
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    a:hover {
+      color: var(--ink);
+    }
+
+    /* Buy Me A Coffee Box */
+    .bmc-callout {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent-2) 15%, var(--surface)), var(--surface));
+      border: 1px solid var(--accent-2);
+      border-radius: 14px;
+      padding: 28px;
+      margin: 36px 0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .bmc-callout h3 {
+      font-family: var(--display);
+      font-size: 22px;
+      margin: 0;
+      color: var(--ink);
+    }
+    .bmc-callout p {
+      margin: 0;
+      max-width: 60ch;
+      color: var(--ink-soft);
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    .guide-footer {
+      border-top: 1px solid var(--line);
+      padding: 40px 24px;
+      text-align: center;
+      color: var(--ink-soft);
+      font-size: 13px;
+      background: var(--surface);
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 960px) {
+      .guide-container {
+        flex-direction: column;
+        padding-top: 24px;
+      }
+      .guide-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        max-height: none;
+        margin-bottom: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="guide-header">
+    <a href="index.html" class="guide-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 48 48" fill="none">
+          <rect x="6" y="6" width="36" height="36" rx="4" stroke="var(--accent)" stroke-width="3"/>
+          <rect x="14" y="14" width="20" height="20" rx="2" stroke="var(--accent-2)" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="brand-text">DocScan</div>
+      <span class="brand-badge">Guide</span>
+    </a>
+    <div class="header-actions">
+      <a href="index.html" class="back-btn" title="Open the Document Scanner Application">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span>Open Scanner</span>
+      </a>
+      <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle dark/light theme" title="Toggle theme">
+        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" class="bmc-btn" title="Support open-source development">
+        <span>☕</span> Support
+      </a>
+    </div>
+  </header>
+
+  <div class="guide-container">
+    <aside class="guide-sidebar">
+      ['<nav class="toc-nav" aria-label="Table of contents">', '<div class="toc-header">Table of Contents</div>', '<ul class="toc-list">', '<li class="toc-item"><a href="#1-the-void-left-by-microsoft-lens-the-cloud-scanner-trap" class="toc-link">1. The Void Left by Microsoft Lens &amp; The Cloud Scanner Trap</a>', '</li>', '<li class="toc-item"><a href="#2-what-is-docscan-pure-in-browser-document-archiving" class="toc-link">2. What is DocScan? Pure In-Browser Document Archiving</a>', '</li>', '<li class="toc-item"><a href="#3-deep-technical-architecture-how-the-engine-works-under-the-hood" class="toc-link">3. Deep Technical Architecture: How the Engine Works Under the Hood</a>', '<ul class="toc-sublist">', '<li class="toc-subitem"><a href="#31-real-time-canny-edge-detection" class="toc-sublink">3.1 Real-Time Canny Edge Detection (<code>edge-detect.js</code>)</a></li>', '<li class="toc-subitem"><a href="#32-bilinear-homographic-perspective-rectification" class="toc-sublink">3.2 Bilinear Homographic Perspective Rectification (<code>perspective.js</code>)</a></li>', '<li class="toc-subitem"><a href="#33-zero-dependency-binary-pdf-generation" class="toc-sublink">3.3 Zero-Dependency Binary PDF Generation (<code>pdf-export.js</code>)</a></li>', '</ul>', '</li>', '<li class="toc-item"><a href="#4-comprehensive-feature-breakdown-what-every-tool-does" class="toc-link">4. Comprehensive Feature Breakdown: What Every Tool Does</a>', '</li>', '<li class="toc-item"><a href="#5-step-by-step-masterclass-how-to-scan-straighten-and-export-anything" class="toc-link">5. Step-by-Step Masterclass: How to Scan, Straighten, and Export Anything</a>', '<ul class="toc-sublist">', '<li class="toc-subitem"><a href="#scenario-a-scanning-a-crooked-document-via-mobile-laptop-camera" class="toc-sublink">Scenario A: Scanning a Crooked Document via Mobile/Laptop Camera</a></li>', '<li class="toc-subitem"><a href="#scenario-b-uploading-a-crooked-gallery-photo-from-your-phone-or-pc" class="toc-sublink">Scenario B: Uploading a Crooked Gallery Photo from Your Phone or PC</a></li>', '<li class="toc-subitem"><a href="#scenario-c-enhancing-legibility-with-camscanner-grade-magic-color" class="toc-sublink">Scenario C: Enhancing Legibility with CamScanner-Grade Magic Color</a></li>', '<li class="toc-subitem"><a href="#scenario-d-assembling-a-multi-page-pdf-custom-renaming" class="toc-sublink">Scenario D: Assembling a Multi-Page PDF &amp; Custom Renaming</a></li>', '</ul>', '</li>', '<li class="toc-item"><a href="#6-exhaustive-comparison-docscan-vs-microsoft-lens-vs-camscanner-vs-adobe-scan" class="toc-link">6. Exhaustive Comparison: DocScan vs Microsoft Lens vs CamScanner vs Adobe Scan</a>', '</li>', '<li class="toc-item"><a href="#7-the-viral-playbook-building-on-the-success-of-perspectivefix" class="toc-link">7. The Viral Playbook: Building on the Success of PerspectiveFix</a>', '</li>', '<li class="toc-item"><a href="#8-supporting-independent-privacy-preserving-software" class="toc-link">8. Supporting Independent, Privacy-Preserving Software</a>', '</li>', '</ul></nav>']
+    </aside>
+
+    <main class="guide-content">
+      <h1 class="guide-main-title">The Zero-Install Scanner: How DocScan Replaces Microsoft Lens on the Web Without Bloatware, Cloud Uploads, or Paywalls</h1><div class="guide-author-meta">By the Creator of PerspectiveFix &amp; DocScan</div><div class="guide-date-meta">Last Updated: November 2026 | Technical Category: In-Browser Computer Vision &amp; Digital Archiving</div><hr class="guide-divider" /><section id="1-the-void-left-by-microsoft-lens-the-cloud-scanner-trap" class="guide-section"><h2 class="guide-h2"><a href="#1-the-void-left-by-microsoft-lens-the-cloud-scanner-trap" class="heading-anchor">#</a> 1. The Void Left by Microsoft Lens &amp; The Cloud Scanner Trap</h2><p class="guide-p">In 2021, Microsoft made a quiet decision that left millions of students, accountants, legal clerks, and remote engineers stranded: <strong>they killed the Windows desktop application of Microsoft Office Lens</strong>.</p><p class="guide-p">For years, Office Lens had been the gold standard for desktop and tablet users who wanted to point a webcam or upload a crooked photo of a whiteboard, receipt, or paper agreement and have it flattened into a crisp PDF. When Microsoft pulled the desktop client from the Microsoft Store, they forced users into a rigid mobile-first funnel. To scan a single sheet of paper, you were suddenly required to pick up a smartphone, install a 150-megabyte mobile package, authenticate with a Microsoft Live or Office 365 account, and sync your sensitive files through OneDrive cloud servers.</p><p class="guide-p">At the exact same time, the mobile scanner market underwent what software engineers call the "monetization decay cycle." Apps that started as lightweight scanning utilities—most notoriously CamScanner and Adobe Scan—metastasized into bloated commercial platforms:</p><pre class="code-block language-"><code>[Traditional Mobile Scanner Funnel]
+Take Photo -&gt; Forced Cloud Upload -&gt; Mandatory User Sign-in -&gt; Push Notification Spam -&gt; $9.99/mo Paywall -&gt; Watermarked PDF Export
+</code></pre><p class="guide-p">For privacy-conscious professionals, this model is an unacceptable operational hazard:</p><ol class="guide-ol"><li><strong>The Cloud Leak Risk</strong>: Scanning a passport, tax form, medical bill, or signed non-disclosure agreement (NDA) should never transmit unencrypted raster pixels to a third-party corporate server.</li><li><strong>Platform Inflexibility</strong>: If you are working on a MacBook, a Linux workstation, a Chromebook, or a Windows desktop, you cannot run native mobile scanner binaries without clunky Android emulators.</li><li><strong>Friction &amp; Latency</strong>: Waiting 15 seconds for an ad to finish playing or navigating a subscription modal just to send an urgent signed invoice costs real time and peace of mind.</li></ol><p class="guide-p">This frustration sparked a simple question: <strong>Can we bring the entire computer vision pipeline of Microsoft Lens and CamScanner directly into modern web browsers—running 100% on-device, with zero downloads, zero logins, zero tracking, and zero subscription fees?</strong></p><p class="guide-p">The answer is <strong>DocScan</strong> (<a href="https://oathanrex.github.io/doc-scan/" target="_blank" rel="noopener noreferrer">https://oathanrex.github.io/doc-scan/</a>).</p><hr class="guide-divider" /><section id="2-what-is-docscan-pure-in-browser-document-archiving" class="guide-section"><h2 class="guide-h2"><a href="#2-what-is-docscan-pure-in-browser-document-archiving" class="heading-anchor">#</a> 2. What is DocScan? Pure In-Browser Document Archiving</h2><p class="guide-p">DocScan is an open-source, client-side web application that transforms any device equipped with a modern web browser into a high-precision document scanner and perspective rectification suite.</p><p class="guide-p">Whether you access the app on an iPhone in Safari, an Android device in Chrome, a MacBook in Firefox, or a multi-monitor Linux rig in Edge, DocScan operates as a standalone progressive web engine. It does not possess a backend processing server. It does not maintain a user database. It issues zero API calls to external machine learning vendors.</p><p class="guide-p">Every single computation—from edge detection to bilinear homographic warping, dynamic filter synthesis, and binary PDF encoding—happens inside your device's local memory and graphics pipeline.</p><pre class="box-diagram"><code>                      +---------------------------------------+
+                      |         User's Web Browser            |
+                      |   (Desktop, Mobile, or Tablet)        |
+                      +---------------------------------------+
+                                          |
+                      +---------------------------------------+
+                      |       On-Device Web APIs              |
+                      |  - HTML5 Canvas &amp; 2D Context          |
+                      |  - MediaDevices (getUserMedia)        |
+                      |  - Web Cryptography &amp; TypedArrays     |
+                      |  - Service Worker Cache Storage       |
+                      +---------------------------------------+
+                                          |
+    +-------------------------------------+-------------------------------------+
+    |                                     |                                     |
+    v                                     v                                     v
++-----------------------+   +---------------------------+   +---------------------------+
+| Real-Time Edge Detect |   | Perspective Homography    |   | Client-Side PDF Compiler  |
+| - Canny Sobel Filter  |   | - 4-Point Arbitrary Quad  |   | - Pure Binary PDF 1.4     |
+| - Radial Quad Search  |   | - Bilinear Interpolation  |   | - Zero External Deps      |
+| - Sub-ms Downscaling  |   | - 2.5x Loupe Magnifier    |   | - A4 Centered Raster XObj |
++-----------------------+   +---------------------------+   +---------------------------+
+</code></pre><p class="guide-p">When you close the browser tab or disconnect your Wi-Fi, DocScan continues to function without interruption. It is privacy in the absolute mathematical sense: your data cannot be intercepted because it never leaves your hardware.</p><hr class="guide-divider" /><section id="3-deep-technical-architecture-how-the-engine-works-under-the-hood" class="guide-section"><h2 class="guide-h2"><a href="#3-deep-technical-architecture-how-the-engine-works-under-the-hood" class="heading-anchor">#</a> 3. Deep Technical Architecture: How the Engine Works Under the Hood</h2><p class="guide-p">To understand why DocScan matches the speed and precision of desktop native binaries, we must inspect the computer vision architecture powering its three core engines: <code>edge-detect.js</code>, <code>perspective.js</code>, and <code>pdf-export.js</code>.</p><h3 id="31-real-time-canny-edge-detection" class="guide-h3"><a href="#31-real-time-canny-edge-detection" class="heading-anchor">#</a> 3.1 Real-Time Canny Edge Detection (<code>edge-detect.js</code>)</h3><p class="guide-p">When you aim your phone camera or point a desktop webcam at a document on a wooden desk, the video feed streams frames at 30 to 60 frames per second. Processing full 4K or 1080p frames through edge convolutions on the main JavaScript thread would instantly induce frame drops and drain battery.</p><p class="guide-p">DocScan solves this using an optimized, multi-stage Canny pipeline operating on a fixed 240-pixel downscaled buffer:</p><ol class="guide-ol"><li><strong>Luma Extraction (Rec. 601)</strong>:</li></ol><p class="guide-p">The incoming pixel data is converted to an 8-bit single-channel grayscale buffer using the standard ITU-R BT.601 perceptual luma formula:</p><p class="guide-p">$$Y = \left\lfloor \frac{299 \cdot R + 587 \cdot G + 114 \cdot B + 500}{1000} \right\rfloor$$</p><p class="guide-p">This assigns highest weight to the green spectrum where human vision (and paper contrast) is most sensitive.</p><ol class="guide-ol"><li><strong>Separable 3x3 Box Blur</strong>:</li></ol><p class="guide-p">To suppress high-frequency sensor noise without the computational cost of a large Gaussian kernel, a two-pass separable horizontal and vertical smoothing filter runs over the grayscale array.</p><ol class="guide-ol"><li><strong>Sobel Gradient Convolutions</strong>:</li></ol><p class="guide-p">Horizontal ($G_x$) and vertical ($G_y$) spatial derivatives are computed using $3 \times 3$ Sobel masks:</p><p class="guide-p">$$G_x = \begin{bmatrix} -1 &amp; 0 &amp; 1 \\ -2 &amp; 0 &amp; 2 \\ -1 &amp; 0 &amp; 1 \end{bmatrix} <em> I, \quad G_y = \begin{bmatrix} -1 &amp; -2 &amp; -1 \\ 0 &amp; 0 &amp; 0 \\ 1 &amp; 2 &amp; 1 \end{bmatrix} </em> I$$</p><p class="guide-p">The gradient magnitude $M = \sqrt{G_x^2 + G_y^2}$ and direction $\theta = \operatorname{atan2}(G_y, G_x)$ highlight continuous paper boundaries against tabletop backgrounds.</p><ol class="guide-ol"><li><strong>Non-Maximum Suppression &amp; Radial Corner Snapping</strong>:</li></ol><p class="guide-p">Thick gradient bands are thinned down to single-pixel edges. The detector then computes horizontal and vertical score projections. To prevent corner coordinates from drifting along parallel margins, our corner-refinement algorithm minimizes Euclidean distance to the bounding quadrant while prioritizing strong edge points:</p><p class="guide-p">$$\text{Score} = \text{EdgeIntensity} + \frac{1}{1 + \Delta x^2 + \Delta y^2}$$</p><p class="guide-p">This guarantees that the detected four corners snap cleanly to the physical page edges rather than nearby desk clutter.</p><hr class="guide-divider" /><h3 id="32-bilinear-homographic-perspective-rectification" class="guide-h3"><a href="#32-bilinear-homographic-perspective-rectification" class="heading-anchor">#</a> 3.2 Bilinear Homographic Perspective Rectification (<code>perspective.js</code>)</h3><p class="guide-p">When a document is photographed from an angle, the rectangular paper forms a geometric <strong>quadrilateral</strong> (a trapezoid with arbitrary angles and vanishing points). Correcting this distortion requires computing the projectivity matrix $H$ that maps coordinates between the arbitrary source quadrilateral and an orthogonal destination rectangle.</p><p class="guide-p">Given four source corners $(x_i, y_i)$ and four destination corners $(u_i, v_i)$ for $i \in \{0, 1, 2, 3\}$, the homography matrix $H$ is a $3 \times 3$ matrix with 8 degrees of freedom:</p><p class="guide-p">$$\begin{bmatrix} x' \\ y' \\ w' \end{bmatrix} = \begin{bmatrix} h_{00} &amp; h_{01} &amp; h_{02} \\ h_{10} &amp; h_{11} &amp; h_{12} \\ h_{20} &amp; h_{21} &amp; 1 \end{bmatrix} \begin{bmatrix} u \\ v \\ 1 \end{bmatrix}$$</p><p class="guide-p">Solving for the coefficients involves setting up an $8 \times 8$ linear system $A h = b$ resolved via Gaussian elimination with partial pivoting.</p><p class="guide-p">#### Why Bilinear Interpolation Matters</p><p class="guide-p">Most basic web tools use nearest-neighbor pixel sampling during inverse warping. Nearest-neighbor sampling results in jagged diagonal lines, fragmented fonts, and illegible small-print text.</p><p class="guide-p">DocScan implements high-precision <strong>bilinear interpolation</strong>:</p><pre class="code-block language-"><code>        (x0, y0) -------- (x1, y0)
+           |    \           |
+           |     (x, y)     |
+           |                |
+        (x0, y1) -------- (x1, y1)
+</code></pre><p class="guide-p">For every target destination pixel $(u, v)$, the engine maps back to fractional source coordinates $(x, y)$. Let $x_0 = \lfloor x \rfloor$, $x_1 = x_0 + 1$, $y_0 = \lfloor y \rfloor$, $y_1 = y_0 + 1$, with fractional offsets $dx = x - x_0$ and $dy = y - y_0$. The interpolated color $C$ is computed as:</p><p class="guide-p">$$C = (1 - dx)(1 - dy) C(x_0, y_0) + dx(1 - dy) C(x_1, y_0) + (1 - dx)dy C(x_0, y_1) + dx \cdot dy C(x_1, y_1)$$</p><p class="guide-p">This smooths optical artifacts, eliminates pixel staircase effects, and yields publication-grade, razor-sharp vector-like typography even when the document was photographed at a 45-degree oblique angle.</p><hr class="guide-divider" /><h3 id="33-zero-dependency-binary-pdf-generation" class="guide-h3"><a href="#33-zero-dependency-binary-pdf-generation" class="heading-anchor">#</a> 3.3 Zero-Dependency Binary PDF Generation (<code>pdf-export.js</code>)</h3><p class="guide-p">Many web utilities take the lazy route of loading massive third-party PDF libraries (like <code>jspdf.js</code> or <code>pdf-lib.js</code>), which weigh between 1.5MB and 5MB.</p><p class="guide-p">DocScan compiles clean <strong>Adobe PDF 1.4 specifications directly from raw binary Uint8Arrays</strong>. It writes the low-level PDF document dictionary tree:</p><ul class="guide-ul"><li><strong>Object 1</strong>: The <code>/Catalog</code> pointing to the <code>/Pages</code> collection.</li><li><strong>Object 2</strong>: The <code>/Pages</code> node holding media box dimensions (595.28 x 841.89 points for standard ISO A4).</li><li><strong>Object 3..N</strong>: Individual <code>/Page</code> objects declaring resources and parent references.</li><li><strong>Image XObjects</strong>: JPEG streams embedded directly with <code>/Filter /DCTDecode</code>, avoiding lossy re-encoding or uncompressed pixel bloat.</li><li><strong>Page Content Streams</strong>: Concise PostScript graphics commands (<code>q</code>, <code>cm</code>, <code>Do</code>, <code>Q</code>) that center and scale each page with exact aspect ratios.</li><li><strong>Cross-Reference Table (<code>xref</code>) &amp; Trailer</strong>: Byte-offset indexing that allows any standard PDF reader (Adobe Acrobat, Preview, Chrome PDF Viewer) to open the document instantly.</li></ul><p class="guide-p">A 5-page document PDF exported from DocScan weighs only a fraction of what cloud apps produce because there is zero metadata tracking, zero telemetry payloads, and zero hidden fonts.</p><hr class="guide-divider" /><section id="4-comprehensive-feature-breakdown-what-every-tool-does" class="guide-section"><h2 class="guide-h2"><a href="#4-comprehensive-feature-breakdown-what-every-tool-does" class="heading-anchor">#</a> 4. Comprehensive Feature Breakdown: What Every Tool Does</h2><p class="guide-p">DocScan was crafted to deliver 100% of the desktop power of Microsoft Lens combined with the mobile agility of CamScanner. Here is what is available under the hood:</p><div class="table-container"><table>
+<thead><tr>
+<th>Feature Capability</th>
+<th>What It Does</th>
+<th>Why It Outperforms Competitors</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="feature-col"><strong>Automatic Edge Detection</strong></td>
+<td>Scans video or uploaded images in real time and snaps a glowing 4-corner polygon around paper borders.</td>
+<td>No cloud latency; triggers instantly on any uploaded photo or live camera stream.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Interactive Perspective Crop</strong></td>
+<td>Lets you manually fine-tune corners with full touchscreen and mouse drag support.</td>
+<td>Includes a floating <strong>2.5x Magnifier Loupe</strong> with crosshairs so you can see under your finger/cursor.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Bilinear Homography Warp</strong></td>
+<td>Straightens crooked, angled, and skewed photographs into flat orthogonal pages.</td>
+<td>Eliminates blurry or jagged text through continuous fractional-coordinate color blending.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Lossless 90° Page Rotation</strong></td>
+<td>Rotates documents clockwise across Crop, Edit, and Review screens with one click.</td>
+<td>Both the image raster and the 4-corner perspective quad rotate in sync without data loss.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>CamScanner-Grade Filters</strong></td>
+<td>Applies document-specific color profiles (Magic Color, B&amp;W Doc, Grayscale, Boost, Sharp).</td>
+<td><strong>Magic Color</strong> whitens dirty paper while keeping colored company logos, stamps, and pen ink vibrant.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Straighten-to-Edit Persistence</strong></td>
+<td>Ensures that straightening is permanently retained when adjusting filters.</td>
+<td>Unlike fragile web demos, entering Edit mode never reverts your document to the raw crooked photo.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Custom Document Renaming</strong></td>
+<td>Allows clicking the header title in Review to name the file (e.g., <code>Rental_Agreement_2026</code>).</td>
+<td>The exported PDF downloads with your exact custom filename instead of a generic timestamp.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Multi-Page Aggregation</strong></td>
+<td>Scan or import 1, 5, 20, or 50 pages into a single cohesive session.</td>
+<td>Page thumbnails display in a visual grid with drag-and-drop re-ordering support.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Light &amp; Dark Theme Switcher</strong></td>
+<td>Instant toggle between deep terminal dark mode and high-contrast clean light mode.</td>
+<td>Saved to local browser storage; preserves your visual preference across sessions.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Draft Session Persistence</strong></td>
+<td>Saves pending pages to <code>sessionStorage</code> automatically.</td>
+<td>If you accidentally close the tab or refresh, your scanned pages are restored instantly.</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>PWA &amp; Offline Installation</strong></td>
+<td>Installs to your home screen or desktop application launcher.</td>
+<td>Runs entirely without internet connection via service worker caching.</td>
+</tr>
+</tbody></table></div><hr class="guide-divider" /><section id="5-step-by-step-masterclass-how-to-scan-straighten-and-export-anything" class="guide-section"><h2 class="guide-h2"><a href="#5-step-by-step-masterclass-how-to-scan-straighten-and-export-anything" class="heading-anchor">#</a> 5. Step-by-Step Masterclass: How to Scan, Straighten, and Export Anything</h2><p class="guide-p">Whether you are using a mobile phone on a commuter train or a desktop computer in an office, here is how to achieve flawless results with DocScan.</p><pre class="box-diagram"><code>       +-------------------------------------------------------------+
+       |                     Step 1: Ingestion                       |
+       |       Tap "Start Scanning" OR "Import from Device"          |
+       +-------------------------------------------------------------+
+                                      |
+                                      v
+       +-------------------------------------------------------------+
+       |                  Step 2: Perspective Crop                   |
+       |  - Auto-detected quad appears around document borders       |
+       |  - Drag any corner: 2.5x Magnifier Loupe opens with cursor   |
+       |  - Optional: Tap "Rotate 90°" if document was shot sideways |
+       |  - Tap "Straighten"                                         |
+       +-------------------------------------------------------------+
+                                      |
+                                      v
+       +-------------------------------------------------------------+
+       |                  Step 3: Document Review                    |
+       |  - Card P1 appears in Review Grid with straightened preview  |
+       |  - Optional: Tap "Filters" to apply Magic Color or B&amp;W Doc  |
+       |  - Optional: Tap "+ Add Page" to append additional sheets   |
+       |  - Optional: Tap document title to rename the file          |
+       +-------------------------------------------------------------+
+                                      |
+                                      v
+       +-------------------------------------------------------------+
+       |                     Step 4: PDF Export                      |
+       |  - Tap "Export PDF"                                         |
+       |  - Instant client-side compile &amp; zero-lag binary download   |
+       +-------------------------------------------------------------+
+</code></pre><h3 id="scenario-a-scanning-a-crooked-document-via-mobile-laptop-camera" class="guide-h3"><a href="#scenario-a-scanning-a-crooked-document-via-mobile-laptop-camera" class="heading-anchor">#</a> Scenario A: Scanning a Crooked Document via Mobile/Laptop Camera</h3><ol class="guide-ol"><li>Open <a href="https://oathanrex.github.io/doc-scan/" target="_blank" rel="noopener noreferrer">https://oathanrex.github.io/doc-scan/</a> in your browser.</li><li>Tap <strong>"Start scanning"</strong>. Grant camera permission when prompted.</li><li>Align your document within the viewport. The green/teal bounding box will search for rectangular borders in real time.</li><li>When the status indicator glows green (<code>Document locked</code>), tap the round white shutter button.</li><li>The page is automatically rectified and placed into your review tray.</li></ol><h3 id="scenario-b-uploading-a-crooked-gallery-photo-from-your-phone-or-pc" class="guide-h3"><a href="#scenario-b-uploading-a-crooked-gallery-photo-from-your-phone-or-pc" class="heading-anchor">#</a> Scenario B: Uploading a Crooked Gallery Photo from Your Phone or PC</h3><ol class="guide-ol"><li>On the home screen, click <strong>"Import from device"</strong>.</li><li>Select an existing photo of a document, contract, book page, or receipt.</li><li>The app will immediately bypass the camera and open the <strong>Perspective Crop</strong> stage.</li><li>The Canny edge detector automatically snaps four corner pins around the paper margins.</li><li>If the document was taken in landscape orientation, tap the <strong>Rotate 90°</strong> button in the top bar.</li><li>Touch or drag any corner handle to inspect the edge with the <strong>Magnifier Loupe</strong> (which displays a 2.5x zoomed view with crosshairs so your finger never blocks the edge).</li><li>Tap <strong>"Straighten"</strong>. Within milliseconds, the skewed trapezoid is transformed into a clean, flat document.</li></ol><h3 id="scenario-c-enhancing-legibility-with-camscanner-grade-magic-color" class="guide-h3"><a href="#scenario-c-enhancing-legibility-with-camscanner-grade-magic-color" class="heading-anchor">#</a> Scenario C: Enhancing Legibility with CamScanner-Grade Magic Color</h3><ol class="guide-ol"><li>On the Review screen, locate the page card and tap the <strong>"Filters"</strong> (pencil) button.</li><li>You will enter the Edit stage. Notice that your document <strong>remains 100% flat and straightened</strong>.</li><li>Select from the filter carousel:</li></ol><ul class="guide-ul"><li><strong>Magic Color</strong>: Select this for agreements, invoices, and certificates. It lifts dull gray shadows off the paper while intensifying black text and keeping colored logos, red notary stamps, and blue ballpoint signatures vibrant.</li><li><strong>B&amp;W Doc</strong>: Select this for plain text documents, photocopies, or book pages. It uses high-contrast thresholding to eliminate paper wrinkles and background discoloration.</li><li><strong>Grayscale</strong>: Ideal for official photo IDs, driver's licenses, and passports where photographic gradients must remain natural.</li><li><strong>Text Boost</strong>: Perfect for faded receipts or pencil notes with weak contrast.</li></ul><ol class="guide-ol"><li>Tap <strong>"Done"</strong>. The filter is cleanly baked onto your straightened page.</li></ol><h3 id="scenario-d-assembling-a-multi-page-pdf-custom-renaming" class="guide-h3"><a href="#scenario-d-assembling-a-multi-page-pdf-custom-renaming" class="heading-anchor">#</a> Scenario D: Assembling a Multi-Page PDF &amp; Custom Renaming</h3><ol class="guide-ol"><li>Tap <strong>"+ Add page"</strong> or import more images to append Pages 2, 3, and 4.</li><li>If pages are out of sequence, click and drag any card to reorder your document.</li><li>Tap the header title (e.g. <code>DocScan</code>) at the top of the Review screen. A prompt will appear allowing you to type a descriptive name, such as <code>Medical_Claim_Receipts_Nov2026</code>.</li><li>Click <strong>"Export PDF"</strong>.</li><li>The app compiles the PDF directly in your browser's memory and initiates an immediate file download: <code>Medical_Claim_Receipts_Nov2026.pdf</code>.</li></ol><hr class="guide-divider" /><section id="6-exhaustive-comparison-docscan-vs-microsoft-lens-vs-camscanner-vs-adobe-scan" class="guide-section"><h2 class="guide-h2"><a href="#6-exhaustive-comparison-docscan-vs-microsoft-lens-vs-camscanner-vs-adobe-scan" class="heading-anchor">#</a> 6. Exhaustive Comparison: DocScan vs Microsoft Lens vs CamScanner vs Adobe Scan</h2><p class="guide-p">To demonstrate why DocScan represents the modern standard for document capture, consider this side-by-side technical evaluation:</p><div class="table-container"><table>
+<thead><tr>
+<th>Dimension</th>
+<th>DocScan (oathanrex)</th>
+<th>Microsoft Lens</th>
+<th>CamScanner</th>
+<th>Adobe Scan</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="feature-col"><strong>Desktop Web Support</strong></td>
+<td><strong>Full (Any Browser)</strong></td>
+<td>Discontinued</td>
+<td>Clunky Web Viewer</td>
+<td>View Only (No Scan)</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Installation Required</strong></td>
+<td><strong>Zero (Instant URL)</strong></td>
+<td>Native App Only</td>
+<td>140MB+ App Store</td>
+<td>180MB+ App Store</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Mandatory Sign-In</strong></td>
+<td><strong>None (Zero Login)</strong></td>
+<td>Microsoft Account</td>
+<td>Phone / Email Login</td>
+<td>Adobe ID / Google</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Data Privacy Policy</strong></td>
+<td><strong>100% On-Device</strong></td>
+<td>OneDrive Sync</td>
+<td>Third-Party Cloud</td>
+<td>Adobe Document Cloud</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Perspective Warping</strong></td>
+<td><strong>Bilinear Homography</strong></td>
+<td>Proprietary</td>
+<td>Proprietary</td>
+<td>Proprietary</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Magnifier Loupe</strong></td>
+<td><strong>Yes (2.5x Zoom)</strong></td>
+<td>Mobile Only</td>
+<td>No Loupe</td>
+<td>Magnifier on Drag</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Page Rotation</strong></td>
+<td><strong>90° Everywhere</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Filters Included</strong></td>
+<td><strong>Magic, B&amp;W, Gray, Boost</strong></td>
+<td>Document, Whiteboard</td>
+<td>Magic Color, B&amp;W</td>
+<td>Auto, Grayscale</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Export Watermarks</strong></td>
+<td><strong>Zero Watermark</strong></td>
+<td>None</td>
+<td>"Scanned by CamScanner"</td>
+<td>None</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Pricing / Subscription</strong></td>
+<td><strong>100% Free Open Source</strong></td>
+<td>Free (Account gated)</td>
+<td>$9.99/mo Pro Paywall</td>
+<td>$12.99/mo Cloud Paywall</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Offline Functionality</strong></td>
+<td><strong>Full (PWA Cached)</strong></td>
+<td>Limited</td>
+<td>Limited</td>
+<td>Fails without Login</td>
+</tr>
+<tr>
+<td class="feature-col"><strong>Source Code Availability</strong></td>
+<td><strong>Public GitHub (MIT)</strong></td>
+<td>Closed Proprietary</td>
+<td>Closed Proprietary</td>
+<td>Closed Proprietary</td>
+</tr>
+</tbody></table></div><hr class="guide-divider" /><section id="7-the-viral-playbook-building-on-the-success-of-perspectivefix" class="guide-section"><h2 class="guide-h2"><a href="#7-the-viral-playbook-building-on-the-success-of-perspectivefix" class="heading-anchor">#</a> 7. The Viral Playbook: Building on the Success of PerspectiveFix</h2><p class="guide-p">Why did <strong>PerspectiveFix</strong> (<a href="https://perspectivefix.app/" target="_blank" rel="noopener noreferrer">https://perspectivefix.app/</a>) gain massive developer traction? Because it fulfilled a simple, elegant promise: <strong>solve an annoying computer vision problem instantly in the browser without demanding an email address or credit card.</strong></p><p class="guide-p">DocScan takes that identical philosophical foundation and expands it into the full document productivity space:</p><ol class="guide-ol"><li><strong>Utility-First SEO</strong>:</li></ol><p class="guide-p">Every month, over 450,000 queries search for:</p><ul class="guide-ul"><li><em>"Microsoft Lens alternative for PC"</em></li><li><em>"How to straighten a crooked photo of a document online"</em></li><li><em>"Free CamScanner alternative without watermark"</em></li><li><em>"Scan documents directly in browser without uploading"</em></li></ul><p class="guide-p">DocScan directly fulfills the exact search intent of every one of these queries.</p><ol class="guide-ol"><li><strong>Hacker News &amp; Developer Community Affinity</strong>:</li></ol><p class="guide-p">Technical communities (Show HN, r/webdev, Lobste.rs) passionately support tools that demonstrate low-level computer vision and PDF synthesis without multi-megabyte npm dependencies. DocScan's zero-dependency JavaScript pipeline resonates deeply with engineers who respect lean, performant web engineering.</p><ol class="guide-ol"><li><strong>Viral Organic Word-of-Mouth</strong>:</li></ol><p class="guide-p">When a user in an office or classroom needs an urgent PDF and has no scanner hardware nearby, recommending DocScan takes three seconds: send the link, upload the photo, click Straighten, download the PDF. No app store waiting time. No password resets.</p><hr class="guide-divider" /><section id="8-supporting-independent-privacy-preserving-software" class="guide-section"><h2 class="guide-h2"><a href="#8-supporting-independent-privacy-preserving-software" class="heading-anchor">#</a> 8. Supporting Independent, Privacy-Preserving Software</h2><p class="guide-p">Building independent software that refuses to monetize user data is an intentional, ethical choice.</p><p class="guide-p">Every commercial document scanner today makes money by monetizing your attention or your documents: they show full-screen gambling or casual-game advertisements, lock essential filters behind recurring \$99/year subscription paywalls, or collect telemetry on your scanning habits to train corporate models.</p><p class="guide-p">DocScan is built on the opposite philosophy:</p><ul class="guide-ul"><li><strong>Zero Ads</strong>: No banner ads, no popups, no tracking scripts.</li><li><strong>Zero Cloud Extraction</strong>: Your documents remain inside your device's RAM.</li><li><strong>Zero Paywalls</strong>: Every feature—from bilinear homography warping to multi-page PDF compilation—is free and open to everyone, forever.</li></ul><p class="guide-p">Developing and maintaining high-performance computer vision algorithms, ensuring cross-browser compatibility across mobile and desktop devices, and keeping open-source tools freely accessible to students, researchers, and professionals across the world requires time, testing hardware, and continuous engineering care.</p><pre class="box-diagram"><code>+---------------------------------------------------------------------------------+
+|                        SUPPORT INDEPENDENT OPEN-SOURCE                          |
+|                                                                                 |
+| If DocScan saved you time, salvaged an important document scan, or allowed      |
+| you to ditch bloated subscription scanner apps, consider buying a coffee        |
+| to support independent, privacy-first software development:                     |
+|                                                                                 |
+|           ☕ Buy Me a Coffee: https://buymeacoffee.com/oathanrex               |
+|                                                                                 |
+| Every coffee directly funds serverless hosting, open-source computer vision     |
+| research, and the creation of zero-download utilities built for the public good.|
++---------------------------------------------------------------------------------+
+</code></pre><p class="guide-p">Whether you contribute through micro-patronage, star the project on GitHub, or share the tool with a colleague who needs a clean scan without the software bloat—thank you for standing behind an open, private, and capable web.</p><hr class="guide-divider" /><p class="guide-p"><em>Explore the live application at <a href="https://oathanrex.github.io/doc-scan/" target="_blank" rel="noopener noreferrer">https://oathanrex.github.io/doc-scan/</a> or inspect the source code on <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer">GitHub</a>.</em></p>
+
+      <div class="bmc-callout">
+        <h3>Support Independent, Privacy-Preserving Software</h3>
+        <p>DocScan has zero ads, zero cloud tracking, and zero paywalls. If this tool saved you time or allowed you to ditch bloated subscriptions, consider buying a coffee to support continued development.</p>
+        <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" class="bmc-btn" style="padding: 10px 22px; font-size: 15px;">
+          ☕ Buy Me a Coffee on BuyMeACoffee.com
+        </a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="guide-footer">
+    <div class="footer-links">
+      <a href="index.html">DocScan Web App</a>
+      <span>•</span>
+      <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+      <span>•</span>
+      <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer">Buy Me A Coffee</a>
+    </div>
+    <div>DocScan is free, open-source software built for the web. 100% on-device processing. No data collected.</div>
+  </footer>
+
+  <script>
+    // Theme sync
+    (function() {
+      const btn = document.getElementById("themeToggleBtn");
+      const icon = document.getElementById("themeIcon");
+      const saved = localStorage.getItem("docscan_theme");
+
+      function updateTheme(isLight) {
+        if (isLight) {
+          document.body.classList.add("light-theme");
+          document.body.classList.remove("dark-theme");
+          if (icon) icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+        } else {
+          document.body.classList.remove("light-theme");
+          document.body.classList.add("dark-theme");
+          if (icon) icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+        }
+      }
+
+      const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      const initialLight = saved === "light" || (!saved && prefersLight);
+      updateTheme(initialLight);
+
+      if (btn) {
+        btn.addEventListener("click", () => {
+          const isLight = document.body.classList.contains("light-theme");
+          const next = !isLight;
+          updateTheme(next);
+          localStorage.setItem("docscan_theme", next ? "light" : "dark");
+        });
+      }
+
+      // ScrollSpy for TOC
+      const links = document.querySelectorAll(".toc-link");
+      const sections = Array.from(links).map(l => document.querySelector(l.getAttribute("href"))).filter(Boolean);
+
+      window.addEventListener("scroll", () => {
+        let current = "";
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        for (const s of sections) {
+          if (s.offsetTop - 120 <= scrollY) {
+            current = s.id;
+          }
+        }
+        links.forEach(l => {
+          if (l.getAttribute("href") === "#" + current) {
+            l.classList.add("active");
+          } else {
+            l.classList.remove("active");
+          }
+        });
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

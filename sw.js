@@ -1,9 +1,10 @@
 // sw.js — DocScan Progressive Web App Service Worker
-const CACHE_NAME = "docscan-v1.2.0";
+const CACHE_NAME = "docscan-v1.3.0";
 
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
+  "./guide.html",
   "./manifest.json",
   "./icons/icon.svg",
   "./js/edge-detect.js",

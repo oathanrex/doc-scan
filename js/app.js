@@ -261,7 +261,11 @@
   // ---- Modal ----
   function showModal(title, body) {
     els.modalTitle.textContent = title;
-    els.modalBody.textContent = body;
+    if (typeof body === "string" && (body.includes("<") || body.includes("&"))) {
+      els.modalBody.innerHTML = body;
+    } else {
+      els.modalBody.textContent = body;
+    }
     els.modal.classList.add("show");
   }
   els.modalOk.addEventListener("click", () => els.modal.classList.remove("show"));
@@ -1391,7 +1395,22 @@
   els.aboutBtn.addEventListener("click", () => {
     showModal(
       "About DocScan",
-      "DocScan implements the MVP from the Mobile Document Scanner PRD: automatic border detection, perspective correction, multi-page capture, review/reorder, and PDF export — all on-device."
+      `<div style="text-align:left;line-height:1.6;font-size:13.5px;">
+        <p style="margin:0 0 10px;"><b>DocScan</b> is a 100% on-device, zero-download document scanner and perspective rectification suite built as a privacy-first alternative to Microsoft Lens &amp; CamScanner.</p>
+        <ul style="margin:0 0 12px;padding-left:18px;">
+          <li><b>Zero Cloud Uploads:</b> Camera frames &amp; PDFs never leave your browser memory.</li>
+          <li><b>Computer Vision:</b> Real-time Sobel/Canny edge detection &amp; Bilinear Homography warping.</li>
+          <li><b>Multi-Page PDF:</b> Pure binary client-side PDF compiler with zero external dependencies.</li>
+        </ul>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+          <a href="guide.html" style="display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-weight:600;text-decoration:none;border:1px solid var(--line);padding:8px 12px;border-radius:8px;background:var(--surface-2);">
+            📖 Read the Complete 3,000+ Word Technical Guide &amp; Comparison
+          </a>
+          <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#FFDD00;color:#000;font-weight:600;padding:8px 12px;border-radius:8px;text-decoration:none;">
+            ☕ Support Independent Development on BuyMeACoffee
+          </a>
+        </div>
+      </div>`
     );
   });
 
@@ -1619,4 +1638,46 @@
       }
     });
   }
+
+  // ---- Desktop Keyboard Shortcuts (Top 1% DX & WCAG Navigation) ----
+  window.addEventListener("keydown", (e) => {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable)) {
+      return;
+    }
+    if (e.key === "Escape") {
+      if (els.modal.classList.contains("show")) {
+        els.modal.classList.remove("show");
+        return;
+      }
+      if (state.currentScreen === "camera") {
+        stopCamera();
+        showScreen("home");
+      } else if (state.currentScreen === "crop") {
+        if (state.pages.length > 0) {
+          showScreen("review");
+        } else {
+          showScreen("home");
+        }
+      } else if (state.currentScreen === "edit") {
+        showScreen("review");
+      }
+    } else if (e.key === "r" || e.key === "R") {
+      if (state.currentScreen === "crop" && els.cropRotateBtn) {
+        els.cropRotateBtn.click();
+      } else if (state.currentScreen === "edit" && els.editRotateBtn) {
+        els.editRotateBtn.click();
+      }
+    } else if (e.key === "Enter") {
+      if (els.modal.classList.contains("show")) {
+        els.modalOk.click();
+      } else if (state.currentScreen === "crop" && els.cropApplyBtn) {
+        els.cropApplyBtn.click();
+      } else if (state.currentScreen === "edit" && els.editDoneBtn) {
+        els.editDoneBtn.click();
+      }
+    } else if (e.key === " " && state.currentScreen === "camera") {
+      e.preventDefault();
+      if (els.shutterBtn) els.shutterBtn.click();
+    }
+  });
 })();

@@ -21,7 +21,48 @@
   />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>DocScan — Mobile Document Scanner</title>
+  <title>DocScan — Free Online Document Scanner &amp; Perspective Fixer (No Login, No Download)</title>
+  <meta name="description" content="The zero-download, privacy-first Microsoft Lens &amp; CamScanner alternative. Auto-detect borders, straighten perspective with bilinear homography, apply Magic Color filters, and export multi-page PDFs 100% on-device." />
+  <meta name="keywords" content="document scanner, perspective fix, microsoft lens alternative, camscanner online, straighten document photo, free online scanner, on-device scanner, crop document, oathanrex" />
+  <meta name="author" content="oathanrex" />
+  <link rel="canonical" href="https://oathanrex.github.io/doc-scan/" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://oathanrex.github.io/doc-scan/" />
+  <meta property="og:title" content="DocScan — Free Online Document Scanner &amp; Perspective Fixer" />
+  <meta property="og:description" content="Scan, straighten, and filter documents directly in your browser. 100% on-device, zero downloads, zero logins, zero tracking." />
+  <meta property="og:image" content="https://oathanrex.github.io/doc-scan/icons/icon.svg" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:url" content="https://oathanrex.github.io/doc-scan/" />
+  <meta name="twitter:title" content="DocScan — Free Online Document Scanner &amp; Perspective Fixer" />
+  <meta name="twitter:description" content="Zero-download on-device document scanner and perspective fixer. Alternative to Microsoft Lens and CamScanner." />
+  <meta name="twitter:image" content="https://oathanrex.github.io/doc-scan/icons/icon.svg" />
+
+  <!-- JSON-LD Structured Data for Google Rich Results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "DocScan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All (Web Browser)",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Zero-download, 100% client-side document scanner with real-time Canny edge detection, bilinear homography perspective warping, and PDF export.",
+    "url": "https://oathanrex.github.io/doc-scan/",
+    "author": {
+      "@type": "Person",
+      "name": "oathanrex",
+      "url": "https://github.com/oathanrex"
+    }
+  }
+  </script>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -139,10 +180,60 @@
       --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     }
 
+    /* =========================================================
+       TOP 1% MODERN SCROLLBAR & SCROLL BEHAVIOR
+       ========================================================= */
+    html {
+      scrollbar-width: thin;
+      scrollbar-color: var(--line-strong) transparent;
+      scroll-behavior: smooth;
+    }
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 9999px;
+      transition: background 0.2s ease;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    /* =========================================================
+       WCAG ACCESSIBILITY & FOCUS VISIBILITY
+       ========================================================= */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--accent) !important;
+      outline-offset: 2px !important;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
     html,
     body {
       margin: 0;
@@ -180,6 +271,80 @@
       flex-direction: column;
       background: var(--bg);
       overflow: hidden;
+      transition: max-width 0.2s ease, border-radius 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Tablet breakpoint (641px - 1023px) */
+    @media (min-width: 641px) and (max-width: 1023px) {
+      body {
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: radial-gradient(circle at 50% 0%, rgba(63, 217, 199, 0.05), transparent 60%), var(--bg);
+      }
+      .app {
+        max-width: 768px;
+        height: min(96vh, 920px);
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.45);
+      }
+      .home-features {
+        max-width: 620px !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+      }
+      .review-list {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 14px !important;
+        padding: 14px 20px 20px !important;
+      }
+    }
+
+    /* Desktop breakpoint (>= 1024px) */
+    @media (min-width: 1024px) {
+      body {
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: radial-gradient(circle at 50% 0%, rgba(63, 217, 199, 0.08), transparent 50%), var(--bg);
+      }
+      .app {
+        max-width: 1100px;
+        height: min(94vh, 960px);
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+      .home h1 {
+        font-size: 38px !important;
+        margin-bottom: 8px !important;
+      }
+      .home-sub {
+        max-width: 54ch !important;
+        font-size: 16px !important;
+      }
+      .home-features {
+        max-width: 860px !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 16px !important;
+      }
+      .review-list {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 18px !important;
+        padding: 18px 26px 26px !important;
+      }
+      .crop-stage, .edit-stage {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #cropCanvas, #editCanvas {
+        max-height: calc(100% - 24px);
+        max-width: calc(100% - 32px);
+        border-radius: 6px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      }
     }
 
     /* ---------- Screens ---------- */
@@ -204,8 +369,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 18px;
-      padding-top: max(14px, env(safe-area-inset-top));
+      padding: 12px 18px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      width: 100%;
+      flex-shrink: 0;
       z-index: 5;
     }
     .topbar-title {
@@ -238,11 +405,11 @@
     /* ---------- Home screen ---------- */
     .home {
       align-items: center;
-      justify-content: center;
-      padding: 24px 24px;
+      justify-content: flex-start;
+      padding: 4px 20px 24px;
       padding-bottom: max(24px, env(safe-area-inset-bottom));
       text-align: center;
-      gap: 16px;
+      gap: 12px;
       overflow-y: auto;
     }
     .home-logo {
@@ -1067,14 +1234,16 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 200;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s;
+      transition: opacity 0.2s ease;
     }
     .modal-backdrop.show {
       opacity: 1;
@@ -1083,27 +1252,35 @@
     .modal {
       background: var(--surface);
       border: 1px solid var(--line-strong);
-      border-radius: 10px;
-      padding: 22px;
-      max-width: 340px;
-      width: calc(100% - 40px);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      border-radius: 14px;
+      padding: 24px;
+      max-width: 440px;
+      width: calc(100% - 36px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      animation: modalPop 0.2s ease-out;
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
     .modal h3 {
       font-family: var(--display);
-      font-size: 18px;
-      margin: 0 0 8px;
+      font-size: 19px;
+      margin: 0 0 10px;
+      color: var(--ink);
     }
-    .modal p {
+    .modal p,
+    .modal #modalBody {
       margin: 0 0 16px;
       color: var(--ink-soft);
-      font-size: 14px;
-      line-height: 1.5;
+      font-size: 13.5px;
+      line-height: 1.55;
     }
     .modal-actions {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       justify-content: flex-end;
+      margin-top: 16px;
     }
 
     /* ---------- Utility ---------- */
@@ -1130,14 +1307,63 @@
     }
     .home-status b { color: var(--accent-2); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 4px; }
 
+    .home-guide-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 8px 16px;
+      border-radius: 9999px;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .home-guide-banner:hover {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(63, 217, 199, 0.15);
+    }
+    .guide-badge {
+      background: var(--accent);
+      color: #053c3d;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 10px;
+      letter-spacing: 0.04em;
+    }
+    .guide-text {
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .home-foot-link {
+      font-size: 12px;
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .home-foot-link:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
     .home-foot {
       width: 100%;
-      max-width: 360px;
-      padding: 8px 0 4px;
+      max-width: 420px;
+      padding: 10px 0 6px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
     .home-foot-btn {
       display: inline-flex;
@@ -1207,8 +1433,13 @@
         </svg>
       </div>
       <h1>Scan anything</h1>
-      <p class="home-sub">Capture pages, auto-detect borders, and export a clean PDF — right from your phone.</p>
-      <button class="cta" id="startScanBtn">
+      <p class="home-sub">Capture pages, auto-detect borders, and export a clean PDF — right from your browser on desktop, tablet, or mobile.</p>
+      <a href="guide.html" class="home-guide-banner" aria-label="Read complete technical guide and Microsoft Lens comparison">
+        <span class="guide-badge">E-E-A-T Guide</span>
+        <span class="guide-text">Microsoft Lens Alternative: Complete Guide &amp; Tech Deep Dive</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <button class="cta" id="startScanBtn" style="margin-top: 14px;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         Start scanning
       </button>
@@ -1258,7 +1489,14 @@
       </div>
       <div class="spacer"></div>
       <div class="home-foot">
-        <button class="home-foot-btn" id="clearCacheBtn" type="button">
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: 12px; margin-bottom: 2px;">
+          <a href="guide.html" class="home-foot-link">📖 Complete User Guide</a>
+          <span style="color: var(--ink-faint);">•</span>
+          <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" class="home-foot-link" style="color: var(--accent-2); font-weight: 500;">☕ Buy me a coffee</a>
+          <span style="color: var(--ink-faint);">•</span>
+          <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer" class="home-foot-link">⭐ GitHub</a>
+        </div>
+        <button class="home-foot-btn" id="clearCacheBtn" type="button" style="margin-top: 4px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
           Clear cache &amp; hard reload
         </button>
@@ -1444,8 +1682,8 @@
     <!-- Modal -->
     <div class="modal-backdrop" id="modal">
       <div class="modal">
-        <h3 id="modalTitle">About</h3>
-        <p id="modalBody">DocScan implements the MVP from the Mobile Document Scanner PRD: automatic border detection, perspective correction, multi-page capture, review/reorder, and PDF export — all on-device.</p>
+        <h3 id="modalTitle">About DocScan</h3>
+        <div id="modalBody">DocScan is a 100% on-device document scanner and perspective fixer.</div>
         <div class="modal-actions">
           <button class="pill-btn primary" id="modalOk">OK</button>
         </div>
