@@ -83,6 +83,7 @@
  finishBtn: $("finishBtn"),
  manualBtn: $("manualBtn"),
  flashBtn: $("flashBtn"),
+    flipCamBtn: $("flipCamBtn"),
  thumbStrip: $("thumbStrip"),
  startScan: $("startScanBtn"),
  importBtn: $("importBtn"),
@@ -104,6 +105,7 @@
  docTitleText: $("docTitleText"),
  addMoreBtn: $("addMoreBtn"),
  exportBtn: $("exportBtn"),
+    pdfFormatSelect: $("pdfFormatSelect"),
  editStage: $("editStage"),
  editTitle: $("editTitle"),
  editBack: $("editBackBtn"),
@@ -1076,102 +1078,172 @@
  els.exportBtn.addEventListener("click", exportPdf);
 
  function renderReview() {
- els.reviewList.innerHTML = "";
- els.reviewMeta.textContent =
- state.pages.length + (state.pages.length === 1 ? " page" : " pages");
- if (!state.pages.length) {
- const empty = document.createElement("div");
- empty.className = "review-empty";
- empty.innerHTML = `<p>No pages yet</p><p style="font-size:13px;opacity:.7;">Capture a page or import an image to get started.</p>`;
- els.reviewList.appendChild(empty);
- els.exportBtn.disabled = true;
- saveSession();
- updateHomeSessionBtn();
- return;
- }
- els.exportBtn.disabled = false;
- state.pages.forEach((p, i) => {
- const card = document.createElement("div");
- card.className = "page-card";
- card.dataset.id = p.id;
- card.draggable = true;
- const img = document.createElement("img");
- img.src = p.src;
- img.alt = "Page " + (i + 1);
- const label = document.createElement("div");
- label.className = "label";
- label.textContent = "P" + (i + 1);
- const actions = document.createElement("div");
- actions.className = "actions";
+    els.reviewList.innerHTML = "";
+    els.reviewMeta.textContent =
+      state.pages.length + (state.pages.length === 1 ? " page" : " pages");
+    if (!state.pages.length) {
+      const empty = document.createElement("div");
+      empty.className = "review-empty";
+      empty.innerHTML = `<p>No pages yet</p><p style="font-size:13px;opacity:.7;">Capture a page or import an image to get started.</p>`;
+      els.reviewList.appendChild(empty);
+      els.exportBtn.disabled = true;
+      saveSession();
+      updateHomeSessionBtn();
+      return;
+    }
+    els.exportBtn.disabled = false;
+    state.pages.forEach((p, i) => {
+      const card = document.createElement("div");
+      card.className = "page-card";
+      card.dataset.id = p.id;
+      card.draggable = true;
+      const img = document.createElement("img");
+      img.src = p.src;
+      img.alt = "Page " + (i + 1);
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = "Page " + (i + 1) + " of " + state.pages.length;
+      const actions = document.createElement("div");
+      actions.className = "actions";
 
- // Crop / Perspective Button
- const cropBtn = actionBtn(
- '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></svg>',
- "Perspective Crop"
- );
- cropBtn.addEventListener("click", (e) => {
- e.stopPropagation();
- openCropForPage(p.id);
- });
+      // 1. Move Left / Earlier Button (Mobile touch & accessibility parity)
+      const moveLeftBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+        "Move page earlier"
+      );
+      if (i === 0) {
+        moveLeftBtn.disabled = true;
+        moveLeftBtn.title = "First page";
+      } else {
+        moveLeftBtn.title = "Move page earlier";
+        moveLeftBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const temp = state.pages[i];
+          state.pages[i] = state.pages[i - 1];
+          state.pages[i - 1] = temp;
+          renderReview();
+          renderThumbs();
+          saveSession();
+          toast("Moved page to position " + i, "info");
+        });
+      }
 
- // Filter / Edit Button
- const editBtn = actionBtn(
- '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
- "Filters"
- );
- editBtn.addEventListener("click", (e) => {
- e.stopPropagation();
- openEdit(p.id);
- });
+      // 2. Move Right / Later Button
+      const moveRightBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
+        "Move page later"
+      );
+      if (i === state.pages.length - 1) {
+        moveRightBtn.disabled = true;
+        moveRightBtn.title = "Last page";
+      } else {
+        moveRightBtn.title = "Move page later";
+        moveRightBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const temp = state.pages[i];
+          state.pages[i] = state.pages[i + 1];
+          state.pages[i + 1] = temp;
+          renderReview();
+          renderThumbs();
+          saveSession();
+          toast("Moved page to position " + (i + 2), "info");
+        });
+      }
 
- // Delete Button
- const delBtn = actionBtn(
- '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
- "Delete"
- );
- delBtn.classList.add("danger");
- delBtn.addEventListener("click", (e) => {
- e.stopPropagation();
- if (confirm("Delete this page?")) {
- state.pages = state.pages.filter((x) => x.id !== p.id);
- renderReview();
- renderThumbs();
- toast("Page deleted");
- }
- });
+      // 3. Rotate 90 deg Button
+      const rotateBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>',
+        "Rotate 90 degrees"
+      );
+      rotateBtn.title = "Rotate 90 degrees";
+      rotateBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const baseImg = p.straightened || p.src;
+        const rotated = await rotateImageDataUrl(baseImg, 90);
+        p.straightened = rotated;
+        p.src = rotated;
+        p.original = rotated;
+        renderReview();
+        saveSession();
+        toast("Page rotated 90 degrees", "info");
+      });
 
- // Rotate Button
- const rotateBtn = actionBtn(
- '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>',
- "Rotate 90°"
- );
- rotateBtn.addEventListener("click", async (e) => {
- e.stopPropagation();
- const baseImg = p.straightened || p.src;
- const rotated = await rotateImageDataUrl(baseImg, 90);
- p.straightened = rotated;
- p.src = rotated;
- p.original = rotated;
- renderReview();
- saveSession();
- toast("Page rotated 90°", "info");
- });
+      // 4. Perspective Crop Button
+      const cropBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></svg>',
+        "Perspective Crop"
+      );
+      cropBtn.title = "Perspective Crop";
+      cropBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openCropForPage(p.id);
+      });
 
- actions.appendChild(rotateBtn);
- actions.appendChild(cropBtn);
- actions.appendChild(editBtn);
- actions.appendChild(delBtn);
- card.appendChild(img);
- card.appendChild(label);
- card.appendChild(actions);
- attachDragHandlers(card);
- els.reviewList.appendChild(card);
- });
- saveSession();
- updateHomeSessionBtn();
- }
+      // 5. Filter / Edit Button
+      const editBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>',
+        "Color and Filters"
+      );
+      editBtn.title = "Color and Filters";
+      editBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openEdit(p.id);
+      });
 
- const SESSION_KEY = "docscan_session_draft";
+      // 6. Download Single Page as JPG
+      const downloadImgBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+        "Save Page as JPG"
+      );
+      downloadImgBtn.title = "Save Page as JPG";
+      downloadImgBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const a = document.createElement("a");
+        a.href = p.src;
+        const baseTitle = state.docTitle || ("DocScan-" + new Date().toISOString().slice(0, 10));
+        a.download = `${baseTitle}-Page-${i + 1}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast(`Downloaded Page ${i + 1} as JPG`, "success");
+      });
+
+      // 7. Delete Button
+      const delBtn = actionBtn(
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
+        "Delete page"
+      );
+      delBtn.title = "Delete page";
+      delBtn.classList.add("danger");
+      delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (confirm("Delete page " + (i + 1) + "?")) {
+          state.pages = state.pages.filter((x) => x.id !== p.id);
+          renderReview();
+          renderThumbs();
+          toast("Page deleted", "info");
+        }
+      });
+
+      actions.appendChild(moveLeftBtn);
+      actions.appendChild(moveRightBtn);
+      actions.appendChild(rotateBtn);
+      actions.appendChild(cropBtn);
+      actions.appendChild(editBtn);
+      actions.appendChild(downloadImgBtn);
+      actions.appendChild(delBtn);
+
+      card.appendChild(img);
+      card.appendChild(label);
+      card.appendChild(actions);
+      attachDragHandlers(card);
+      els.reviewList.appendChild(card);
+    });
+    saveSession();
+    updateHomeSessionBtn();
+  }
+
+  const SESSION_KEY = "docscan_session_draft";
  function saveSession() {
  try {
  if (state.pages && state.pages.length > 0) {
@@ -1373,7 +1445,8 @@
  const j = await PdfExport.imageToJpegBytes(img, 1800);
  images.push(j);
  }
- const blob = PdfExport.buildPdf(images, "A4");
+ const fmt = els.pdfFormatSelect ? els.pdfFormatSelect.value : "AUTO";
+      const blob = PdfExport.buildPdf(images, fmt);
  const url = URL.createObjectURL(blob);
  const a = document.createElement("a");
  a.href = url;

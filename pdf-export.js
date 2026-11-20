@@ -69,11 +69,12 @@
   // Build a complete PDF from a list of { jpegBytes, width, height }.
   // pageFormat: 'A4' | 'LETTER'
   function buildPdf(images, pageFormat) {
+    const fmt = String(pageFormat || "A4").toUpperCase();
     const pageSizes = {
       A4: { w: 595, h: 842 },       // points
       LETTER: { w: 612, h: 792 }
     };
-    const ps = pageSizes[pageFormat] || pageSizes.A4;
+    const defaultPs = pageSizes[fmt] || pageSizes.A4;
 
     const objects = []; // each: { body: string | Uint8Array, isStream: bool }
     // We will reserve: 1 = Catalog, 2 = Pages, 3 = Font (unused but
@@ -131,8 +132,21 @@
       push(xo.stream);
       push("\nendstream\nendobj\n");
 
+      // Calculate dimensions per page: if AUTO/FIT, size MediaBox directly to document aspect ratio!
+      let pw = defaultPs.w;
+      let ph = defaultPs.h;
+      if (fmt === "AUTO" || fmt === "FIT") {
+        if (img.width >= img.height) {
+          pw = 595;
+          ph = Math.max(100, Math.round(595 * (img.height / img.width)));
+        } else {
+          ph = 842;
+          pw = Math.max(100, Math.round(842 * (img.width / img.height)));
+        }
+      }
+
       // Content stream
-      const content = buildPageContent(img.width, img.height, ps.w, ps.h);
+      const content = buildPageContent(img.width, img.height, pw, ph);
       const contentBytes = new TextEncoder().encode(content);
       xref[contentIdx] = pos;
       push(contentIdx + " 0 obj\n<< /Length " + contentBytes.length + " >>\nstream\n");
@@ -143,7 +157,7 @@
       pageObjIndexes.push(pageIdx);
       const pageBody =
         "<< /Type /Page /Parent 2 0 R " +
-        "/MediaBox [0 0 " + ps.w + " " + ps.h + "] " +
+        "/MediaBox [0 0 " + pw + " " + ph + "] " +
         "/Resources << /XObject << /Im0 " + xobjIdx + " 0 R >> /ProcSet [/PDF /ImageC] >> " +
         "/Contents " + contentIdx + " 0 R >>";
       xref[pageIdx] = pos;
