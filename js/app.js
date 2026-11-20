@@ -1274,39 +1274,57 @@
     }
   }
 
-  // ---- In-Browser OCR / Copy Text (Microsoft Lens Parity) ----
+    // ---- In-Browser OCR / Copy Text (Microsoft Lens Parity) ----
   async function performOcr(dataUrl) {
-    toast("Loading OCR engine…", "info");
+    toast("Initializing on-device OCR engine...", "info");
     if (!window.Tesseract) {
       await new Promise((resolve, reject) => {
         const s = document.createElement("script");
         s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
-        s.onload = resolve;
-        s.onerror = () => reject(new Error("Failed to load OCR engine"));
+        s.async = true;
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error("Could not load OCR library from CDN. Please check your internet connection."));
         document.head.appendChild(s);
       });
     }
-    toast("Recognizing text from document…", "info");
-    const worker = await Tesseract.createWorker("eng");
+
+    if (!window.Tesseract || typeof window.Tesseract.createWorker !== "function") {
+      throw new Error("OCR engine failed to initialize");
+    }
+
+    toast("Processing document text...", "info");
+    const worker = await Tesseract.createWorker("eng", 1, {
+      workerPath: "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js",
+      corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core.wasm.js",
+      logger: (m) => {
+        if (m && m.status === "recognizing text" && typeof m.progress === "number") {
+          const pct = Math.round(m.progress * 100);
+          if (pct > 0 && pct % 30 === 0) {
+            toast("Recognizing text: " + pct + "%", "info");
+          }
+        }
+      }
+    });
+
     const ret = await worker.recognize(dataUrl);
     await worker.terminate();
-    return ret.data.text.trim();
+    return (ret && ret.data && ret.data.text) ? ret.data.text.trim() : "";
   }
 
   async function handleOcrPage(pageSrc, pageNum) {
     try {
       const text = await performOcr(pageSrc);
       if (!text) {
-        toast("No readable text detected in page " + pageNum, "error");
+        toast("No readable text detected on page " + pageNum + ". Try adjusting contrast with the B&W filter.", "info");
         return;
       }
-      const safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       showModal(
-        "Extracted Text - Page " + pageNum,
+        "Extracted Text (Page " + pageNum + ")",
         `<div style="text-align:left;">
           <p style="margin:0 0 8px;font-size:13px;color:var(--ink-soft);">Recognized on-device via browser OCR engine:</p>
-          <textarea id="ocrResultText" style="width:100%;height:160px;font-family:var(--mono);font-size:12.5px;padding:10px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;resize:vertical;" readonly>${safeText}</textarea>
-          <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;">
+          <textarea id="ocrResultText" style="width:100%;height:180px;font-family:var(--mono);font-size:12.5px;padding:10px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;resize:vertical;" readonly>${safeText}</textarea>
+          <div style="margin-top:14px;display:flex;justify-content:flex-end;gap:8px;">
             <button class="pill-btn primary" id="copyOcrTextBtn" type="button">Copy to Clipboard</button>
           </div>
         </div>`
@@ -1316,17 +1334,28 @@
         const area = document.getElementById("ocrResultText");
         if (copyBtn && area) {
           copyBtn.addEventListener("click", () => {
-            navigator.clipboard.writeText(area.value).then(() => {
-              copyBtn.textContent = "Copied!";
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(area.value).then(() => {
+                copyBtn.textContent = "Copied!";
+                toast("Text copied to clipboard!", "success");
+                setTimeout(() => { copyBtn.textContent = "Copy to Clipboard"; }, 2000);
+              }).catch(() => {
+                area.select();
+                document.execCommand("copy");
+                toast("Text copied to clipboard!", "success");
+              });
+            } else {
+              area.select();
+              document.execCommand("copy");
               toast("Text copied to clipboard!", "success");
-              setTimeout(() => { copyBtn.textContent = "Copy to Clipboard"; }, 2000);
-            });
+            }
           });
         }
-      }, 50);
+      }, 60);
     } catch (err) {
-      console.error(err);
-      toast("OCR recognition failed: " + err.message, "error");
+      console.warn("OCR Error handled safely:", err);
+      const msg = (err && (err.message || String(err))) || "Network or OCR engine error";
+      toast("OCR Notice: " + msg, "error");
     }
   }
 
