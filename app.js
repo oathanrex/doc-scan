@@ -54,11 +54,13 @@
 
  // ---- Crop / Perspective State (PerspectiveFix Parity) ----
  const cropState = {
- sourceCanvas: null,
- sourceQuad: null,
- displayQuad: null,
- editingPageId: null
- };
+    sourceCanvas: null,
+    sourceQuad: null,
+    displayQuad: null,
+    editingPageId: null,
+    dispW: 0,
+    dispH: 0
+  };
 
  // ---- DOM ----
  const $ = (id) => document.getElementById(id);
@@ -716,282 +718,373 @@
  setupCropView();
  }
 
- function setupCropView() {
- if (!cropState.sourceCanvas || !els.cropCanvas) return;
- const sc = cropState.sourceCanvas;
- const cc = els.cropCanvas;
- cc.width = sc.width;
- cc.height = sc.height;
- const ctx = cc.getContext("2d");
- ctx.drawImage(sc, 0, 0);
+ function fitCropCanvas() {
+    if (!cropState.sourceCanvas || !els.cropCanvas || !els.cropStage) return;
+    const sc = cropState.sourceCanvas;
+    const cc = els.cropCanvas;
+    const wrapper = els.cropCanvasWrapper;
 
- requestAnimationFrame(() => {
- syncCropDisplayQuad();
- });
- }
+    // Sync underlying pixel buffer
+    if (cc.width !== sc.width || cc.height !== sc.height) {
+      cc.width = sc.width;
+      cc.height = sc.height;
+      const ctx = cc.getContext("2d");
+      ctx.drawImage(sc, 0, 0);
+    }
 
- function syncCropDisplayQuad() {
- if (!cropState.sourceCanvas || !cropState.sourceQuad || !els.cropCanvas) return;
- const rect = els.cropCanvas.getBoundingClientRect();
- const dispW = rect.width;
- const dispH = rect.height;
- if (dispW <= 0 || dispH <= 0) return;
+    // Measure stage dimensions
+    const stageRect = els.cropStage.getBoundingClientRect();
+    if (stageRect.width <= 0 || stageRect.height <= 0) return;
 
- const sw = cropState.sourceCanvas.width;
- const sh = cropState.sourceCanvas.height;
+    // Generous safe padding (40px horizontal, 44px vertical) so handles (32px diameter)
+    // never clip against topbar, sides, or bottom toolbar
+    const padX = 40;
+    const padY = 44;
+    const availW = Math.max(100, stageRect.width - padX);
+    const availH = Math.max(100, stageRect.height - padY);
 
- cropState.displayQuad = cropState.sourceQuad.map((p) => ({
- x: (p.x / sw) * dispW,
- y: (p.y / sh) * dispH
- }));
+    // Compute aspect-ratio-preserving contain scale
+    const scale = Math.min(availW / sc.width, availH / sc.height);
+    const dispW = Math.max(1, Math.round(sc.width * scale));
+    const dispH = Math.max(1, Math.round(sc.height * scale));
 
- renderCropOverlay();
- }
+    cropState.dispW = dispW;
+    cropState.dispH = dispH;
 
- function renderCropOverlay() {
- if (!cropState.displayQuad || !els.cropPoly) return;
- const pts = cropState.displayQuad;
- const pointsStr = pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
- els.cropPoly.setAttribute("points", pointsStr);
+    // Explicitly apply display dimensions
+    if (wrapper) {
+      wrapper.style.width = dispW + "px";
+      wrapper.style.height = dispH + "px";
+    }
+    cc.style.width = dispW + "px";
+    cc.style.height = dispH + "px";
 
- const handles = [els.cropHandleTL, els.cropHandleTR, els.cropHandleBR, els.cropHandleBL];
- handles.forEach((h, i) => {
- if (h && pts[i]) {
- h.style.left = pts[i].x + "px";
- h.style.top = pts[i].y + "px";
- }
- });
- }
+    syncCropDisplayQuad();
+  }
 
- function updateCropLoupe(idx, clientX, clientY) {
- if (!els.cropLoupe || !els.cropLoupeCanvas || !cropState.sourceCanvas) return;
- const stageRect = els.cropStage.getBoundingClientRect();
- const loupeX = clientX - stageRect.left;
- const loupeY = clientY - stageRect.top - 80;
+  function setupCropView() {
+    if (!cropState.sourceCanvas || !els.cropCanvas) return;
+    const sc = cropState.sourceCanvas;
+    const cc = els.cropCanvas;
+    cc.width = sc.width;
+    cc.height = sc.height;
+    const ctx = cc.getContext("2d");
+    ctx.drawImage(sc, 0, 0);
 
- els.cropLoupe.style.display = "block";
- els.cropLoupe.style.left = loupeX + "px";
- els.cropLoupe.style.top = Math.max(10, loupeY) + "px";
+    requestAnimationFrame(() => {
+      fitCropCanvas();
+    });
+  }
 
- const pt = cropState.sourceQuad[idx];
- const sw = cropState.sourceCanvas.width;
- const sh = cropState.sourceCanvas.height;
- const lCtx = els.cropLoupeCanvas.getContext("2d");
- lCtx.clearRect(0, 0, 110, 110);
+  function syncCropDisplayQuad() {
+    if (!cropState.sourceCanvas || !cropState.sourceQuad || !els.cropCanvas) return;
+    const sw = cropState.sourceCanvas.width;
+    const sh = cropState.sourceCanvas.height;
+    if (sw <= 0 || sh <= 0) return;
 
- const zoom = 2.4;
- const cropW = 110 / zoom;
- const cropH = 110 / zoom;
- const sx = Math.max(0, Math.min(sw - cropW, pt.x - cropW / 2));
- const sy = Math.max(0, Math.min(sh - cropH, pt.y - cropH / 2));
+    const dispW = cropState.dispW || els.cropCanvas.clientWidth || 300;
+    const dispH = cropState.dispH || els.cropCanvas.clientHeight || 400;
 
- lCtx.drawImage(cropState.sourceCanvas, sx, sy, cropW, cropH, 0, 0, 110, 110);
- }
+    cropState.displayQuad = cropState.sourceQuad.map((p) => ({
+      x: Math.round((p.x / sw) * dispW),
+      y: Math.round((p.y / sh) * dispH)
+    }));
 
- function applyCrop() {
- if (!cropState.sourceCanvas || !cropState.sourceQuad) return;
- try {
- const corrected = Perspective.correct(cropState.sourceCanvas, cropState.sourceQuad);
- const dataUrl = corrected.toDataURL("image/jpeg", 0.92);
+    renderCropOverlay();
+  }
 
- if (cropState.editingPageId) {
- const p = state.pages.find((x) => x.id === cropState.editingPageId);
- if (p) {
- p.src = dataUrl;
- p.straightened = dataUrl;
- p.original = dataUrl; // Keep in sync so edit never reverts to crooked
- p.filter = "original";
- p.quad = cropState.sourceQuad;
- }
- showScreen("review");
- toast("Page perspective straightened!", "success");
- } else {
- const page = {
- id: "p_" + Math.random().toString(36).slice(2, 8),
- src: dataUrl,
- straightened: dataUrl,
- filter: "original",
- original: dataUrl,
- raw: cropState.sourceCanvas.toDataURL("image/jpeg", 0.92),
- quad: cropState.sourceQuad
- };
- state.pages.push(page);
- showScreen("review");
- toast("Straightened & added to scan!", "success");
- }
- renderThumbs();
- saveSession();
- updateHomeSessionBtn();
- } catch (err) {
- console.error("Apply crop error:", err);
- toast("Error straightening page", "error");
- }
- }
+  function renderCropOverlay() {
+    if (!cropState.displayQuad || !els.cropPoly) return;
+    const pts = cropState.displayQuad;
+    const pointsStr = pts.map((p) => `${p.x},${p.y}`).join(" ");
+    els.cropPoly.setAttribute("points", pointsStr);
 
- function initCropHandles() {
- const handles = [
- els.cropHandleTL,
- els.cropHandleTR,
- els.cropHandleBR,
- els.cropHandleBL
- ];
+    const handles = [els.cropHandleTL, els.cropHandleTR, els.cropHandleBR, els.cropHandleBL];
+    handles.forEach((h, i) => {
+      if (h && pts[i]) {
+        h.style.left = pts[i].x + "px";
+        h.style.top = pts[i].y + "px";
+      }
+    });
+  }
 
- handles.forEach((h, idx) => {
- if (!h) return;
+  function updateCropLoupe(idx, clientX, clientY) {
+    if (!els.cropLoupe || !els.cropLoupeCanvas || !cropState.sourceCanvas) return;
+    const stageRect = els.cropStage.getBoundingClientRect();
+    let loupeX = clientX - stageRect.left;
+    let loupeY = clientY - stageRect.top - 75;
 
- const onPointerDown = (e) => {
- e.preventDefault();
- e.stopPropagation();
- activeCropDragIdx = idx;
- h.classList.add("active");
- try {
- h.setPointerCapture(e.pointerId);
- } catch (_) {}
- updateCropLoupe(idx, e.clientX, e.clientY);
- };
+    // Constrain loupe inside visible stage bounds
+    loupeX = Math.max(55, Math.min(stageRect.width - 55, loupeX));
+    if (loupeY < 55) {
+      loupeY = clientY - stageRect.top + 75;
+    }
+    loupeY = Math.max(55, Math.min(stageRect.height - 55, loupeY));
 
- const onPointerMove = (e) => {
- if (activeCropDragIdx !== idx) return;
- e.preventDefault();
- const rect = els.cropCanvas.getBoundingClientRect();
- const dispW = rect.width;
- const dispH = rect.height;
- if (dispW <= 0 || dispH <= 0) return;
+    els.cropLoupe.style.display = "block";
+    els.cropLoupe.style.left = loupeX + "px";
+    els.cropLoupe.style.top = loupeY + "px";
 
- const rawX = e.clientX - rect.left;
- const rawY = e.clientY - rect.top;
- const clampedX = Math.max(0, Math.min(dispW, rawX));
- const clampedY = Math.max(0, Math.min(dispH, rawY));
+    const pt = cropState.sourceQuad[idx];
+    if (!pt) return;
+    const sw = cropState.sourceCanvas.width;
+    const sh = cropState.sourceCanvas.height;
+    const lCtx = els.cropLoupeCanvas.getContext("2d");
+    lCtx.clearRect(0, 0, 100, 100);
 
- cropState.displayQuad[idx] = { x: clampedX, y: clampedY };
- const sw = cropState.sourceCanvas.width;
- const sh = cropState.sourceCanvas.height;
- cropState.sourceQuad[idx] = {
- x: (clampedX / dispW) * sw,
- y: (clampedY / dispH) * sh
- };
+    const zoom = 2.5;
+    const cropW = 100 / zoom;
+    const cropH = 100 / zoom;
+    const sx = Math.max(0, Math.min(sw - cropW, pt.x - cropW / 2));
+    const sy = Math.max(0, Math.min(sh - cropH, pt.y - cropH / 2));
 
- renderCropOverlay();
- updateCropLoupe(idx, e.clientX, e.clientY);
- };
+    lCtx.drawImage(cropState.sourceCanvas, sx, sy, cropW, cropH, 0, 0, 100, 100);
 
- const onPointerUp = (e) => {
- if (activeCropDragIdx === idx) {
- h.classList.remove("active");
- activeCropDragIdx = null;
- try {
- h.releasePointerCapture(e.pointerId);
- } catch (_) {}
- if (els.cropLoupe) els.cropLoupe.style.display = "none";
- }
- };
+    // Render precision crosshair reticle
+    lCtx.save();
+    lCtx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+    lCtx.lineWidth = 1.5;
+    lCtx.beginPath();
+    lCtx.moveTo(50, 30); lCtx.lineTo(50, 43);
+    lCtx.moveTo(50, 57); lCtx.lineTo(50, 70);
+    lCtx.moveTo(30, 50); lCtx.lineTo(43, 50);
+    lCtx.moveTo(57, 50); lCtx.lineTo(70, 50);
+    lCtx.stroke();
 
- h.addEventListener("pointerdown", onPointerDown);
- h.addEventListener("pointermove", onPointerMove);
- h.addEventListener("pointerup", onPointerUp);
- h.addEventListener("pointercancel", onPointerUp);
- });
+    lCtx.strokeStyle = "#2dd4bf";
+    lCtx.lineWidth = 2;
+    lCtx.beginPath();
+    lCtx.arc(50, 50, 6, 0, Math.PI * 2);
+    lCtx.stroke();
+    lCtx.restore();
+  }
 
- if (els.cropApplyBtn) els.cropApplyBtn.addEventListener("click", applyCrop);
- if (els.cropApplyTop) els.cropApplyTop.addEventListener("click", applyCrop);
+  function applyCrop() {
+    if (!cropState.sourceCanvas || !cropState.sourceQuad) return;
+    try {
+      const corrected = Perspective.correct(cropState.sourceCanvas, cropState.sourceQuad);
+      const dataUrl = corrected.toDataURL("image/jpeg", 0.92);
 
- if (els.cropBack) {
- els.cropBack.addEventListener("click", () => {
- if (cropState.editingPageId || (state.pages && state.pages.length > 0)) {
- showScreen("review");
- } else {
- showScreen("home");
- }
- });
- }
+      if (cropState.editingPageId) {
+        const p = state.pages.find((x) => x.id === cropState.editingPageId);
+        if (p) {
+          p.src = dataUrl;
+          p.straightened = dataUrl;
+          p.original = dataUrl; // Keep in sync so edit never reverts to crooked
+          p.filter = "original";
+          p.quad = cropState.sourceQuad;
+        }
+        showScreen("review");
+        toast("Page perspective straightened!", "success");
+      } else {
+        const page = {
+          id: "p_" + Math.random().toString(36).slice(2, 8),
+          src: dataUrl,
+          straightened: dataUrl,
+          filter: "original",
+          original: dataUrl,
+          raw: cropState.sourceCanvas.toDataURL("image/jpeg", 0.92),
+          quad: cropState.sourceQuad
+        };
+        state.pages.push(page);
+        showScreen("review");
+        toast("Straightened & added to scan!", "success");
+      }
+      renderThumbs();
+      saveSession();
+      updateHomeSessionBtn();
+    } catch (err) {
+      console.error("Apply crop error:", err);
+      toast("Error straightening page", "error");
+    }
+  }
 
- if (els.cropAutoBtn) {
- els.cropAutoBtn.addEventListener("click", () => {
- if (!cropState.sourceCanvas) return;
- try {
- const res = EdgeDetect.detect(cropState.sourceCanvas);
- if (res && res.quad && res.confidence > 0.1) {
- const sw = cropState.sourceCanvas.width;
- const sh = cropState.sourceCanvas.height;
- const scaleX = sw / res.w;
- const scaleY = sh / res.h;
- cropState.sourceQuad = res.quad.map((p) => ({
- x: Math.max(0, Math.min(sw, Math.round(p.x * scaleX))),
- y: Math.max(0, Math.min(sh, Math.round(p.y * scaleY)))
- }));
- syncCropDisplayQuad();
- if (els.cropInfo) {
- els.cropInfo.innerHTML = '<span style="color:var(--accent);font-weight:600;">✓ Border detected</span>';
- }
- toast("Border detected!", "success");
- } else {
- toast("No clear border found , adjust manually", "warn");
- }
- } catch (err) {
- console.warn(err);
- toast("Detection failed", "error");
- }
- });
- }
+  function initCropHandles() {
+    const handles = [
+      els.cropHandleTL,
+      els.cropHandleTR,
+      els.cropHandleBR,
+      els.cropHandleBL
+    ];
 
- if (els.cropResetBtn) {
- els.cropResetBtn.addEventListener("click", () => {
- if (!cropState.sourceCanvas) return;
- const sw = cropState.sourceCanvas.width;
- const sh = cropState.sourceCanvas.height;
- cropState.sourceQuad = [
- { x: 0, y: 0 },
- { x: sw, y: 0 },
- { x: sw, y: sh },
- { x: 0, y: sh }
- ];
- syncCropDisplayQuad();
- if (els.cropInfo) {
- els.cropInfo.innerHTML = "<span>Full page selected</span>";
- }
- toast("Reset to full image", "info");
- });
- }
+    let activePointerId = null;
 
- if (els.cropRotateBtn) {
- els.cropRotateBtn.addEventListener("click", () => {
- if (!cropState.sourceCanvas) return;
- cropState.sourceCanvas = rotateCanvas(cropState.sourceCanvas, 90);
- const sw = cropState.sourceCanvas.width;
- const sh = cropState.sourceCanvas.height;
- // Transform previous quad 90 degrees clockwise
- if (cropState.sourceQuad && cropState.sourceQuad.length === 4) {
- // old (x,y) -> new (sh - y, x), cycling corners: BL->TL, TL->TR, TR->BR, BR->BL
- const oldW = sh; // old width was new height
- const oldH = sw; // old height was new width
- cropState.sourceQuad = [
- { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[3].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[3].x)) },
- { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[0].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[0].x)) },
- { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[1].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[1].x)) },
- { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[2].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[2].x)) }
- ];
- } else {
- cropState.sourceQuad = [
- { x: Math.round(sw * 0.06), y: Math.round(sh * 0.06) },
- { x: Math.round(sw * 0.94), y: Math.round(sh * 0.06) },
- { x: Math.round(sw * 0.94), y: Math.round(sh * 0.94) },
- { x: Math.round(sw * 0.06), y: Math.round(sh * 0.94) }
- ];
- }
- setupCropView();
- toast("Rotated 90°", "info");
- });
- }
+    const onGlobalPointerMove = (e) => {
+      if (activeCropDragIdx === null) return;
+      e.preventDefault();
 
- window.addEventListener("resize", () => {
- if (screens.crop && screens.crop.classList.contains("active")) {
- syncCropDisplayQuad();
- }
- });
- }
+      const wrapper = els.cropCanvasWrapper;
+      if (!wrapper || !cropState.sourceCanvas) return;
+      const rect = wrapper.getBoundingClientRect();
+      const dispW = cropState.dispW || rect.width;
+      const dispH = cropState.dispH || rect.height;
+      if (dispW <= 0 || dispH <= 0) return;
 
- // Initialize crop handles
- initCropHandles();
+      const rawX = e.clientX - rect.left;
+      const rawY = e.clientY - rect.top;
+      const clampedX = Math.max(0, Math.min(dispW, rawX));
+      const clampedY = Math.max(0, Math.min(dispH, rawY));
+
+      cropState.displayQuad[activeCropDragIdx] = { x: clampedX, y: clampedY };
+      const sw = cropState.sourceCanvas.width;
+      const sh = cropState.sourceCanvas.height;
+      cropState.sourceQuad[activeCropDragIdx] = {
+        x: (clampedX / dispW) * sw,
+        y: (clampedY / dispH) * sh
+      };
+
+      renderCropOverlay();
+      updateCropLoupe(activeCropDragIdx, e.clientX, e.clientY);
+    };
+
+    const onGlobalPointerUp = (e) => {
+      if (activeCropDragIdx !== null) {
+        const h = handles[activeCropDragIdx];
+        if (h) {
+          h.classList.remove("active");
+          try {
+            if (activePointerId !== null && h.releasePointerCapture) {
+              h.releasePointerCapture(activePointerId);
+            }
+          } catch (_) {}
+        }
+        activeCropDragIdx = null;
+        activePointerId = null;
+        if (els.cropLoupe) els.cropLoupe.style.display = "none";
+        window.removeEventListener("pointermove", onGlobalPointerMove);
+        window.removeEventListener("pointerup", onGlobalPointerUp);
+        window.removeEventListener("pointercancel", onGlobalPointerUp);
+      }
+    };
+
+    handles.forEach((h, idx) => {
+      if (!h) return;
+
+      h.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        activeCropDragIdx = idx;
+        activePointerId = e.pointerId;
+        h.classList.add("active");
+        try {
+          if (h.setPointerCapture) h.setPointerCapture(e.pointerId);
+        } catch (_) {}
+
+        window.addEventListener("pointermove", onGlobalPointerMove, { passive: false });
+        window.addEventListener("pointerup", onGlobalPointerUp, { passive: false });
+        window.addEventListener("pointercancel", onGlobalPointerUp, { passive: false });
+
+        updateCropLoupe(idx, e.clientX, e.clientY);
+      });
+    });
+
+    if (els.cropApplyBtn) els.cropApplyBtn.addEventListener("click", applyCrop);
+    if (els.cropApplyTop) els.cropApplyTop.addEventListener("click", applyCrop);
+
+    if (els.cropBack) {
+      els.cropBack.addEventListener("click", () => {
+        if (cropState.editingPageId || (state.pages && state.pages.length > 0)) {
+          showScreen("review");
+        } else {
+          showScreen("home");
+        }
+      });
+    }
+
+    if (els.cropAutoBtn) {
+      els.cropAutoBtn.addEventListener("click", () => {
+        if (!cropState.sourceCanvas) return;
+        try {
+          const res = EdgeDetect.detect(cropState.sourceCanvas);
+          if (res && res.quad && res.confidence > 0.1) {
+            const sw = cropState.sourceCanvas.width;
+            const sh = cropState.sourceCanvas.height;
+            const scaleX = sw / res.w;
+            const scaleY = sh / res.h;
+            cropState.sourceQuad = res.quad.map((p) => ({
+              x: Math.max(0, Math.min(sw, Math.round(p.x * scaleX))),
+              y: Math.max(0, Math.min(sh, Math.round(p.y * scaleY)))
+            }));
+            syncCropDisplayQuad();
+            if (els.cropInfo) {
+              els.cropInfo.innerHTML = '<span style="color:var(--accent);font-weight:600;">✓ Border detected</span>';
+            }
+            toast("Border detected!", "success");
+          } else {
+            toast("No clear border found, adjust manually", "warn");
+          }
+        } catch (err) {
+          console.warn(err);
+          toast("Detection failed", "error");
+        }
+      });
+    }
+
+    if (els.cropResetBtn) {
+      els.cropResetBtn.addEventListener("click", () => {
+        if (!cropState.sourceCanvas) return;
+        const sw = cropState.sourceCanvas.width;
+        const sh = cropState.sourceCanvas.height;
+        cropState.sourceQuad = [
+          { x: 0, y: 0 },
+          { x: sw, y: 0 },
+          { x: sw, y: sh },
+          { x: 0, y: sh }
+        ];
+        syncCropDisplayQuad();
+        if (els.cropInfo) {
+          els.cropInfo.innerHTML = "<span>Full page selected</span>";
+        }
+        toast("Reset to full image", "info");
+      });
+    }
+
+    if (els.cropRotateBtn) {
+      els.cropRotateBtn.addEventListener("click", () => {
+        if (!cropState.sourceCanvas) return;
+        cropState.sourceCanvas = rotateCanvas(cropState.sourceCanvas, 90);
+        const sw = cropState.sourceCanvas.width;
+        const sh = cropState.sourceCanvas.height;
+        if (cropState.sourceQuad && cropState.sourceQuad.length === 4) {
+          const oldW = sh;
+          const oldH = sw;
+          cropState.sourceQuad = [
+            { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[3].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[3].x)) },
+            { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[0].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[0].x)) },
+            { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[1].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[1].x)) },
+            { x: Math.max(0, Math.min(sw, oldH - cropState.sourceQuad[2].y)), y: Math.max(0, Math.min(sh, cropState.sourceQuad[2].x)) }
+          ];
+        } else {
+          cropState.sourceQuad = [
+            { x: Math.round(sw * 0.06), y: Math.round(sh * 0.06) },
+            { x: Math.round(sw * 0.94), y: Math.round(sh * 0.06) },
+            { x: Math.round(sw * 0.94), y: Math.round(sh * 0.94) },
+            { x: Math.round(sw * 0.06), y: Math.round(sh * 0.94) }
+          ];
+        }
+        setupCropView();
+        toast("Rotated 90°", "info");
+      });
+    }
+
+    window.addEventListener("resize", () => {
+      if (screens.crop && screens.crop.classList.contains("active")) {
+        fitCropCanvas();
+      }
+    });
+
+    if (window.ResizeObserver && els.cropStage) {
+      const ro = new ResizeObserver(() => {
+        if (screens.crop && screens.crop.classList.contains("active")) {
+          fitCropCanvas();
+        }
+      });
+      ro.observe(els.cropStage);
+    }
+  }
+
+  // Initialize crop handles
+  initCropHandles();
 
  // ---- File import (fallback / bulk import) ----
  els.importBtn.addEventListener("click", () => els.fileInput.click());
