@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+  />
+  <meta name="theme-color" content="#0A0D11" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  />
+  <!-- Aggressive no-cache: avoid stale SW-cached HTML/JS causing
+       "dummy" symptoms. GitHub Pages sends its own cache headers but
+       some browsers (and old service workers) ignore them. -->
+  <meta
+    http-equiv="Cache-Control"
+    content="no-cache, no-store, must-revalidate"
+  />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>DocScan — Mobile Document Scanner</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <script>
+    // ---- Global error catcher (runs before any module loads) ----
+    // If anything goes wrong during page boot, we want the user to
+    // see exactly what — not a silent "nothing happens" screen.
+    (function () {
+      window.__bootErrors = [];
+      function showError(msg) {
+        try {
+          window.__bootErrors.push(String(msg));
+          var box = document.getElementById("__fatal_top");
+          if (!box) {
+            box = document.createElement("div");
+            box.id = "__fatal_top";
+            box.style.cssText =
+              "position:fixed;left:8px;right:8px;top:8px;z-index:2147483647;" +
+              "background:#3a1010;color:#ffd5d5;border:1px solid #ff6b6b;" +
+              "border-left:4px solid #ff6b6b;padding:12px 14px;border-radius:6px;" +
+              "font:12px/1.45 ui-monospace,monospace;max-height:60vh;" +
+              "overflow:auto;white-space:pre-wrap;box-shadow:0 8px 30px rgba(0,0,0,.4);";
+            (document.body || document.documentElement).appendChild(box);
+          }
+          var body =
+            "⚠ DocScan could not start.\n\n" +
+            window.__bootErrors.join("\n\n---\n\n") +
+            "\n\nTry a hard refresh (Ctrl/Cmd + Shift + R), or tap the " +
+            "\"Clear cache\" button on the home screen.";
+          box.textContent = body;
+        } catch (_) {}
+      }
+      window.addEventListener("error", function (e) {
+        var msg = (e.error && (e.error.stack || e.error.message)) || e.message || String(e);
+        if (e.filename) msg = (e.filename + ":" + e.lineno + ":" + e.colno + "  ") + msg;
+        showError(msg);
+      });
+      window.addEventListener("unhandledrejection", function (e) {
+        var msg = (e.reason && (e.reason.stack || e.reason.message)) || String(e.reason);
+        showError("Unhandled promise rejection:\n" + msg);
+      });
+      window.__showError = showError;
+    })();
+  </script>
+
+  <style>
+    :root {
+      --bg: #0a0d11;
+      --surface: #11151b;
+      --surface-2: #161b22;
+      --ink: #e7eaee;
+      --ink-soft: #9ba5b3;
+      --ink-faint: #5e6773;
+      --accent: #3fd9c7;
+      --accent-ink: #bff6ec;
+      --accent-2: #e3a857;
+      --line: #232a34;
+      --line-strong: #323b48;
+      --danger: #ff6b6b;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --sans: "Inter", system-ui, sans-serif;
+      --display: "Space Grotesk", var(--sans);
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f7f5f0;
+        --surface: #ffffff;
+        --surface-2: #f0ede6;
+        --ink: #161a20;
+        --ink-soft: #565f6e;
+        --ink-faint: #8b93a1;
+        --accent: #0e7c7e;
+        --accent-ink: #053c3d;
+        --accent-2: #b8791f;
+        --line: #e2ddd2;
+        --line-strong: #c9c2b3;
+        --shadow: 0 1px 2px rgba(20, 20, 20, 0.04);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* ---------- App shell ---------- */
+    .app {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      height: 100dvh;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    /* ---------- Screens ---------- */
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* ---------- Top bar ---------- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      padding-top: max(14px, env(safe-area-inset-top));
+      z-index: 5;
+    }
+    .topbar-title {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 17px;
+      letter-spacing: -0.01em;
+    }
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: var(--ink);
+      transition: background 0.15s;
+    }
+    .icon-btn:hover {
+      background: var(--surface-2);
+    }
+    .icon-btn:active {
+      background: var(--line);
+    }
+    .icon-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* ---------- Home screen ---------- */
+    .home {
+      align-items: center;
+      justify-content: center;
+      padding: 24px 24px;
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+      text-align: center;
+      gap: 16px;
+      overflow-y: auto;
+    }
+    .home-logo {
+      width: 88px;
+      height: 88px;
+      border-radius: 18px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .home-logo svg {
+      width: 48px;
+      height: 48px;
+    }
+    .home h1 {
+      font-family: var(--display);
+      font-size: 32px;
+      margin: 0 0 6px;
+      letter-spacing: -0.02em;
+    }
+    .home-sub {
+      color: var(--ink-soft);
+      margin: 0 0 24px;
+      max-width: 30ch;
+      line-height: 1.5;
+    }
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #053c3d;
+      font-weight: 600;
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-size: 15px;
+      box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 35%, transparent);
+      transition: transform 0.1s;
+    }
+    .cta:active {
+      transform: scale(0.97);
+    }
+    .cta.secondary {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line-strong);
+      box-shadow: none;
+    }
+    .home-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      max-width: 360px;
+      margin-top: 12px;
+    }
+    .home-feat {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 14px;
+      text-align: left;
+      border-radius: 6px;
+    }
+    .home-feat .ico {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .home-feat .ico svg {
+      width: 22px;
+      height: 22px;
+    }
+    .home-feat .t {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .home-feat .d {
+      font-size: 12px;
+      color: var(--ink-soft);
+      line-height: 1.4;
+    }
+
+    /* ---------- Camera screen ---------- */
+    .camera {
+      background: #000;
+    }
+    .cam-stage {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      background: #000;
+    }
+    #camVideo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #camFallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      text-align: center;
+      gap: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      background: linear-gradient(135deg, #0a0d11, #1a2230);
+    }
+    #camFallback svg {
+      width: 64px;
+      height: 64px;
+      opacity: 0.6;
+    }
+    #camFallback p {
+      margin: 0;
+      font-size: 14px;
+      max-width: 32ch;
+    }
+    #camFallback .file-btn {
+      margin-top: 8px;
+      background: var(--accent);
+      color: #053c3d;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .detection-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .detection-overlay.locked .corner {
+      animation: pulse 0.4s ease;
+    }
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.25);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    .corner {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      touch-action: none;
+    }
+    .corner::before,
+    .corner::after {
+      content: "";
+      position: absolute;
+      background: var(--accent);
+    }
+    .corner::before {
+      width: 100%;
+      height: 3px;
+      top: 0;
+      left: 0;
+    }
+    .corner::after {
+      width: 3px;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+    .corner.tl::before {
+      transform-origin: top left;
+    }
+    .corner.tr::before {
+      transform-origin: top right;
+      left: auto;
+      right: 0;
+    }
+    .corner.bl::before {
+      transform-origin: bottom left;
+      top: auto;
+      bottom: 0;
+    }
+    .corner.br::before {
+      transform-origin: bottom right;
+      top: auto;
+      bottom: 0;
+      left: auto;
+      right: 0;
+    }
+    .corner.tr::after,
+    .corner.br::after {
+      left: auto;
+      right: 0;
+    }
+    .corner.bl::after,
+    .corner.br::after {
+      top: auto;
+      bottom: 0;
+    }
+    .corner.manual {
+      width: 36px;
+      height: 36px;
+    }
+    .corner.manual::before,
+    .corner.manual::after {
+      background: var(--accent-2);
+    }
+    .detection-poly {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .detection-poly polygon {
+      fill: color-mix(in srgb, var(--accent) 8%, transparent);
+      stroke: var(--accent);
+      stroke-width: 2;
+      vector-effect: non-scaling-stroke;
+      transition: all 0.12s ease;
+    }
+    .scanline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        var(--accent),
+        transparent
+      );
+      box-shadow: 0 0 8px var(--accent);
+      animation: sweep 2.6s ease-in-out infinite;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    @keyframes sweep {
+      0%,
+      100% {
+        top: 10%;
+        opacity: 0.5;
+      }
+      50% {
+        top: 90%;
+        opacity: 0.9;
+      }
+    }
+    .cam-status {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-family: var(--mono);
+      letter-spacing: 0.04em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 4;
+    }
+    .cam-status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 6px var(--accent-2);
+    }
+    .cam-status.locked .dot {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .cam-controls {
+      position: relative;
+      padding: 18px 18px;
+      padding-bottom: max(18px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+    }
+    .cam-side {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cam-side.right {
+      flex-direction: row;
+    }
+    .cam-icon-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cam-icon-btn svg {
+      width: 22px;
+      height: 22px;
+    }
+    .cam-icon-btn.filled {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .shutter {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.3);
+      transition: transform 0.1s;
+    }
+    .shutter:active {
+      transform: scale(0.92);
+    }
+    .shutter:disabled {
+      opacity: 0.5;
+    }
+    .thumb-strip {
+      position: absolute;
+      top: 50px;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 40vh;
+      overflow-y: auto;
+      z-index: 4;
+    }
+    .thumb-strip::-webkit-scrollbar {
+      display: none;
+    }
+    .thumb-strip {
+      scrollbar-width: none;
+    }
+    .thumb {
+      width: 44px;
+      height: 58px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      flex: none;
+    }
+    .thumb .num {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      font-family: var(--mono);
+      font-size: 9px;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+
+    /* ---------- Review screen ---------- */
+    .review {
+      background: var(--bg);
+    }
+    .review-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 18px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-content: start;
+    }
+    .page-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      cursor: grab;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .page-card.dragging {
+      opacity: 0.4;
+    }
+    .page-card.drag-over {
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+    .page-card img {
+      width: 100%;
+      display: block;
+      background: var(--surface-2);
+      aspect-ratio: 0.77;
+      object-fit: cover;
+    }
+    .page-card .label {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .page-card .actions {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      display: flex;
+      gap: 4px;
+    }
+    .page-card .action {
+      width: 28px;
+      height: 28px;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .page-card .action svg {
+      width: 14px;
+      height: 14px;
+    }
+    .page-card .action.danger {
+      background: var(--danger);
+    }
+    .review-empty {
+      text-align: center;
+      color: var(--ink-soft);
+      padding: 40px 20px;
+      grid-column: span 2;
+    }
+    .review-bottom {
+      padding: 14px 18px;
+      padding-bottom: max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .review-meta {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+    .review-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .pill-btn {
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      color: var(--ink);
+    }
+    .pill-btn.primary {
+      background: var(--accent);
+      color: #053c3d;
+      border-color: var(--accent);
+    }
+    .pill-btn:disabled {
+      opacity: 0.5;
+    }
+
+    /* ---------- Edit screen ---------- */
+    .edit {
+      background: var(--bg);
+    }
+    .edit-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .edit-stage canvas,
+    .edit-stage img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .edit-bottom {
+      padding: 14px 18px;
+      padding-bottom: max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: var(--bg);
+    }
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .filters::-webkit-scrollbar {
+      display: none;
+    }
+    .filter-btn {
+      flex: none;
+      width: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+    }
+    .filter-btn.active {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+    }
+    .filter-btn .preview {
+      width: 56px;
+      height: 72px;
+      border-radius: 4px;
+      background-size: cover;
+      background-position: center;
+      border: 1px solid var(--line);
+    }
+    .filter-btn .name {
+      font-size: 10.5px;
+      font-family: var(--mono);
+      color: var(--ink-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .filter-btn.active .name {
+      color: var(--accent);
+    }
+    .edit-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .edit-actions .pill-btn {
+      flex: 1;
+    }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--line-strong);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast.success {
+      border-color: var(--accent);
+    }
+    .toast.error {
+      border-color: var(--danger);
+    }
+    .toast .ico {
+      width: 16px;
+      height: 16px;
+      color: var(--accent);
+    }
+    .toast.error .ico {
+      color: var(--danger);
+    }
+
+    /* ---------- Modal ---------- */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-backdrop.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 22px;
+      max-width: 340px;
+      width: calc(100% - 40px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+    .modal h3 {
+      font-family: var(--display);
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+    .modal p {
+      margin: 0 0 16px;
+      color: var(--ink-soft);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* ---------- Utility ---------- */
+    .spacer {
+      flex: 1;
+    }
+
+    .home-status {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      max-width: 456px;
+      margin: 0 auto;
+      bottom: 16px;
+      background: var(--surface);
+      border: 1px solid var(--accent-2);
+      border-left-width: 3px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      z-index: 60;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .home-status b { color: var(--accent-2); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 4px; }
+
+    .home-foot {
+      width: 100%;
+      max-width: 360px;
+      padding: 8px 0 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .home-foot-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      color: var(--ink-soft);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .home-foot-btn:hover { color: var(--ink); border-color: var(--accent); }
+    .home-foot-diag {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--ink-faint);
+      text-align: center;
+      line-height: 1.5;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+    .home-foot-diag.ok { color: var(--accent); }
+    .home-foot-diag.warn { color: var(--accent-2); }
+    .home-foot-diag.err { color: var(--danger); }
+    .hidden {
+      display: none !important;
+    }
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- Home screen -->
+    <section class="screen home active" id="screen-home" aria-label="Home">
+      <div class="topbar">
+        <div class="topbar-title">DocScan</div>
+        <button class="icon-btn" id="aboutBtn" aria-label="About">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </button>
+      </div>
+      <div class="spacer"></div>
+      <div class="home-logo">
+        <svg viewBox="0 0 48 48" fill="none">
+          <rect x="6" y="6" width="36" height="36" rx="3" stroke="var(--accent)" stroke-width="2.5"/>
+          <rect x="13" y="13" width="22" height="22" rx="1" fill="none" stroke="var(--accent-2)" stroke-width="1.5"/>
+          <line x1="18" y1="20" x2="30" y2="20" stroke="var(--ink-soft)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="18" y1="25" x2="30" y2="25" stroke="var(--ink-soft)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="18" y1="30" x2="24" y2="30" stroke="var(--ink-soft)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>Scan anything</h1>
+      <p class="home-sub">Capture pages, auto-detect borders, and export a clean PDF — right from your phone.</p>
+      <button class="cta" id="startScanBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Start scanning
+      </button>
+      <button class="cta secondary" id="importBtn" style="margin-top: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import from device
+      </button>
+      <button class="cta secondary" id="demoBtn" style="margin-top: 10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try demo with sample documents
+      </button>
+      <input type="file" id="fileInput" accept="image/*" multiple class="visually-hidden" />
+
+      <div class="home-features">
+        <div class="home-feat">
+          <div class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+          </div>
+          <div class="t">Auto border detect</div>
+          <div class="d">Edges find themselves in real time.</div>
+        </div>
+        <div class="home-feat">
+          <div class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+          </div>
+          <div class="t">Perspective fix</div>
+          <div class="d">Crooked shots become flat pages.</div>
+        </div>
+        <div class="home-feat">
+          <div class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+          </div>
+          <div class="t">Multi-page</div>
+          <div class="d">Capture then export as one PDF.</div>
+        </div>
+        <div class="home-feat">
+          <div class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="t">On-device</div>
+          <div class="d">Works offline. Nothing leaves your phone.</div>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div class="home-foot">
+        <button class="home-foot-btn" id="clearCacheBtn" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          Clear cache &amp; hard reload
+        </button>
+        <div class="home-foot-diag" id="bootDiag">checking…</div>
+      </div>
+    </section>
+
+    <div class="home-status" id="homeStatus" hidden></div>
+
+    <!-- Camera screen -->
+    <section class="screen camera" id="screen-camera" aria-label="Camera">
+      <div class="cam-stage" id="camStage">
+        <video id="camVideo" playsinline muted autoplay></video>
+        <div id="camFallback">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <p>Camera not available in this environment. Use the button below to import images instead.</p>
+          <button class="file-btn" id="fallbackImportBtn">Import image</button>
+        </div>
+        <div class="cam-status" id="camStatus">
+          <span class="dot"></span>
+          <span id="camStatusText">Searching for document…</span>
+        </div>
+        <svg class="detection-poly" id="detectionPoly" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <polygon points="20,20 80,20 80,80 20,80" />
+        </svg>
+        <div class="detection-overlay" id="detectionOverlay">
+          <div class="corner tl" data-corner="tl"></div>
+          <div class="corner tr" data-corner="tr"></div>
+          <div class="corner bl" data-corner="bl"></div>
+          <div class="corner br" data-corner="br"></div>
+          <div class="scanline"></div>
+        </div>
+        <div class="thumb-strip" id="thumbStrip"></div>
+      </div>
+      <div class="cam-controls">
+        <div class="cam-side">
+          <button class="cam-icon-btn" id="closeCamBtn" aria-label="Cancel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="cam-side right">
+          <button class="cam-icon-btn" id="manualBtn" aria-label="Manual adjust">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+          </button>
+          <button class="cam-icon-btn" id="flashBtn" aria-label="Toggle flash">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </button>
+          <button class="shutter" id="shutterBtn" aria-label="Capture"></button>
+          <button class="cam-icon-btn filled" id="finishBtn" aria-label="Review pages">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Review screen -->
+    <section class="screen review" id="screen-review" aria-label="Review pages">
+      <div class="topbar">
+        <button class="icon-btn" id="reviewBackBtn" aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="topbar-title">Review</div>
+        <div style="width: 40px;"></div>
+      </div>
+      <div class="review-list" id="reviewList"></div>
+      <div class="review-bottom">
+        <div class="review-meta" id="reviewMeta">0 pages</div>
+        <div class="review-actions">
+          <button class="pill-btn" id="addMoreBtn">+ Add page</button>
+          <button class="pill-btn primary" id="exportBtn">Export PDF</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Edit screen -->
+    <section class="screen edit" id="screen-edit" aria-label="Edit page">
+      <div class="topbar">
+        <button class="icon-btn" id="editBackBtn" aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="topbar-title" id="editTitle">Page 1</div>
+        <div style="width: 40px;"></div>
+      </div>
+      <div class="edit-stage" id="editStage"></div>
+      <div class="edit-bottom">
+        <div class="filters" id="filters"></div>
+        <div class="edit-actions">
+          <button class="pill-btn" id="retakeBtn">Retake</button>
+          <button class="pill-btn primary" id="applyBtn">Done</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <span class="ico" id="toastIco">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </span>
+      <span id="toastText">Done</span>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" id="modal">
+      <div class="modal">
+        <h3 id="modalTitle">About</h3>
+        <p id="modalBody">DocScan implements the MVP from the Mobile Document Scanner PRD: automatic border detection, perspective correction, multi-page capture, review/reorder, and PDF export — all on-device.</p>
+        <div class="modal-actions">
+          <button class="pill-btn primary" id="modalOk">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Helper: load a script tag with a clear error if it fails.
+    // (Plain <script src> failures are otherwise nearly invisible.)
+    // We try both the explicit "./path" form and the bare "path" form
+    // so the app works on both plain hosts (e.g. localhost) and on
+    // GitHub Pages project sites where the page URL is
+    // https://user.github.io/repo-name/.
+    function loadScript(src) {
+      return new Promise(function (resolve, reject) {
+        var s = document.createElement("script");
+        s.src = src;
+        s.async = false; // preserve order
+        s.onload = function () { resolve(src); };
+        s.onerror = function () {
+          reject(new Error("Failed to load " + src + " (404 or network error)"));
+        };
+        document.head.appendChild(s);
+      });
+    }
+    (function () {
+      // Resolve paths relative to this HTML file. On GitHub Pages
+      // project sites (https://user.github.io/repo-name/), the page's
+      // base URL is the directory containing index.html, so "./js/..."
+      // resolves to https://user.github.io/repo-name/js/... which is
+      // what we want. A bare "js/..." would resolve to
+      // https://user.github.io/js/... (404) in that case.
+      var scriptNames = ["edge-detect.js", "perspective.js", "pdf-export.js", "app.js"];
+      function loadWithFallback(name) {
+        return loadScript("./js/" + name)
+          .catch(function () { return loadScript("./" + name); })
+          .catch(function () { return loadScript(name); });
+      }
+      function chain(i) {
+        if (i >= scriptNames.length) {
+          document.documentElement.setAttribute("data-app-ready", "1");
+          window.__appReady = true;
+          return;
+        }
+        loadWithFallback(scriptNames[i])
+          .then(function () { chain(i + 1); })
+          .catch(function (err) {
+            window.__showError && window.__showError("Failed to load: " + scriptNames[i] + " (" + err.message + ")");
+          });
+      }
+      chain(0);
+    })();
+  </script>
+
+  <script>
+    // Register the service worker (which now self-destructs old caches).
+    // "./sw.js" makes the URL resolve relative to the HTML file, which
+    // matters on GitHub Pages project sites.
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js").catch(function (e) {
+          // SW is non-essential — log but don't surface.
+          console.warn("SW registration failed:", e);
+        });
+      });
+    }
+  </script>
+
+  <!-- =========================================================
+       INLINE FALLBACK UI
+       The main app is loaded as ES modules in js/app.js. If that
+       load fails for any reason (CDN, path, etc.), this inline
+       fallback keeps the home screen, demo, import, and PDF
+       export working. It is intentionally a minimal subset of
+       the full app.
+       ========================================================= -->
+  <script>
+    (function () {
+      // Wait briefly for app.js to take over. If it does, this
+      // fallback's handlers will be overridden by app.js. If it
+      // doesn't, this fallback runs the show.
+      var appBooted = false;
+      var startTime = Date.now();
+
+      // If app.js hasn't run within 1.5s, we own the UI.
+      function takeOver() {
+        if (appBooted || window.__appReady) return;
+        if (Date.now() - startTime < 1500) {
+          setTimeout(takeOver, 200);
+          return;
+        }
+        bootFallback();
+      }
+      setTimeout(takeOver, 1500);
+
+      // Hook: app.js will set this to true once it has wired up the UI.
+      Object.defineProperty(window, "__appReady", {
+        set: function (v) { appBooted = !!v; },
+        get: function () { return appBooted; }
+      });
+
+      function $(id) { return document.getElementById(id); }
+
+      // Minimal PDF writer (subset of the one in pdf-export.js,
+      // duplicated here so the fallback works even if that file
+      // failed to load).
+      function buildPdf(jpegs, pageSize) {
+        pageSize = pageSize || { w: 595, h: 842 };
+        var offsets = [];
+        var parts = [];
+        var pos = 0;
+        function push(s) {
+          if (typeof s !== "string") {
+            var bin = "";
+            for (var i = 0; i < s.length; i++) bin += String.fromCharCode(s[i]);
+            s = bin;
+          }
+          parts.push(s);
+          pos += s.length;
+        }
+        function pushObj(idx, body) {
+          offsets[idx] = pos;
+          push(idx + " 0 obj\n" + body + "\nendobj\n");
+        }
+        push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+        pushObj(1, "<< /Type /Catalog /Pages 2 0 R >>");
+        var objIdx = 3;
+        var pageIdxs = [];
+        for (var i = 0; i < jpegs.length; i++) {
+          var j = jpegs[i];
+          var xo = objIdx++;
+          var co = objIdx++;
+          var po = objIdx++;
+          offsets[xo] = pos;
+          push(xo + " 0 obj\n<<\n/Type /XObject\n/Subtype /Image\n/Width " + j.width + "\n/Height " + j.height + "\n/ColorSpace /DeviceRGB\n/BitsPerComponent 8\n/Filter /DCTDecode\n/Length " + j.bytes.length + " >>\nstream\n");
+          push(j.bytes);
+          push("\nendstream\nendobj\n");
+          var content = "q\n" + (pageSize.w).toFixed(2) + " 0 0 " + (pageSize.h).toFixed(2) + " 0 0 cm\n/Im0 Do\nQ\n";
+          var cb = new TextEncoder().encode(content);
+          offsets[co] = pos;
+          push(co + " 0 obj\n<< /Length " + cb.length + " >>\nstream\n");
+          push(cb);
+          push("\nendstream\nendobj\n");
+          offsets[po] = pos;
+          push(po + " 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + pageSize.w + " " + pageSize.h + "] /Resources << /XObject << /Im0 " + xo + " 0 R >> /ProcSet [/PDF /ImageC] >> /Contents " + co + " 0 R >>\nendobj\n");
+          pageIdxs.push(po);
+        }
+        var kids = pageIdxs.map(function (i) { return i + " 0 R"; }).join(" ");
+        offsets[2] = pos;
+        push("2 0 obj\n<< /Type /Pages /Kids [" + kids + "] /Count " + pageIdxs.length + " >>\nendobj\n");
+        var xrefOff = pos;
+        push("xref\n0 " + objIdx + "\n0000000000 65535 f \n");
+        for (var k = 1; k < objIdx; k++) {
+          push(String(offsets[k] || 0).padStart(10, "0") + " 00000 n \n");
+        }
+        push("trailer\n<< /Size " + objIdx + " /Root 1 0 R >>\nstartxref\n" + xrefOff + "\n%%EOF\n");
+        return new Blob(parts, { type: "application/pdf" });
+      }
+
+      function canvasToJpeg(canvas, maxDim) {
+        return new Promise(function (resolve, reject) {
+          var w0 = canvas.width, h0 = canvas.height;
+          var s = Math.min(1, maxDim / Math.max(w0, h0));
+          var w = Math.max(1, Math.round(w0 * s));
+          var h = Math.max(1, Math.round(h0 * s));
+          var c = document.createElement("canvas");
+          c.width = w; c.height = h;
+          var ctx = c.getContext("2d");
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(canvas, 0, 0, w, h);
+          c.toBlob(function (blob) {
+            if (!blob) return reject(new Error("toBlob failed"));
+            var fr = new FileReader();
+            fr.onload = function () { resolve({ bytes: new Uint8Array(fr.result), width: w, height: h }); };
+            fr.onerror = function () { reject(fr.error); };
+            fr.readAsArrayBuffer(blob);
+          }, "image/jpeg", 0.9);
+        });
+      }
+
+      var SAMPLE_DOCS = [
+        { title: "INVOICE #4821", lines: [
+          "INVOICE #4821", "Date: July 12, 2026", "",
+          "Bill To:           From:",
+          "Priya Sharma       DocScan Demo Co.",
+          "Mumbai, India      123 Maker Street",
+          "", "Description        Amount",
+          "------------------------------",
+          "Consulting         $1,200.00",
+          "Travel             $180.50",
+          "Software           $99.00",
+          "", "TOTAL              $1,479.50",
+          "", "Payment due in 30 days."
+        ]},
+        { title: "CONTRACT", lines: [
+          "FREELANCE SERVICES AGREEMENT", "",
+          "Made on July 12, 2026 between", "DocScan Demo Co. and the contractor.",
+          "", "1. SCOPE OF WORK",
+          "   Deliver services described", "   in Schedule A within 30 days.",
+          "", "2. COMPENSATION",
+          "   Total fee: USD 1,479.50", "   on completion.",
+          "", "3. CONFIDENTIALITY",
+          "   Both parties agree to", "   keep all info confidential.",
+          "", "Signed: __________________"
+        ]},
+        { title: "RECEIPT", lines: [
+          "RECEIPT", "", "Subway Sandwiches",
+          "12 Main Street", "Tel: 555-0142", "",
+          "Date: 12/07/2026  Time: 13:42", "",
+          "1x Footlong Veggie   180.00",
+          "1x Cookie             40.00",
+          "1x Bottled Water      20.00",
+          "", "Subtotal           240.00",
+          "GST (5%)             12.00",
+          "TOTAL               252.00",
+          "", "Paid by UPI"
+        ]}
+      ];
+
+      function generateSample(spec) {
+        var c = document.createElement("canvas");
+        c.width = 600; c.height = 800;
+        var ctx = c.getContext("2d");
+        ctx.fillStyle = "#fdfcf7";
+        ctx.fillRect(0, 0, 600, 800);
+        ctx.fillStyle = "#111";
+        var y = 60;
+        for (var i = 0; i < spec.lines.length; i++) {
+          var line = spec.lines[i];
+          var isTitle = line === spec.title;
+          ctx.font = isTitle ? "bold 28px Georgia, serif" : "16px Georgia, serif";
+          ctx.fillText(line, 50, y);
+          y += isTitle ? 44 : 26;
+        }
+        return c.toDataURL("image/jpeg", 0.9);
+      }
+
+      function loadImg(url) {
+        return new Promise(function (res, rej) {
+          var im = new Image();
+          im.onload = function () { res(im); };
+          im.onerror = rej;
+          im.src = url;
+        });
+      }
+
+      function showScreen(name) {
+        document.querySelectorAll(".screen").forEach(function (el) {
+          el.classList.toggle("active", el.id === "screen-" + name);
+        });
+      }
+
+      function showToast(msg) {
+        var t = $("toast");
+        var tt = $("toastText");
+        if (t && tt) {
+          tt.textContent = msg;
+          t.className = "toast show success";
+          setTimeout(function () { t.classList.remove("show"); }, 1800);
+        }
+      }
+
+      function bootFallback() {
+        // Hide home screen content of features that depend on modules
+        // we don't have; keep the demo/import/export path live.
+        var pages = [];
+
+        function renderReview() {
+          var list = $("reviewList");
+          var meta = $("reviewMeta");
+          if (!list) return;
+          list.innerHTML = "";
+          meta.textContent = pages.length + (pages.length === 1 ? " page" : " pages");
+          var exp = $("exportBtn");
+          if (exp) exp.disabled = pages.length === 0;
+          if (pages.length === 0) {
+            var empty = document.createElement("div");
+            empty.className = "review-empty";
+            empty.innerHTML = "<p>No pages yet</p><p style='font-size:13px;opacity:.7;'>Use Demo or Import to add pages.</p>";
+            list.appendChild(empty);
+            return;
+          }
+          pages.forEach(function (p, i) {
+            var card = document.createElement("div");
+            card.className = "page-card";
+            var img = document.createElement("img");
+            img.src = p.src;
+            var label = document.createElement("div");
+            label.className = "label";
+            label.textContent = "P" + (i + 1);
+            card.appendChild(img);
+            card.appendChild(label);
+            list.appendChild(card);
+          });
+        }
+
+        var demoBtn = $("demoBtn");
+        if (demoBtn) demoBtn.addEventListener("click", function () {
+          pages = [];
+          SAMPLE_DOCS.forEach(function (spec) {
+            pages.push({ src: generateSample(spec) });
+          });
+          showScreen("review");
+          showToast("Loaded " + pages.length + " sample pages");
+          renderReview();
+        });
+
+        var importBtn = $("importBtn");
+        var fileInput = $("fileInput");
+        if (importBtn && fileInput) importBtn.addEventListener("click", function () { fileInput.click(); });
+        if (fileInput) fileInput.addEventListener("change", function (e) {
+          var files = Array.from((e.target.files || []));
+          if (!files.length) return;
+          Promise.all(files.map(function (f) {
+            return new Promise(function (res, rej) {
+              var fr = new FileReader();
+              fr.onload = function () { res(fr.result); };
+              fr.onerror = rej;
+              fr.readAsDataURL(f);
+            }).then(loadImg).then(function (im) {
+              var c = document.createElement("canvas");
+              c.width = im.naturalWidth; c.height = im.naturalHeight;
+              c.getContext("2d").drawImage(im, 0, 0);
+              return c.toDataURL("image/jpeg", 0.9);
+            });
+          })).then(function (urls) {
+            pages = urls.map(function (u) { return { src: u }; });
+            e.target.value = "";
+            showScreen("review");
+            showToast("Imported " + pages.length + " page(s)");
+            renderReview();
+          });
+        });
+
+        var exportBtn = $("exportBtn");
+        if (exportBtn) exportBtn.addEventListener("click", async function () {
+          if (!pages.length) return;
+          exportBtn.disabled = true;
+          var old = exportBtn.textContent;
+          exportBtn.textContent = "Building…";
+          try {
+            var jpegs = [];
+            for (var i = 0; i < pages.length; i++) {
+              var im = await loadImg(pages[i].src);
+              var c = document.createElement("canvas");
+              c.width = im.naturalWidth; c.height = im.naturalHeight;
+              c.getContext("2d").drawImage(im, 0, 0);
+              jpegs.push(await canvasToJpeg(c, 1800));
+            }
+            var blob = buildPdf(jpegs, { w: 595, h: 842 });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement("a");
+            a.href = url;
+            a.download = "DocScan-" + new Date().toISOString().slice(0, 10) + ".pdf";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+            showToast("PDF exported");
+          } catch (err) {
+            console.error(err);
+            showToast("Export failed");
+          } finally {
+            exportBtn.textContent = old;
+            exportBtn.disabled = false;
+          }
+        });
+
+        var back = $("reviewBackBtn");
+        if (back) back.addEventListener("click", function () { showScreen("home"); });
+        var addMore = $("addMoreBtn");
+        if (addMore) addMore.addEventListener("click", function () { showScreen("home"); });
+
+        var clear = $("clearCacheBtn");
+        if (clear) clear.addEventListener("click", async function () {
+          clear.disabled = true;
+          clear.textContent = "Clearing…";
+          try {
+            if (window.caches) {
+              var keys = await caches.keys();
+              await Promise.all(keys.map(function (k) { return caches.delete(k); }));
+            }
+            if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+              var regs = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(regs.map(function (r) { return r.unregister(); }));
+            }
+            var u = new URL(window.location.href);
+            u.searchParams.set("_", Date.now());
+            window.location.replace(u.toString());
+          } catch (e) {
+            window.location.reload();
+          }
+        });
+
+        // Update diagnostics
+        var diag = $("bootDiag");
+        if (diag) {
+          diag.className = "home-foot-diag warn";
+          diag.textContent = "running in fallback mode — js/app.js did not load. Demo + Import + Export PDF work; live camera scanning is disabled.";
+        }
+
+        // Hide camera button since we can't run the camera pipeline
+        var startScan = $("startScanBtn");
+        if (startScan) {
+          startScan.addEventListener("click", function () {
+            showToast("Camera scanning needs the full app to load. Use Demo or Import instead.");
+          });
+        }
+
+        // Show a small inline notice in homeStatus area
+        var hs = $("homeStatus");
+        if (hs) {
+          hs.hidden = false;
+          hs.innerHTML = "<b>Running in fallback mode</b><div>App scripts didn't load. Demo, Import, and PDF export still work — live camera scanning is disabled. Click \"Clear cache &amp; hard reload\" to try again.</div>";
+        }
+
+        renderReview();
+      }
+    })();
+  </script>
+</body>
+</html>

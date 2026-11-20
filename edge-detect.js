@@ -225,5 +225,9 @@
     return { quad, confidence, w, h };
   }
 
-  global.EdgeDetect = { detect };
-})(window);
+  const api = { detect, toGrayscale, blur, sobel, nonMaxSuppression, threshold, findQuad };
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = api;
+  }
+  global.EdgeDetect = api;
+})(typeof window !== "undefined" ? window : globalThis);

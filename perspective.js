@@ -124,5 +124,9 @@
     return out;
   }
 
-  global.Perspective = { correct, computeHomography };
-})(window);
+  const api = { correct, computeHomography, outputSize, applyH };
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = api;
+  }
+  global.Perspective = api;
+})(typeof window !== "undefined" ? window : globalThis);

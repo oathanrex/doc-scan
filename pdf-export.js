@@ -218,5 +218,9 @@
     });
   }
 
-  global.PdfExport = { buildPdf, imageToJpegBytes };
-})(window);
+  const api = { buildPdf, imageToJpegBytes, buildPageContent, buildImageXObject, bytesToBinaryString };
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = api;
+  }
+  global.PdfExport = api;
+})(typeof window !== "undefined" ? window : globalThis);

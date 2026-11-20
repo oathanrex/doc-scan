@@ -1153,30 +1153,22 @@
       // resolves to https://user.github.io/repo-name/js/... which is
       // what we want. A bare "js/..." would resolve to
       // https://user.github.io/js/... (404) in that case.
-      var scripts = ["./js/edge-detect.js", "./js/perspective.js", "./js/pdf-export.js", "./js/app.js"];
+      var scriptNames = ["edge-detect.js", "perspective.js", "pdf-export.js", "app.js"];
+      function loadWithFallback(name) {
+        return loadScript("./js/" + name)
+          .catch(function () { return loadScript("./" + name); })
+          .catch(function () { return loadScript(name); });
+      }
       function chain(i) {
-        if (i >= scripts.length) {
+        if (i >= scriptNames.length) {
           document.documentElement.setAttribute("data-app-ready", "1");
           window.__appReady = true;
           return;
         }
-        loadScript(scripts[i])
+        loadWithFallback(scriptNames[i])
           .then(function () { chain(i + 1); })
           .catch(function (err) {
-            // Fallback: if the "./" form failed, try without "./"
-            // (helps on hosts that don't normalize the URL).
-            if (scripts[i].indexOf("./") === 0) {
-              var alt = scripts[i].slice(2);
-              loadScript(alt)
-                .then(function () { chain(i + 1); })
-                .catch(function (err2) {
-                  window.__showError && window.__showError(
-                    err.message + "\n(also tried " + alt + ")"
-                  );
-                });
-            } else {
-              window.__showError && window.__showError(err.message);
-            }
+            window.__showError && window.__showError("Failed to load: " + scriptNames[i] + " (" + err.message + ")");
           });
       }
       chain(0);
