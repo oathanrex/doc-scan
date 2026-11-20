@@ -14,7 +14,6 @@
     }
   </script>
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
@@ -24,6 +23,7 @@
   <meta name="description" content="Free zero-download on-device document scanner and perspective fixer. Auto-detect borders with Canny edge detection, straighten tilted photos with bilinear homography, and export multi-page PDFs directly in your browser." />
   <meta name="keywords" content="document scanner, perspective fix, straighten document photo, free online scanner, on-device scanner, crop document, microsoft lens alternative, camscanner online, oathanrex" />
   <meta name="author" content="oathanrex" />
+  <meta name="google-site-verification" content="5hxLY84z6lG9_NzHmw2XZzq8nD0N1M-Xa219T2eCLSc" />
   <link rel="canonical" href="https://oathanrex.github.io/doc-scan/" />
 
   <!-- Open Graph -->
@@ -1683,6 +1683,268 @@
         justify-content: center;
       }
     }
+      /* =========================================================
+       TOP 1% UNBOXED HERO & INTERACTIVE DROP ZONE
+       ========================================================= */
+    .tool-section {
+      padding: 32px 20px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .app {
+      position: relative;
+      width: 100%;
+      max-width: 1140px;
+      margin: 0 auto;
+      transition: all 0.25s ease;
+    }
+    /* When on home screen: completely UNBOXED, borderless, seamless page integration */
+    .app:not(.in-tool-mode) {
+      height: auto !important;
+      min-height: auto !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+    .app:not(.in-tool-mode) .screen.home {
+      position: relative !important;
+      inset: auto !important;
+      height: auto !important;
+      min-height: auto !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: none !important;
+      padding: 0 !important;
+      overflow: visible !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .app:not(.in-tool-mode) .topbar {
+      display: none !important;
+    }
+
+    /* When in interactive tool mode (camera, crop, review, edit): dedicated studio canvas */
+    .app.in-tool-mode {
+      height: min(92vh, 900px) !important;
+      max-width: 1080px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+    .app.in-tool-mode .topbar {
+      display: flex !important;
+    }
+
+    /* Unboxed Hero Typography & Layout */
+    .hero-header-box {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 28px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      letter-spacing: 0.2px;
+    }
+    .hero-badge .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .hero-heading {
+      font-family: var(--display);
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--ink);
+      margin: 0 0 14px;
+      letter-spacing: -0.02em;
+    }
+    .hero-subtext {
+      font-size: clamp(15px, 2vw, 17px);
+      line-height: 1.6;
+      color: var(--ink-soft);
+      margin: 0 auto;
+      max-width: 66ch;
+    }
+
+    /* Top 1% Interactive Drop Zone Card */
+    .hero-drop-card {
+      width: 100%;
+      max-width: 740px;
+      background: var(--surface);
+      border: 2px dashed var(--line-strong);
+      border-radius: 16px;
+      padding: 36px 24px;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      outline: none;
+    }
+    .hero-drop-card:hover, .hero-drop-card:focus-visible, .hero-drop-card.drag-active {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+    }
+    .drop-icon-bubble {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--accent) 15%, var(--surface-2));
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+    .hero-drop-card:hover .drop-icon-bubble {
+      transform: scale(1.08);
+    }
+    .drop-icon-bubble svg {
+      width: 26px;
+      height: 26px;
+    }
+    .drop-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .drop-browse-link {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .drop-subtitle {
+      font-size: 13.5px;
+      color: var(--ink-faint);
+    }
+
+    /* Primary Hero Action Buttons */
+    .hero-action-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 24px;
+      width: 100%;
+    }
+    .hero-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 26px;
+      border-radius: 9999px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid transparent;
+      outline: none;
+    }
+    .hero-cta-btn.primary {
+      background: var(--ink);
+      color: var(--bg);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+    .hero-cta-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      filter: brightness(1.1);
+    }
+    .hero-cta-btn.secondary {
+      background: var(--surface);
+      color: var(--ink);
+      border-color: var(--line-strong);
+    }
+    .hero-cta-btn.secondary:hover {
+      background: var(--surface-2);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .hero-cta-btn.accent {
+      background: color-mix(in srgb, var(--accent-2) 20%, var(--surface));
+      color: var(--accent-2);
+      border-color: var(--accent-2);
+    }
+    .hero-cta-btn.accent:hover {
+      background: var(--accent-2);
+      color: #000;
+      transform: translateY(-1px);
+    }
+
+    /* Floating Back to Top Button */
+    .back-to-top-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--line-strong);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: opacity 0.25s ease, transform 0.25s ease, background 0.15s ease, border-color 0.15s ease;
+      backdrop-filter: blur(10px);
+    }
+    .back-to-top-fab.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .back-to-top-fab:hover {
+      background: var(--surface-2);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    .back-to-top-fab svg {
+      width: 20px;
+      height: 20px;
+    }
+
   </style>
 </head>
 <body>
@@ -1755,79 +2017,109 @@
           <div class="topbar-title">DocScan Studio</div>
         </div>
 
-        <div class="home-logo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 7V4h3" />
-            <path d="M17 4h3v3" />
-            <path d="M20 17v3h-3" />
-            <path d="M7 20H4v-3" />
-            <rect x="7" y="7" width="10" height="10" rx="1.5" stroke="var(--accent)" />
-            <line x1="7" y1="12" x2="17" y2="12" stroke="var(--accent-2)" stroke-dasharray="2 2" />
-          </svg>
+        <div class="hero-header-box">
+          <div class="hero-badge">
+            <span class="pulse-dot"></span>
+            <span>100% In-Browser Computer Vision &bull; Zero Cloud Uploads</span>
+          </div>
+          <h1 class="hero-heading">Instant Document Scanner &amp; Perspective Fixer</h1>
+          <p class="hero-subtext">Capture receipts, contracts, and notes. Auto-detect paper borders with Canny edge detection, straighten crooked angles with bilinear homography, and compile multi-page PDFs directly in your browser without downloads or subscriptions.</p>
         </div>
-        <h1>Scan anything</h1>
-        <p class="home-sub">Capture pages, auto-detect borders, and export clean PDFs directly in your browser on desktop, tablet, or mobile.</p>
 
-        <button class="cta" id="startScanBtn" style="margin-top: 14px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Start scanning
-        </button>
-        <button class="cta secondary" id="resumeBtn" style="margin-top: 10px; display: none;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-          Resume scan session (<span id="resumeCount">0</span> pages)
-        </button>
-        <button class="cta secondary" id="importBtn" style="margin-top: 10px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Import from device
-        </button>
-        <button class="cta secondary" id="demoBtn" style="margin-top: 10px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Try demo with sample documents
-        </button>
+        <!-- Interactive Drag & Drop File Zone -->
+        <div class="hero-drop-card" id="dropZone" role="button" tabindex="0" aria-label="Drop files here or click to browse">
+          <div class="drop-icon-bubble">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          </div>
+          <div class="drop-title">Drop your document images here, or <span class="drop-browse-link">browse files</span></div>
+          <div class="drop-subtitle">Supports JPG, PNG, WEBP &bull; Multi-page bulk document import</div>
+        </div>
         <input type="file" id="fileInput" accept="image/*" multiple class="visually-hidden" />
 
-        <div class="home-features">
+        <!-- Primary Action Controls -->
+        <div class="hero-action-row">
+          <button class="hero-cta-btn primary" id="startScanBtn" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+            <span>Open Camera Scanner</span>
+          </button>
+
+          <button class="hero-cta-btn secondary" id="importBtn" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span>Choose Files</span>
+          </button>
+
+          <button class="hero-cta-btn secondary" id="demoBtn" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            <span>Try Interactive Demo</span>
+          </button>
+
+          <button class="hero-cta-btn accent" id="resumeBtn" type="button" style="display: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="9" y1="13" x2="15" y2="13" />
+              <line x1="9" y1="17" x2="15" y2="17" />
+            </svg>
+            <span>Resume Scan (<span id="resumeCount">0</span> pages)</span>
+          </button>
+        </div>
+
+        <!-- 4 Feature Value Pillars -->
+        <div class="home-features" style="margin-top: 36px; width: 100%; max-width: 900px;">
           <div class="home-feat">
             <div class="ico">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12" stroke-dasharray="2 2"/></svg>
             </div>
             <div class="t">Auto border detect</div>
-            <div class="d">Edges find themselves in real time.</div>
+            <div class="d">Sobel &amp; Canny gradient kernels find document edges in real time.</div>
           </div>
           <div class="home-feat">
             <div class="ico">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l16-3v18l-16-3V6z"/><line x1="10" y1="5.5" x2="10" y2="18.5"/><line x1="16" y1="4.5" x2="16" y2="19.5"/></svg>
             </div>
             <div class="t">Perspective fix</div>
-            <div class="d">Crooked shots become flat pages.</div>
+            <div class="d">8-point bilinear homography flattens crooked angle shots.</div>
           </div>
           <div class="home-feat">
             <div class="ico">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="6" width="14" height="15" rx="2"/><path d="M4 17V4a2 2 0 0 1 2-2h11"/><line x1="11" y1="11" x2="17" y2="11"/><line x1="11" y1="15" x2="15" y2="15"/></svg>
             </div>
-            <div class="t">Multi-page</div>
-            <div class="d">Capture then export as one PDF.</div>
+            <div class="t">Multi-page PDF</div>
+            <div class="d">Compile and export binary PDF 1.4 documents without third-party bloat.</div>
           </div>
           <div class="home-feat">
             <div class="ico">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
             </div>
-            <div class="t">On-device</div>
-            <div class="d">Works offline. Nothing leaves your phone.</div>
+            <div class="t">100% Client-Side</div>
+            <div class="d">Everything executes in browser RAM. Zero server uploads, zero data mining.</div>
           </div>
         </div>
 
-        <div class="home-foot">
+        <div class="home-foot" style="margin-top: 28px;">
           <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: 12px; margin-bottom: 2px;">
             <a href="#guide" class="home-foot-link">Technical Guide</a>
-            <span style="color: var(--ink-faint);">•</span>
+            <span style="color: var(--ink-faint);">&bull;</span>
             <a href="#faq" class="home-foot-link">FAQ</a>
-            <span style="color: var(--ink-faint);">•</span>
+            <span style="color: var(--ink-faint);">&bull;</span>
             <a href="#privacy" class="home-foot-link">Privacy Policy</a>
-            <span style="color: var(--ink-faint);">•</span>
-            <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer" class="home-foot-link">GitHub</a>
+            <span style="color: var(--ink-faint);">&bull;</span>
+            <a href="https://perspectivefix.app" target="_blank" rel="noopener noreferrer" class="home-foot-link">PerspectiveFix</a>
           </div>
-          <button class="home-foot-btn" id="clearCacheBtn" type="button" style="margin-top: 4px;">
+          <button class="home-foot-btn" id="clearCacheBtn" type="button" style="margin-top: 6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
             Clear cache &amp; hard reload
           </button>
@@ -2358,9 +2650,9 @@
         <a href="#privacy" id="openTermsLink">Read Terms of Service &rarr;</a>
       </div>
       <div class="legal-card">
-        <h4>Open Source on GitHub</h4>
-        <p>Inspect the complete JavaScript source code, report an edge-case bug, or submit an enhancement on the public GitHub repository.</p>
-        <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer">Visit GitHub Repository &rarr;</a>
+        <h4>Enterprise Document Confidentiality</h4>
+        <p>Engineered for confidential agreements, financial records, medical reports, and identity cards. Because all processing executes strictly inside volatile local browser memory, DocScan is inherently immune to cloud server breaches, remote data mining, and third-party surveillance.</p>
+        <a href="#guide">Explore Technical Architecture &rarr;</a>
       </div>
     </div>
   </section>
@@ -2375,8 +2667,6 @@
       <a href="#faq">FAQ</a>
       <span>&bull;</span>
       <a href="#privacy">Privacy Policy</a>
-      <span>&bull;</span>
-      <a href="https://github.com/oathanrex/doc-scan" target="_blank" rel="noopener noreferrer">GitHub</a>
       <span>&bull;</span>
       <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer">Buy Me A Coffee</a>
     </div>
@@ -2504,5 +2794,30 @@
       }, { passive: true });
     })();
   </script>
+  <!-- Floating Back to Top Button -->
+  <button id="backToTopBtn" class="back-to-top-fab" aria-label="Scroll back to top" title="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15" />
+    </svg>
+  </button>
+
+  <!-- Back to Top Smooth Scroll Handler -->
+  <script>
+    (function () {
+      var btn = document.getElementById("backToTopBtn");
+      if (!btn) return;
+      window.addEventListener("scroll", function () {
+        if ((window.pageYOffset || document.documentElement.scrollTop) > 360) {
+          btn.classList.add("visible");
+        } else {
+          btn.classList.remove("visible");
+        }
+      }, { passive: true });
+      btn.addEventListener("click", function () {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    })();
+  </script>
+
 </body>
 </html>

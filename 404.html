@@ -7,7 +7,6 @@
     content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
   />
   <meta name="theme-color" content="#0A0D11" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta
     name="apple-mobile-web-app-status-bar-style"
     content="black-translucent"
@@ -21,7 +20,7 @@
   />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>DocScan — Mobile Document Scanner</title>
+  <title>DocScan :  Mobile Document Scanner</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,7 +33,7 @@
   <script>
     // ---- Global error catcher (runs before any module loads) ----
     // If anything goes wrong during page boot, we want the user to
-    // see exactly what — not a silent "nothing happens" screen.
+    // see exactly what :  not a silent "nothing happens" screen.
     (function () {
       window.__bootErrors = [];
       function showError(msg) {
@@ -999,7 +998,7 @@
         </svg>
       </div>
       <h1>Scan anything</h1>
-      <p class="home-sub">Capture pages, auto-detect borders, and export a clean PDF — right from your phone.</p>
+      <p class="home-sub">Capture pages, auto-detect borders, and export a clean PDF :  right from your phone.</p>
       <button class="cta" id="startScanBtn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         Start scanning
@@ -1155,7 +1154,7 @@
     <div class="modal-backdrop" id="modal">
       <div class="modal">
         <h3 id="modalTitle">About</h3>
-        <p id="modalBody">DocScan implements the MVP from the Mobile Document Scanner PRD: automatic border detection, perspective correction, multi-page capture, review/reorder, and PDF export — all on-device.</p>
+        <p id="modalBody">DocScan implements the MVP from the Mobile Document Scanner PRD: automatic border detection, perspective correction, multi-page capture, review/reorder, and PDF export :  all on-device.</p>
         <div class="modal-actions">
           <button class="pill-btn primary" id="modalOk">OK</button>
         </div>
@@ -1218,7 +1217,7 @@
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
         navigator.serviceWorker.register("./sw.js").catch(function (e) {
-          // SW is non-essential — log but don't surface.
+          // SW is non-essential :  log but don't surface.
           console.warn("SW registration failed:", e);
         });
       });
@@ -1556,7 +1555,7 @@
         var diag = $("bootDiag");
         if (diag) {
           diag.className = "home-foot-diag warn";
-          diag.textContent = "running in fallback mode — js/app.js did not load. Demo + Import + Export PDF work; live camera scanning is disabled.";
+          diag.textContent = "running in fallback mode :  js/app.js did not load. Demo + Import + Export PDF work; live camera scanning is disabled.";
         }
 
         // Hide camera button since we can't run the camera pipeline
@@ -1571,7 +1570,7 @@
         var hs = $("homeStatus");
         if (hs) {
           hs.hidden = false;
-          hs.innerHTML = "<b>Running in fallback mode</b><div>App scripts didn't load. Demo, Import, and PDF export still work — live camera scanning is disabled. Click \"Clear cache &amp; hard reload\" to try again.</div>";
+          hs.innerHTML = "<b>Running in fallback mode</b><div>App scripts didn't load. Demo, Import, and PDF export still work :  live camera scanning is disabled. Click \"Clear cache &amp; hard reload\" to try again.</div>";
         }
 
         renderReview();

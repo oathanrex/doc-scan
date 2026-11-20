@@ -228,9 +228,18 @@
 
  // ---- Screen navigation ----
  function showScreen(name) {
- Object.entries(screens).forEach(([k, el]) => {
- if (el) el.classList.toggle("active", k === name);
- });
+    state.currentScreen = name;
+    const appEl = document.getElementById("app");
+    if (appEl) {
+      if (name === "home") {
+        appEl.classList.remove("in-tool-mode");
+      } else {
+        appEl.classList.add("in-tool-mode");
+      }
+    }
+    Object.entries(screens).forEach(([k, el]) => {
+      if (el) el.classList.toggle("active", k === name);
+    });
  if (name !== "camera") stopCamera();
  if (name === "home") updateHomeSessionBtn();
  if (name === "review") renderReview();
@@ -986,6 +995,92 @@
 
  // ---- File import (fallback / bulk import) ----
  els.importBtn.addEventListener("click", () => els.fileInput.click());
+
+  // ---- Interactive Hero Drop Zone Handlers ----
+  const dropZone = document.getElementById("dropZone");
+  if (dropZone) {
+    dropZone.addEventListener("click", () => els.fileInput.click());
+    dropZone.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        els.fileInput.click();
+      }
+    });
+    dropZone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.add("drag-active");
+    });
+    dropZone.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove("drag-active");
+    });
+    dropZone.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove("drag-active");
+      const files = Array.from(e.dataTransfer.files || []);
+      if (!files.length) return;
+      if (files.length === 1) {
+        try {
+          const url = await fileToDataUrl(files[0]);
+          const img = await loadImage(url);
+          startCropWorkflow(img, { isNew: true });
+        } catch (err) {
+          console.error("Drop error:", err);
+          toast("Failed to load dropped image", "error");
+        }
+      } else {
+        toast(`Processing ${files.length} dropped images...`, "info");
+        let count = 0;
+        for (const f of files) {
+          try {
+            const url = await fileToDataUrl(f);
+            const img = await loadImage(url);
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            canvas.getContext("2d").drawImage(img, 0, 0);
+
+            let quad = null;
+            try {
+              const res = EdgeDetect.detect(canvas);
+              if (res && res.quad && res.confidence > 0.1) {
+                const scaleX = canvas.width / res.w;
+                const scaleY = canvas.height / res.h;
+                quad = res.quad.map((p) => ({
+                  x: p.x * scaleX,
+                  y: p.y * scaleY
+                }));
+              }
+            } catch (_) {}
+
+            const corrected = Perspective.correct(canvas, quad);
+            const page = {
+              id: "p_" + Math.random().toString(36).slice(2, 8),
+              src: corrected.toDataURL("image/jpeg", 0.9),
+              straightened: corrected.toDataURL("image/jpeg", 0.9),
+              filter: "original",
+              original: canvas.toDataURL("image/jpeg", 0.9),
+              raw: canvas.toDataURL("image/jpeg", 0.92),
+              quad: quad
+            };
+            state.pages.push(page);
+            count++;
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        renderThumbs();
+        if (state.pages.length) {
+          showScreen("review");
+          toast(`Imported & straightened ${count} page(s)`, "success");
+        }
+      }
+    });
+  }
+
  els.fallbackImportBtn.addEventListener("click", () => els.fileInput.click());
  if (els.resumeBtn) els.resumeBtn.addEventListener("click", () => showScreen("review"));
 

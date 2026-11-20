@@ -5,7 +5,7 @@
 // quadrilateral search to pick the best 4-corner document.
 //
 // Runs entirely on-device in a Web Worker when possible (we just run on
-// the main thread here for simplicity — small frames keep it fast).
+// the main thread here for simplicity :  small frames keep it fast).
 //
 // Acceptance target (per PRD §6 NFR): edge detection at >= 24 fps on a
 // mid-range device. We work on a 240px-wide downscale to keep the cost
@@ -27,7 +27,7 @@
   }
 
   function blur(gray, w, h) {
-    // 3x3 box blur (separable, two passes) — fast and good enough.
+    // 3x3 box blur (separable, two passes) :  fast and good enough.
     const tmp = new Uint8ClampedArray(gray.length);
     const out = new Uint8ClampedArray(gray.length);
     // Horizontal
@@ -111,7 +111,7 @@
   // ---------- Quad search ----------
   // Project the edge image onto horizontal and vertical axes to find
   // the document bounds, then refine the four corners. This is
-  // intentionally simple — for the MVP we want a stable locked-on
+  // intentionally simple :  for the MVP we want a stable locked-on
   // outline, not a full Hough transform.
   function findQuad(edges, w, h) {
     // Horizontal projection: count strong edges per row

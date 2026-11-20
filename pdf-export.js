@@ -11,7 +11,7 @@
 //   - one /XObject /Image per page (DCTDecode JPEG)
 //   - xref table + trailer
 //
-// The PRD's success metric: "a 10-page document in under 3 seconds" —
+// The PRD's success metric: "a 10-page document in under 3 seconds" : 
 // we easily beat that on a desktop and should be well within budget on
 // a mid-range phone.
 
@@ -106,7 +106,7 @@
     // 1: Catalog
     pushObject(1, "<< /Type /Catalog /Pages 2 0 R >>");
 
-    // 2: Pages — we'll fill this in after we know the kid list, so
+    // 2: Pages :  we'll fill this in after we know the kid list, so
     // defer emitting the body. We still need to reserve an xref slot
     // for object 2 at the offset where it WILL live, but since the
     // bytes for object 2 haven't been written yet, we'll emit it
