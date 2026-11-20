@@ -65,8 +65,23 @@
     return { w: Math.max(64, w), h: Math.max(64, h) };
   }
 
+  // 1D Catmull-Rom cubic spline interpolation
+  function catmullRom(t, p0, p1, p2, p3) {
+    const v = 0.5 * (
+      2 * p1 +
+      (-p0 + p2) * t +
+      (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t +
+      (-p0 + 3 * p1 - 3 * p2 + p3) * t * t * t
+    );
+    return v < 0 ? 0 : (v > 255 ? 255 : (v + 0.5 | 0));
+  }
+
   // Render source -> destination, sampling the source via inverse mapping.
-  function correct(sourceCanvas, quad) {
+  // Supports options.interpolation: 'bicubic' (default high-fidelity Catmull-Rom) or 'bilinear'.
+  function correct(sourceCanvas, quad, options) {
+    options = options || {};
+    const useBicubic = options.interpolation !== "bilinear";
+
     if (!quad || quad.length !== 4) {
       const out = document.createElement("canvas");
       out.width = sourceCanvas.width;
@@ -125,31 +140,93 @@
 
         const x0 = px | 0;
         const y0 = py | 0;
-        const x1 = x0 + 1;
-        const y1 = y0 + 1;
         const dx = px - x0;
         const dy = py - y0;
-        const w00 = (1 - dx) * (1 - dy);
-        const w10 = dx * (1 - dy);
-        const w01 = (1 - dx) * dy;
-        const w11 = dx * dy;
 
-        const i00 = (y0 * sw + x0) * 4;
-        const i10 = (y0 * sw + x1) * 4;
-        const i01 = (y1 * sw + x0) * 4;
-        const i11 = (y1 * sw + x1) * 4;
+        if (useBicubic && x0 >= 1 && x0 < sw - 2 && y0 >= 1 && y0 < sh - 2) {
+          // High-fidelity 16-tap Catmull-Rom bicubic interpolation
+          const ym1 = (y0 - 1) * sw;
+          const y0w = y0 * sw;
+          const yp1 = (y0 + 1) * sw;
+          const yp2 = (y0 + 2) * sw;
 
-        data[di] = (sData[i00] * w00 + sData[i10] * w10 + sData[i01] * w01 + sData[i11] * w11) + 0.5 | 0;
-        data[di + 1] = (sData[i00 + 1] * w00 + sData[i10 + 1] * w10 + sData[i01 + 1] * w01 + sData[i11 + 1] * w11) + 0.5 | 0;
-        data[di + 2] = (sData[i00 + 2] * w00 + sData[i10 + 2] * w10 + sData[i01 + 2] * w01 + sData[i11 + 2] * w11) + 0.5 | 0;
-        data[di + 3] = 255;
+          for (let c = 0; c < 3; c++) {
+            const r0 = catmullRom(
+              dx,
+              sData[(ym1 + x0 - 1) * 4 + c],
+              sData[(ym1 + x0) * 4 + c],
+              sData[(ym1 + x0 + 1) * 4 + c],
+              sData[(ym1 + x0 + 2) * 4 + c]
+            );
+            const r1 = catmullRom(
+              dx,
+              sData[(y0w + x0 - 1) * 4 + c],
+              sData[(y0w + x0) * 4 + c],
+              sData[(y0w + x0 + 1) * 4 + c],
+              sData[(y0w + x0 + 2) * 4 + c]
+            );
+            const r2 = catmullRom(
+              dx,
+              sData[(yp1 + x0 - 1) * 4 + c],
+              sData[(yp1 + x0) * 4 + c],
+              sData[(yp1 + x0 + 1) * 4 + c],
+              sData[(yp1 + x0 + 2) * 4 + c]
+            );
+            const r3 = catmullRom(
+              dx,
+              sData[(yp2 + x0 - 1) * 4 + c],
+              sData[(yp2 + x0) * 4 + c],
+              sData[(yp2 + x0 + 1) * 4 + c],
+              sData[(yp2 + x0 + 2) * 4 + c]
+            );
+            data[di + c] = catmullRom(dy, r0, r1, r2, r3);
+          }
+          data[di + 3] = 255;
+        } else {
+          // Bilinear fallback near image boundaries
+          const x1 = x0 + 1;
+          const y1 = y0 + 1;
+          const w00 = (1 - dx) * (1 - dy);
+          const w10 = dx * (1 - dy);
+          const w01 = (1 - dx) * dy;
+          const w11 = dx * dy;
+
+          const i00 = (y0 * sw + x0) * 4;
+          const i10 = (y0 * sw + x1) * 4;
+          const i01 = (y1 * sw + x0) * 4;
+          const i11 = (y1 * sw + x1) * 4;
+
+          data[di] = (sData[i00] * w00 + sData[i10] * w10 + sData[i01] * w01 + sData[i11] * w11) + 0.5 | 0;
+          data[di + 1] = (sData[i00 + 1] * w00 + sData[i10 + 1] * w10 + sData[i01 + 1] * w01 + sData[i11 + 1] * w11) + 0.5 | 0;
+          data[di + 2] = (sData[i00 + 2] * w00 + sData[i10 + 2] * w10 + sData[i01 + 2] * w01 + sData[i11 + 2] * w11) + 0.5 | 0;
+          data[di + 3] = 255;
+        }
       }
     }
     octx.putImageData(img, 0, 0);
     return out;
   }
 
-  const api = { correct, computeHomography, outputSize, applyH };
+  // Calculate largest interior inscribed rectangle within rotated rectangle
+  function getLargestInscribedRect(width, height, angleRad) {
+    const absAngle = Math.abs(angleRad) % (Math.PI / 2);
+    if (absAngle < 1e-4) {
+      return { width, height };
+    }
+    const cos = Math.cos(absAngle);
+    const sin = Math.sin(absAngle);
+    const cos2 = cos * cos;
+    const sin2 = sin * sin;
+    if (Math.abs(cos2 - sin2) < 1e-4) {
+      const s = Math.min(width, height) / (Math.SQRT2);
+      return { width: Math.round(s), height: Math.round(s) };
+    }
+    const w = Math.max(16, Math.round((width * cos - height * sin) / (cos2 - sin2)));
+    const h = Math.max(16, Math.round((height * cos - width * sin) / (cos2 - sin2)));
+    return { width: Math.min(width, w), height: Math.min(height, h) };
+  }
+
+  const api = { correct, computeHomography, outputSize, applyH, catmullRom, getLargestInscribedRect };
   if (typeof module !== "undefined" && module.exports) {
     module.exports = api;
   }

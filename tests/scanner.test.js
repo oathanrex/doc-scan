@@ -173,3 +173,20 @@ test('Edge Detection: Thresholding and quad search preserves 4-corner polygon ge
   assert.ok(Math.abs(quad[2].x - 80) <= 2, `BR x expected ~80, got ${quad[2].x}`);
   assert.ok(Math.abs(quad[2].y - 80) <= 2, `BR y expected ~80, got ${quad[2].y}`);
 });
+
+test('Bicubic Spline: catmullRom computes smooth cubic interpolation', () => {
+  const { catmullRom } = require('../js/perspective.js');
+  assert.equal(catmullRom(0, 10, 50, 90, 100), 50);
+  assert.equal(catmullRom(1, 10, 50, 90, 100), 90);
+  const mid = catmullRom(0.5, 10, 50, 90, 100);
+  assert.ok(mid > 65 && mid < 75, 'Midpoint should be smoothly interpolated');
+});
+
+test('Texloom Line Intersection: fitLine and lineIntersect accurately locate analytic corners', () => {
+  const { fitLine, lineIntersect } = require('../js/edge-detect.js');
+  const l1 = fitLine([{ x: 0, y: 15 }, { x: 50, y: 15 }, { x: 100, y: 15 }]);
+  const l2 = fitLine([{ x: 30, y: 0 }, { x: 30, y: 50 }, { x: 30, y: 100 }]);
+  const pt = lineIntersect(l1, l2);
+  assert.ok(Math.abs(pt.x - 30) < 1e-4);
+  assert.ok(Math.abs(pt.y - 15) < 1e-4);
+});

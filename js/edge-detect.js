@@ -1,15 +1,7 @@
 // edge-detect.js
-// Real-time document edge detection from a <video> frame using a
-// lightweight Canny-style pipeline: grayscale -> blur -> Sobel -> non-max
-// suppression -> hysteresis. Then a Hough-style line vote and a final
-// quadrilateral search to pick the best 4-corner document.
-//
-// Runs entirely on-device in a Web Worker when possible (we just run on
-// the main thread here for simplicity :  small frames keep it fast).
-//
-// Acceptance target (per PRD §6 NFR): edge detection at >= 24 fps on a
-// mid-range device. We work on a 240px-wide downscale to keep the cost
-// under a millisecond per frame on typical hardware.
+// Real-time document edge detection from a <video> frame or image
+// using a Canny-style pipeline followed by sub-pixel gradient normal
+// sampling and PCA line intersections for laser-accurate corner snapping.
 
 (function (global) {
   "use strict";
@@ -27,7 +19,7 @@
   }
 
   function blur(gray, w, h) {
-    // 3x3 box blur (separable, two passes) :  fast and good enough.
+    // 3x3 box blur (separable, two passes): fast and stable.
     const tmp = new Uint8ClampedArray(gray.length);
     const out = new Uint8ClampedArray(gray.length);
     // Horizontal
@@ -109,12 +101,7 @@
   }
 
   // ---------- Quad search ----------
-  // Project the edge image onto horizontal and vertical axes to find
-  // the document bounds, then refine the four corners. This is
-  // intentionally simple :  for the MVP we want a stable locked-on
-  // outline, not a full Hough transform.
   function findQuad(edges, w, h) {
-    // Horizontal projection: count strong edges per row
     const rowScore = new Float32Array(h);
     const colScore = new Float32Array(w);
     for (let y = 0; y < h; y++) {
@@ -126,7 +113,7 @@
       }
       rowScore[y] = s;
     }
-    // Find top/bottom rows that are above a threshold
+
     const rowMax = Math.max.apply(null, rowScore);
     const colMax = Math.max.apply(null, colScore);
     if (rowMax === 0 || colMax === 0) return null;
@@ -147,7 +134,6 @@
 
     if (bottom - top < h * 0.2 || right - left < w * 0.2) return null;
 
-    // Tighten the corners using local edge density.
     function findCorner(rowDir, colDir) {
       const corner = { x: 0, y: 0 };
       if (rowDir === "top") corner.y = top;
@@ -187,8 +173,108 @@
     ];
   }
 
+  // ---------- PCA Line Fitting & Line Intersection (Texloom Method) ----------
+  function fitLine(points) {
+    if (points.length < 3) return null;
+    let sx = 0, sy = 0;
+    for (let i = 0; i < points.length; i++) {
+      sx += points[i].x;
+      sy += points[i].y;
+    }
+    const mx = sx / points.length;
+    const my = sy / points.length;
+    let sxx = 0, syy = 0, sxy = 0;
+    for (let i = 0; i < points.length; i++) {
+      const dx = points[i].x - mx;
+      const dy = points[i].y - my;
+      sxx += dx * dx;
+      syy += dy * dy;
+      sxy += dx * dy;
+    }
+    // PCA line equation: a*x + b*y + c = 0
+    const theta = 0.5 * Math.atan2(2 * sxy, sxx - syy);
+    const a = -Math.sin(theta);
+    const b = Math.cos(theta);
+    const c = -(a * mx + b * my);
+    return { a, b, c };
+  }
+
+  function lineIntersect(l1, l2) {
+    if (!l1 || !l2) return null;
+    const det = l1.a * l2.b - l2.a * l1.b;
+    if (Math.abs(det) < 1e-6) return null;
+    const x = (l1.b * l2.c - l2.b * l1.c) / det;
+    const y = (l2.a * l1.c - l1.a * l2.c) / det;
+    return { x, y };
+  }
+
+  function refineQuadWithGradients(quad, gray, w, h) {
+    if (!quad || quad.length !== 4) return quad;
+    const lines = [];
+
+    for (let i = 0; i < 4; i++) {
+      const p1 = quad[i];
+      const p2 = quad[(i + 1) % 4];
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const len = Math.hypot(dx, dy);
+      if (len < 12) return quad;
+      const nx = -dy / len;
+      const ny = dx / len;
+
+      const points = [];
+      const numSamples = 20;
+      for (let s = 1; s < numSamples; s++) {
+        const t = s / numSamples;
+        const bx = p1.x + t * dx;
+        const by = p1.y + t * dy;
+        let maxG = -1;
+        let bestDist = 0;
+        for (let d = -10; d <= 10; d++) {
+          const sx = Math.round(bx + d * nx);
+          const sy = Math.round(by + d * ny);
+          if (sx >= 1 && sx < w - 1 && sy >= 1 && sy < h - 1) {
+            const gx = gray[sy * w + sx + 1] - gray[sy * w + sx - 1];
+            const gy = gray[(sy + 1) * w + sx] - gray[(sy - 1) * w + sx];
+            const g = Math.abs(gx * nx + gy * ny);
+            if (g > maxG) {
+              maxG = g;
+              bestDist = d;
+            }
+          }
+        }
+        if (maxG > 12) {
+          points.push({ x: bx + bestDist * nx, y: by + bestDist * ny });
+        }
+      }
+
+      const l = fitLine(points);
+      if (!l) return quad;
+      lines.push(l);
+    }
+
+    // Intersections: (L3, L0), (L0, L1), (L1, L2), (L2, L3)
+    const q0 = lineIntersect(lines[3], lines[0]);
+    const q1 = lineIntersect(lines[0], lines[1]);
+    const q2 = lineIntersect(lines[1], lines[2]);
+    const q3 = lineIntersect(lines[2], lines[3]);
+
+    if (!q0 || !q1 || !q2 || !q3) return quad;
+
+    const refined = [q0, q1, q2, q3];
+    for (let i = 0; i < 4; i++) {
+      const p = refined[i];
+      if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return quad;
+      if (p.x < -w * 0.1 || p.x > w * 1.1 || p.y < -h * 0.1 || p.y > h * 1.1) return quad;
+    }
+
+    return refined.map(p => ({
+      x: Math.max(0, Math.min(w, Math.round(p.x))),
+      y: Math.max(0, Math.min(h, Math.round(p.y)))
+    }));
+  }
+
   // ---------- Public API ----------
-  // Returns: { quad: [{x, y}*4] | null, confidence: 0..1 }
   function detect(source) {
     const srcW = source.videoWidth || source.naturalWidth || source.width || 320;
     const srcH = source.videoHeight || source.naturalHeight || source.height || 240;
@@ -212,9 +298,12 @@
     const { mag } = sobel(blurred, w, h);
     const nms = nonMaxSuppression(mag, blurred, w, h);
     const edges = threshold(nms, 40, 100);
-    const quad = findQuad(edges, w, h);
+    const initialQuad = findQuad(edges, w, h);
 
-    if (!quad) return { quad: null, confidence: 0 };
+    if (!initialQuad) return { quad: null, confidence: 0 };
+
+    // Refine with sub-pixel gradient normal sampling and PCA line intersections
+    const quad = refineQuadWithGradients(initialQuad, gray, w, h);
 
     // Confidence: how "rectangular" the found quad is + how big it is.
     const dx1 = quad[1].x - quad[0].x;
@@ -230,7 +319,19 @@
     return { quad, confidence, w, h };
   }
 
-  const api = { detect, toGrayscale, blur, sobel, nonMaxSuppression, threshold, findQuad };
+  const api = {
+    detect,
+    toGrayscale,
+    blur,
+    sobel,
+    nonMaxSuppression,
+    threshold,
+    findQuad,
+    fitLine,
+    lineIntersect,
+    refineQuadWithGradients
+  };
+
   if (typeof module !== "undefined" && module.exports) {
     module.exports = api;
   }

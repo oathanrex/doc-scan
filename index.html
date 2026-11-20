@@ -2507,12 +2507,16 @@
           <div id="cropCanvasWrapper">
             <canvas id="cropCanvas"></canvas>
             <svg class="crop-overlay" id="cropOverlay">
-              <polygon id="cropPoly" points="" fill="rgba(45, 212, 191, 0.2)" stroke="var(--accent)" stroke-width="2" />
+              <polygon id="cropPoly" points="" fill="rgba(45, 212, 191, 0.14)" stroke="var(--accent)" stroke-width="1.8" vector-effect="non-scaling-stroke" />
+              <line id="cropGridH1" stroke="rgba(255, 255, 255, 0.22)" stroke-dasharray="3,3" vector-effect="non-scaling-stroke" />
+              <line id="cropGridH2" stroke="rgba(255, 255, 255, 0.22)" stroke-dasharray="3,3" vector-effect="non-scaling-stroke" />
+              <line id="cropGridV1" stroke="rgba(255, 255, 255, 0.22)" stroke-dasharray="3,3" vector-effect="non-scaling-stroke" />
+              <line id="cropGridV2" stroke="rgba(255, 255, 255, 0.22)" stroke-dasharray="3,3" vector-effect="non-scaling-stroke" />
             </svg>
-            <div class="crop-handle" id="cropHandleTL" title="Top-Left Corner"></div>
-            <div class="crop-handle" id="cropHandleTR" title="Top-Right Corner"></div>
-            <div class="crop-handle" id="cropHandleBR" title="Bottom-Right Corner"></div>
-            <div class="crop-handle" id="cropHandleBL" title="Bottom-Left Corner"></div>
+            <div class="crop-handle" id="cropHandleTL" tabindex="0" role="slider" aria-label="Top-Left Corner" title="Top-Left Corner (Arrow keys to nudge)"></div>
+            <div class="crop-handle" id="cropHandleTR" tabindex="0" role="slider" aria-label="Top-Right Corner" title="Top-Right Corner (Arrow keys to nudge)"></div>
+            <div class="crop-handle" id="cropHandleBR" tabindex="0" role="slider" aria-label="Bottom-Right Corner" title="Bottom-Right Corner (Arrow keys to nudge)"></div>
+            <div class="crop-handle" id="cropHandleBL" tabindex="0" role="slider" aria-label="Bottom-Left Corner" title="Bottom-Left Corner (Arrow keys to nudge)"></div>
           </div>
           <div class="crop-loupe" id="cropLoupe">
             <canvas id="cropLoupeCanvas" width="100" height="100"></canvas>

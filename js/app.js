@@ -126,6 +126,10 @@
  cropCanvasWrapper: $("cropCanvasWrapper"),
  cropCanvas: $("cropCanvas"),
  cropPoly: $("cropPoly"),
+    cropGridH1: $("cropGridH1"),
+    cropGridH2: $("cropGridH2"),
+    cropGridV1: $("cropGridV1"),
+    cropGridV2: $("cropGridV2"),
  cropOverlay: $("cropOverlay"),
  cropHandleTL: $("cropHandleTL"),
  cropHandleTR: $("cropHandleTR"),
@@ -793,11 +797,82 @@
     renderCropOverlay();
   }
 
+  // Smooth ease-out animation for corner snapping (Texloom Method)
+  let cropAnimRaf = null;
+  function animateQuadTo(targetQuad, duration = 320) {
+    if (!cropState.sourceQuad || !targetQuad || targetQuad.length !== 4) {
+      cropState.sourceQuad = targetQuad;
+      syncCropDisplayQuad();
+      return;
+    }
+    if (cropAnimRaf) cancelAnimationFrame(cropAnimRaf);
+
+    const startQuad = cropState.sourceQuad.map((p) => ({ x: p.x, y: p.y }));
+    const startTime = performance.now();
+
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      // Cubic ease-out: 1 - (1 - t)^3
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      cropState.sourceQuad = startQuad.map((p, i) => ({
+        x: Math.round(p.x + (targetQuad[i].x - p.x) * ease),
+        y: Math.round(p.y + (targetQuad[i].y - p.y) * ease)
+      }));
+      syncCropDisplayQuad();
+
+      if (progress < 1) {
+        cropAnimRaf = requestAnimationFrame(step);
+      } else {
+        cropState.sourceQuad = targetQuad;
+        syncCropDisplayQuad();
+        cropAnimRaf = null;
+      }
+    }
+    cropAnimRaf = requestAnimationFrame(step);
+  }
+
   function renderCropOverlay() {
     if (!cropState.displayQuad || !els.cropPoly) return;
     const pts = cropState.displayQuad;
     const pointsStr = pts.map((p) => `${p.x},${p.y}`).join(" ");
     els.cropPoly.setAttribute("points", pointsStr);
+
+    // Rule of thirds alignment grid lines
+    if (els.cropGridH1 && els.cropGridH2 && els.cropGridV1 && els.cropGridV2) {
+      // Horizontal lines (interpolated between left edge and right edge)
+      const l1_3 = { x: pts[0].x * (2/3) + pts[3].x * (1/3), y: pts[0].y * (2/3) + pts[3].y * (1/3) };
+      const r1_3 = { x: pts[1].x * (2/3) + pts[2].x * (1/3), y: pts[1].y * (2/3) + pts[2].y * (1/3) };
+      const l2_3 = { x: pts[0].x * (1/3) + pts[3].x * (2/3), y: pts[0].y * (1/3) + pts[3].y * (2/3) };
+      const r2_3 = { x: pts[1].x * (1/3) + pts[2].x * (2/3), y: pts[1].y * (1/3) + pts[2].y * (2/3) };
+
+      els.cropGridH1.setAttribute("x1", l1_3.x.toFixed(1));
+      els.cropGridH1.setAttribute("y1", l1_3.y.toFixed(1));
+      els.cropGridH1.setAttribute("x2", r1_3.x.toFixed(1));
+      els.cropGridH1.setAttribute("y2", r1_3.y.toFixed(1));
+
+      els.cropGridH2.setAttribute("x1", l2_3.x.toFixed(1));
+      els.cropGridH2.setAttribute("y1", l2_3.y.toFixed(1));
+      els.cropGridH2.setAttribute("x2", r2_3.x.toFixed(1));
+      els.cropGridH2.setAttribute("y2", r2_3.y.toFixed(1));
+
+      // Vertical lines (interpolated between top edge and bottom edge)
+      const t1_3 = { x: pts[0].x * (2/3) + pts[1].x * (1/3), y: pts[0].y * (2/3) + pts[1].y * (1/3) };
+      const b1_3 = { x: pts[3].x * (2/3) + pts[2].x * (1/3), y: pts[3].y * (2/3) + pts[2].y * (1/3) };
+      const t2_3 = { x: pts[0].x * (1/3) + pts[1].x * (2/3), y: pts[0].y * (1/3) + pts[1].y * (2/3) };
+      const b2_3 = { x: pts[3].x * (1/3) + pts[2].x * (2/3), y: pts[3].y * (1/3) + pts[2].y * (2/3) };
+
+      els.cropGridV1.setAttribute("x1", t1_3.x.toFixed(1));
+      els.cropGridV1.setAttribute("y1", t1_3.y.toFixed(1));
+      els.cropGridV1.setAttribute("x2", b1_3.x.toFixed(1));
+      els.cropGridV1.setAttribute("y2", b1_3.y.toFixed(1));
+
+      els.cropGridV2.setAttribute("x1", t2_3.x.toFixed(1));
+      els.cropGridV2.setAttribute("y1", t2_3.y.toFixed(1));
+      els.cropGridV2.setAttribute("x2", b2_3.x.toFixed(1));
+      els.cropGridV2.setAttribute("y2", b2_3.y.toFixed(1));
+    }
 
     const handles = [els.cropHandleTL, els.cropHandleTR, els.cropHandleBR, els.cropHandleBL];
     handles.forEach((h, i) => {
@@ -862,15 +937,16 @@
   function applyCrop() {
     if (!cropState.sourceCanvas || !cropState.sourceQuad) return;
     try {
-      const corrected = Perspective.correct(cropState.sourceCanvas, cropState.sourceQuad);
-      const dataUrl = corrected.toDataURL("image/jpeg", 0.92);
+      // High-fidelity Catmull-Rom 16-tap bicubic perspective correction
+      const corrected = Perspective.correct(cropState.sourceCanvas, cropState.sourceQuad, { interpolation: "bicubic" });
+      const dataUrl = corrected.toDataURL("image/jpeg", 0.94);
 
       if (cropState.editingPageId) {
         const p = state.pages.find((x) => x.id === cropState.editingPageId);
         if (p) {
           p.src = dataUrl;
           p.straightened = dataUrl;
-          p.original = dataUrl; // Keep in sync so edit never reverts to crooked
+          p.original = dataUrl;
           p.filter = "original";
           p.quad = cropState.sourceQuad;
         }
@@ -898,6 +974,8 @@
       toast("Error straightening page", "error");
     }
   }
+
+  let selectedHandleIdx = 0;
 
   function initCropHandles() {
     const handles = [
@@ -964,6 +1042,7 @@
         e.preventDefault();
         e.stopPropagation();
         activeCropDragIdx = idx;
+        selectedHandleIdx = idx;
         activePointerId = e.pointerId;
         h.classList.add("active");
         try {
@@ -976,6 +1055,42 @@
 
         updateCropLoupe(idx, e.clientX, e.clientY);
       });
+
+      h.addEventListener("focus", () => {
+        selectedHandleIdx = idx;
+      });
+    });
+
+    // Keyboard Micro-Nudge (Arrow keys for 1px, Shift+Arrow for 5px)
+    window.addEventListener("keydown", (e) => {
+      if (!screens.crop || !screens.crop.classList.contains("active")) return;
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+        const step = e.shiftKey ? 5 : 1;
+        let dx = 0, dy = 0;
+        if (e.key === "ArrowUp") dy = -step;
+        if (e.key === "ArrowDown") dy = step;
+        if (e.key === "ArrowLeft") dx = -step;
+        if (e.key === "ArrowRight") dx = step;
+
+        const idx = activeCropDragIdx !== null ? activeCropDragIdx : selectedHandleIdx;
+        if (cropState.displayQuad && cropState.displayQuad[idx] && cropState.sourceCanvas) {
+          const p = cropState.displayQuad[idx];
+          const dispW = cropState.dispW || els.cropCanvas.clientWidth || 300;
+          const dispH = cropState.dispH || els.cropCanvas.clientHeight || 400;
+          const nx = Math.max(0, Math.min(dispW, p.x + dx));
+          const ny = Math.max(0, Math.min(dispH, p.y + dy));
+          cropState.displayQuad[idx] = { x: nx, y: ny };
+
+          const sw = cropState.sourceCanvas.width;
+          const sh = cropState.sourceCanvas.height;
+          cropState.sourceQuad[idx] = {
+            x: (nx / dispW) * sw,
+            y: (ny / dispH) * sh
+          };
+          renderCropOverlay();
+        }
+      }
     });
 
     if (els.cropApplyBtn) els.cropApplyBtn.addEventListener("click", applyCrop);
@@ -1001,11 +1116,11 @@
             const sh = cropState.sourceCanvas.height;
             const scaleX = sw / res.w;
             const scaleY = sh / res.h;
-            cropState.sourceQuad = res.quad.map((p) => ({
+            const targetQuad = res.quad.map((p) => ({
               x: Math.max(0, Math.min(sw, Math.round(p.x * scaleX))),
               y: Math.max(0, Math.min(sh, Math.round(p.y * scaleY)))
             }));
-            syncCropDisplayQuad();
+            animateQuadTo(targetQuad, 320);
             if (els.cropInfo) {
               els.cropInfo.innerHTML = '<span style="color:var(--accent);font-weight:600;">✓ Border detected</span>';
             }
@@ -1025,13 +1140,13 @@
         if (!cropState.sourceCanvas) return;
         const sw = cropState.sourceCanvas.width;
         const sh = cropState.sourceCanvas.height;
-        cropState.sourceQuad = [
+        const fullQuad = [
           { x: 0, y: 0 },
           { x: sw, y: 0 },
           { x: sw, y: sh },
           { x: 0, y: sh }
         ];
-        syncCropDisplayQuad();
+        animateQuadTo(fullQuad, 280);
         if (els.cropInfo) {
           els.cropInfo.innerHTML = "<span>Full page selected</span>";
         }
