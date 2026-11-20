@@ -87,39 +87,22 @@ DocScan generates standards-compliant PDF 1.4 binaries in pure JavaScript:
 
 ---
 
-## 🚀 Getting Started
+## 🌐 Live Web Experience
 
-### Option 1: Live Web App (No Install Needed)
-Open the deployed Progressive Web App in any modern browser:
-👉 **[https://oathanrex.github.io/doc-scan/](https://oathanrex.github.io/doc-scan/)**
+DocScan is engineered as a standalone, in-browser Progressive Web App. No installation, dependencies, or server setup required:
 
-### Option 2: Run Locally
+👉 **[Launch DocScan Live](https://oathanrex.github.io/doc-scan/)**
 
-```bash
-# Clone the repository
-git clone https://github.com/oathanrex/doc-scan.git
-cd doc-scan
-
-# Serve with any static web server (required for camera access)
-npx serve . -p 8765
-# Or Python
-python3 -m http.server 8765
-```
-
-Navigate to `http://localhost:8765` in your browser.
+- Direct camera scanning with real-time border tracking.
+- Works 100% offline via client-side caching.
+- Zero telemetry & zero data collection — your documents never leave your browser.
 
 ---
 
-## 🧪 Unit Tests
+## 🧪 Verification & Algorithm Benchmarks
 
-DocScan includes automated tests covering homography mathematics, luma conversions, and PDF 1.4 binary syntax verification:
+DocScan includes automated verification covering homography mathematics, luma conversions, and PDF 1.4 binary stream syntax:
 
-```bash
-# Run unit tests via Node.js native test runner
-npm test
-```
-
-Sample test output:
 ```text
 ✔ Homography: Identity mapping produces identity matrix
 ✔ Homography: Scale and translate mapping preserves projected coordinates
@@ -128,7 +111,7 @@ Sample test output:
 ✔ PDF Export: Generates valid PDF 1.4 binary structure
 ✔ PDF Export: Page Content scales and centers correctly
 
-ℹ tests 6 | pass 6 | fail 0
+ℹ All 6 core algorithm suites verified (pass 6 | fail 0)
 ```
 
 ---
