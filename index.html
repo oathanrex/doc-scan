@@ -504,6 +504,39 @@
       background: var(--accent);
       box-shadow: 0 0 8px var(--accent);
     }
+
+    /* Magnifier Loupe */
+    .corner-loupe {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.7), 0 0 12px rgba(63, 217, 199, 0.5);
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 50;
+      background: #0A0D11;
+      transform: translate(-50%, -100%);
+      transition: opacity 0.12s ease;
+    }
+    .corner-loupe canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .corner-loupe::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 14px;
+      height: 14px;
+      transform: translate(-50%, -50%);
+      border: 1.5px solid #FF4466;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #FF4466;
+    }
     .cam-controls {
       position: relative;
       padding: 18px 18px;
@@ -1045,6 +1078,9 @@
           <div class="corner bl" data-corner="bl"></div>
           <div class="corner br" data-corner="br"></div>
           <div class="scanline"></div>
+        </div>
+        <div class="corner-loupe" id="cornerLoupe" style="display:none;">
+          <canvas id="loupeCanvas" width="110" height="110"></canvas>
         </div>
         <div class="thumb-strip" id="thumbStrip"></div>
       </div>

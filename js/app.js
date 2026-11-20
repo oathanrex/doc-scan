@@ -266,6 +266,39 @@
   }
 
   // ---- Corner dragging (manual mode) ----
+  const loupeEl = document.getElementById("cornerLoupe");
+  const loupeCanvas = document.getElementById("loupeCanvas");
+  const loupeCtx = loupeCanvas ? loupeCanvas.getContext("2d") : null;
+
+  function updateLoupe(pt) {
+    if (!loupeEl || !loupeCtx) return;
+    const stage = document.getElementById("camStage");
+    if (!stage) return;
+    loupeEl.style.display = "block";
+    loupeEl.style.left = pt.x + "px";
+    loupeEl.style.top = Math.max(65, pt.y - 25) + "px";
+
+    const video = els.video;
+    if (!video || !video.videoWidth) return;
+
+    const rect = stage.getBoundingClientRect();
+    const rx = (pt.x / rect.width) * video.videoWidth;
+    const ry = (pt.y / rect.height) * video.videoHeight;
+
+    const zoom = 2.4;
+    const cropW = 110 / zoom;
+    const cropH = 110 / zoom;
+    const sx = Math.max(0, Math.min(video.videoWidth - cropW, rx - cropW / 2));
+    const sy = Math.max(0, Math.min(video.videoHeight - cropH, ry - cropH / 2));
+
+    loupeCtx.clearRect(0, 0, 110, 110);
+    loupeCtx.drawImage(video, sx, sy, cropW, cropH, 0, 0, 110, 110);
+  }
+
+  function hideLoupe() {
+    if (loupeEl) loupeEl.style.display = "none";
+  }
+
   els.overlay.querySelectorAll(".corner").forEach((corner) => {
     let drag = null;
     const onDown = (e) => {
@@ -284,6 +317,7 @@
       }
       const pt = pointer(e);
       drag = { id: corner.dataset.corner, start: pt };
+      updateLoupe(pt);
       e.preventDefault();
     };
     const onMove = (e) => {
@@ -298,10 +332,12 @@
       };
       state.cam.displayQuad = q;
       renderQuad(q);
+      updateLoupe(pt);
       setStatus("Adjusting corners", true);
     };
     const onUp = () => {
       drag = null;
+      hideLoupe();
     };
     corner.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
@@ -538,6 +574,33 @@
       attachDragHandlers(card);
       els.reviewList.appendChild(card);
     });
+    saveSession();
+  }
+
+  const SESSION_KEY = "docscan_session_draft";
+  function saveSession() {
+    try {
+      if (state.pages && state.pages.length > 0) {
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(state.pages));
+      } else {
+        sessionStorage.removeItem(SESSION_KEY);
+      }
+    } catch (_) {}
+  }
+
+  function restoreSession() {
+    try {
+      const raw = sessionStorage.getItem(SESSION_KEY);
+      if (raw && state.pages.length === 0) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          state.pages = parsed;
+          renderReview();
+          renderThumbs();
+          toast("Restored " + parsed.length + " pages from previous session");
+        }
+      }
+    } catch (_) {}
   }
   function actionBtn(html, label) {
     const b = document.createElement("button");
@@ -720,17 +783,31 @@
     );
   });
 
-  // ---- Flash toggle (visual only) ----
+  // ---- Flash / Torch toggle ----
   let flashOn = false;
-  els.flashBtn.addEventListener("click", () => {
+  els.flashBtn.addEventListener("click", async () => {
     flashOn = !flashOn;
     els.flashBtn.style.color = flashOn ? "var(--accent-2)" : "";
     document.getElementById("camStage").style.background =
       flashOn ? "rgba(255,235,180,.12)" : "";
+    if (state.cam.stream) {
+      try {
+        const track = state.cam.stream.getVideoTracks()[0];
+        if (track && track.applyConstraints) {
+          const caps = track.getCapabilities ? track.getCapabilities() : {};
+          if (caps.torch) {
+            await track.applyConstraints({ advanced: [{ torch: flashOn }] });
+          }
+        }
+      } catch (err) {
+        console.warn("Torch toggle error:", err);
+      }
+    }
   });
 
-  // Initial render
+  // Initial render & restore previous session
   renderReview();
+  restoreSession();
 
   // ---- Demo: generate sample documents so the full flow can be tried
   // without a camera. Renders 3 "scanned document" pages into a canvas,

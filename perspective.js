@@ -103,20 +103,45 @@
     for (let y = 0; y < size.h; y++) {
       for (let x = 0; x < size.w; x++) {
         const p = applyH(H, x, y);
-        const sx = Math.round(p.x);
-        const sy = Math.round(p.y);
+        const px = p.x;
+        const py = p.y;
         const di = (y * size.w + x) * 4;
-        if (sx < 0 || sx >= sw || sy < 0 || sy >= sh) {
-          data[di] = 255;
-          data[di + 1] = 255;
-          data[di + 2] = 255;
-          data[di + 3] = 255;
+
+        if (px < 0 || px >= sw - 1 || py < 0 || py >= sh - 1) {
+          if (px >= 0 && px < sw && py >= 0 && py < sh) {
+            const si = ((py | 0) * sw + (px | 0)) * 4;
+            data[di] = sData[si];
+            data[di + 1] = sData[si + 1];
+            data[di + 2] = sData[si + 2];
+            data[di + 3] = 255;
+          } else {
+            data[di] = 255;
+            data[di + 1] = 255;
+            data[di + 2] = 255;
+            data[di + 3] = 255;
+          }
           continue;
         }
-        const si = (sy * sw + sx) * 4;
-        data[di] = sData[si];
-        data[di + 1] = sData[si + 1];
-        data[di + 2] = sData[si + 2];
+
+        const x0 = px | 0;
+        const y0 = py | 0;
+        const x1 = x0 + 1;
+        const y1 = y0 + 1;
+        const dx = px - x0;
+        const dy = py - y0;
+        const w00 = (1 - dx) * (1 - dy);
+        const w10 = dx * (1 - dy);
+        const w01 = (1 - dx) * dy;
+        const w11 = dx * dy;
+
+        const i00 = (y0 * sw + x0) * 4;
+        const i10 = (y0 * sw + x1) * 4;
+        const i01 = (y1 * sw + x0) * 4;
+        const i11 = (y1 * sw + x1) * 4;
+
+        data[di] = (sData[i00] * w00 + sData[i10] * w10 + sData[i01] * w01 + sData[i11] * w11) + 0.5 | 0;
+        data[di + 1] = (sData[i00 + 1] * w00 + sData[i10 + 1] * w10 + sData[i01 + 1] * w01 + sData[i11 + 1] * w11) + 0.5 | 0;
+        data[di + 2] = (sData[i00 + 2] * w00 + sData[i10 + 2] * w10 + sData[i01 + 2] * w01 + sData[i11 + 2] * w11) + 0.5 | 0;
         data[di + 3] = 255;
       }
     }
