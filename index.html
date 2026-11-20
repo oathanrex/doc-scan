@@ -23,6 +23,7 @@
   <meta name="description" content="Free zero-download on-device document scanner and perspective fixer. Auto-detect borders with Canny edge detection, straighten tilted photos with bilinear homography, and export multi-page PDFs directly in your browser." />
   <meta name="keywords" content="document scanner, perspective fix, straighten document photo, free online scanner, on-device scanner, crop document, microsoft lens alternative, camscanner online, oathanrex" />
   <meta name="author" content="oathanrex" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <meta name="google-site-verification" content="5hxLY84z6lG9_NzHmw2XZzq8nD0N1M-Xa219T2eCLSc" />
   <link rel="canonical" href="https://oathanrex.github.io/doc-scan/" />
 
@@ -45,82 +46,125 @@
   [
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
+      "@type": "WebApplication",
       "name": "DocScan",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "All (Modern Web Browsers)",
+      "browserRequirements": "Requires JavaScript and HTML5 Canvas support",
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
       },
+      "featureList": [
+        "Real-time Canny edge detection paper boundary recognition",
+        "8-DOF bilinear homography perspective transformation",
+        "Client-side adaptive thresholding and contrast enhancement",
+        "Multi-page PDF 1.4 compilation directly in browser memory",
+        "High-resolution single-page JPEG export",
+        "Client-side optical character recognition (OCR) with clipboard copy",
+        "100% on-device private processing with zero cloud uploads",
+        "Zero account registration and zero subscription paywalls"
+      ],
       "description": "Zero-download, 100% client-side document scanner with real-time Canny edge detection, bilinear homography perspective warping, and PDF export.",
       "url": "https://oathanrex.github.io/doc-scan/",
       "author": {
         "@type": "Person",
-        "name": "oathanrex",
-        "url": "https://github.com/oathanrex"
+        "name": "Devender Singh (Oathan Rex)",
+        "url": "https://oathanrex.github.io/doc-scan/"
       }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Scan, Straighten, and Export Documents Online with DocScan",
+      "description": "Step-by-step instructions for scanning physical paper, straightening perspective distortion, applying contrast enhancement filters, and exporting multi-page PDFs using DocScan.",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Capture or Upload Document",
+          "text": "Open DocScan in your browser and either grant camera permissions to capture live video frames of physical paper, drag and drop image files into the drop zone, or upload photos from your device storage."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Detect or Adjust Paper Boundaries",
+          "text": "Review the four detected corner boundary pins. Drag any corner magnifier handles to align precisely with the paper edges if the document is severely tilted or crumpled."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Apply Perspective Homography & Filter",
+          "text": "Click Straighten to compute the projective homography matrix. Select your preferred color mode: Crisp Document, High-Contrast Black & White, Grayscale, or Color."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Export PDF or Copy OCR Text",
+          "text": "Review your scan queue, reorder pages if needed, and click Export Multi-Page PDF to compile a binary PDF 1.4 file locally in RAM, or use Copy OCR Text to extract document text to clipboard."
+        }
+      ]
     },
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
-  {
-    "@type": "Question",
-    "name": "How does DocScan straighten crooked photos without sending data to servers?",
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": "DocScan executes an 8-parameter bilinear homography transformation directly inside your web browser using HTML5 Canvas and typed Float64 arrays. When you pick or capture a photo, the computer vision math solves linear projective equations locally in device RAM. Zero pixels leave your machine."
-    }
-  },
-  {
-    "@type": "Question",
-    "name": "Is DocScan truly free, or is there a hidden paywall or watermark?",
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": "DocScan is 100% completely free for personal and commercial web scanning directly on this site. There are zero subscription tiers, zero locked filters, and zero watermarks stamped onto your PDF exports. Everything runs client-side without costly server infrastructure."
-    }
-  },
-  {
-    "@type": "Question",
-    "name": "Can I use DocScan on a desktop computer or laptop without a webcam?",
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": "Yes. While mobile and laptop users can point their camera directly at paper, desktop users can click 'Import from device' to upload existing photos (JPEG, PNG, WebP) taken with any camera. You can also click 'Try demo' to test all perspective cropping, filters, and PDF export tools instantly."
-    }
-  },
-  {
-    "@type": "Question",
-    "name": "How does DocScan compare to Microsoft Lens and CamScanner?",
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": "Microsoft Lens discontinued its desktop Windows app in 2021 and requires mobile installations tied to Microsoft accounts. CamScanner introduces weekly paywalls, ads, and forced cloud uploads. DocScan works instantly in any web browser without downloads, logins, or cloud uploads."
-    }
-  },
-  {
-    "@type": "Question",
-    "name": "Does DocScan work when offline or on airplane mode?",
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": "Yes. Once the page is loaded, DocScan's progressive service worker caches the core image processing code locally. You can disconnect Wi-Fi or turn on airplane mode, and border detection, perspective straightening, filter adjustments, and PDF creation will continue functioning normally."
-    }
-  },
-  {
-    "@type": "Question",
-    "name": "How does the auto border detection find paper edges?",
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": "DocScan downscales video frames to a lightweight 240-pixel buffer and applies Rec. 601 grayscale luma conversion followed by Sobel gradient convolution kernels. Radial search lines locate the high-contrast boundaries of the paper against the desk surface in under 4 milliseconds."
-    }
-  }
-]
+        {
+          "@type": "Question",
+          "name": "How does DocScan straighten crooked photos without sending data to servers?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "DocScan executes an 8-parameter bilinear homography transformation directly inside your web browser using HTML5 Canvas and typed Float64 arrays. When you pick or capture a photo, the computer vision math solves linear projective equations locally in device RAM. Zero pixels leave your machine."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is DocScan truly free, or is there a hidden paywall or watermark?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "DocScan is 100% completely free for personal and commercial web scanning directly on this site. There are zero subscription tiers, zero locked filters, and zero watermarks stamped onto your PDF exports. Everything runs client-side without costly server infrastructure."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use DocScan on a desktop computer or laptop without a webcam?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. While mobile and laptop users can point their camera directly at paper, desktop users can click 'Import from device' to upload existing photos (JPEG, PNG, WebP) taken with any camera. You can also click 'Try demo' to test all perspective cropping, filters, and PDF export tools instantly."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does DocScan compare to Microsoft Lens and CamScanner?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Microsoft Lens discontinued its desktop Windows app in 2021 and requires mobile installations tied to Microsoft accounts. CamScanner introduces weekly paywalls, ads, and forced cloud uploads. DocScan works instantly in any web browser without downloads, logins, or cloud uploads."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does DocScan work when offline or on airplane mode?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Once the page is loaded, DocScan's progressive service worker caches the core image processing code locally. You can disconnect Wi-Fi or turn on airplane mode, and border detection, perspective straightening, filter adjustments, and PDF creation will continue functioning normally."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does the auto border detection find paper edges?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "DocScan downscales video frames to a lightweight 240-pixel buffer and applies Rec. 601 grayscale luma conversion followed by Sobel gradient convolution kernels. Radial search lines locate the high-contrast boundaries of the paper against the desk surface in under 4 milliseconds."
+          }
+        }
+      ]
     }
   ]
   </script>
 
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -1683,7 +1727,23 @@
         justify-content: center;
       }
     }
-      /* =========================================================
+      
+    /* Accessible Screen-Reader Hidden Utility */
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    /* =========================================================
        TOP 1% UNBOXED HERO & INTERACTIVE DROP ZONE
        ========================================================= */
     .tool-section {
@@ -2038,7 +2098,7 @@
           <div class="drop-title">Drop your document images here, or <span class="drop-browse-link">browse files</span></div>
           <div class="drop-subtitle">Supports JPG, PNG, WEBP &bull; Multi-page bulk document import</div>
         </div>
-        <input type="file" id="fileInput" accept="image/*" multiple class="visually-hidden" />
+        <input type="file" id="fileInput" accept="image/*" multiple class="visually-hidden" style="display: none !important;" aria-hidden="true" tabindex="-1" />
 
         <!-- Primary Action Controls -->
         <div class="hero-action-row">
@@ -2056,14 +2116,14 @@
               <polyline points="17 8 12 3 7 8" />
               <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
-            <span>Choose Files</span>
+            <span>Upload Documents</span>
           </button>
 
           <button class="hero-cta-btn secondary" id="demoBtn" type="button">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
-            <span>Try Interactive Demo</span>
+            <span>Try Sample Scan</span>
           </button>
 
           <button class="hero-cta-btn accent" id="resumeBtn" type="button" style="display: none;">

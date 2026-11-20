@@ -1,13 +1,80 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#0A0D11"/>
-  <rect x="80" y="80" width="352" height="352" rx="24" fill="none" stroke="#3FD9C7" stroke-width="20"/>
-  <rect x="136" y="136" width="240" height="240" rx="8" fill="none" stroke="#E3A857" stroke-width="14"/>
-  <line x1="172" y1="200" x2="340" y2="200" stroke="#9BA5B3" stroke-width="10" stroke-linecap="round"/>
-  <line x1="172" y1="240" x2="340" y2="240" stroke="#9BA5B3" stroke-width="10" stroke-linecap="round"/>
-  <line x1="172" y1="280" x2="280" y2="280" stroke="#9BA5B3" stroke-width="10" stroke-linecap="round"/>
-  <line x1="172" y1="320" x2="340" y2="320" stroke="#9BA5B3" stroke-width="10" stroke-linecap="round"/>
-  <line x1="56" y1="56" x2="120" y2="56" stroke="#3FD9C7" stroke-width="14" stroke-linecap="round"/>
-  <line x1="56" y1="56" x2="56" y2="120" stroke="#3FD9C7" stroke-width="14" stroke-linecap="round"/>
-  <line x1="392" y1="456" x2="456" y2="456" stroke="#3FD9C7" stroke-width="14" stroke-linecap="round"/>
-  <line x1="456" y1="392" x2="456" y2="456" stroke="#3FD9C7" stroke-width="14" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1017"/>
+      <stop offset="100%" stop-color="#070a0f"/>
+    </linearGradient>
+    <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0"/>
+      <stop offset="25%" stop-color="#06b6d4" stop-opacity="0.8"/>
+      <stop offset="50%" stop-color="#2dd4bf"/>
+      <stop offset="75%" stop-color="#06b6d4" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="foldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <filter id="laserGlow" x="-20%" y="-100%" width="140%" height="300%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="sheetShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base Canvas -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+  <rect x="2" y="2" width="508" height="508" rx="110" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4"/>
+
+  <!-- Optical Viewfinder Corner Brackets -->
+  <g stroke="#2dd4bf" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Top-Left -->
+    <path d="M 85 145 L 85 101 A 16 16 0 0 1 101 85 L 145 85"/>
+    <!-- Top-Right -->
+    <path d="M 367 85 L 411 85 A 16 16 0 0 1 427 101 L 427 145"/>
+    <!-- Bottom-Left -->
+    <path d="M 85 367 L 85 411 A 16 16 0 0 0 101 427 L 145 427"/>
+    <!-- Bottom-Right -->
+    <path d="M 367 427 L 411 427 A 16 16 0 0 0 427 411 L 427 367"/>
+  </g>
+
+  <!-- Document Sheet -->
+  <g filter="url(#sheetShadow)">
+    <!-- Main Sheet Body -->
+    <path d="M 166 120 
+             L 316 120 
+             L 362 166 
+             L 362 384 
+             A 12 12 0 0 1 350 396 
+             L 162 396 
+             A 12 12 0 0 1 150 384 
+             L 150 132 
+             A 12 12 0 0 1 166 120 Z" 
+          fill="#f8fafc"/>
+
+    <!-- Dog-Ear Fold -->
+    <path d="M 316 120 L 316 166 L 362 166 Z" fill="url(#foldGrad)"/>
+    <path d="M 316 120 L 316 166 L 362 166" fill="none" stroke="#64748b" stroke-width="2"/>
+
+    <!-- Content Lines -->
+    <rect x="178" y="154" width="88" height="12" rx="6" fill="#0f766e"/>
+    <rect x="178" y="184" width="156" height="8" rx="4" fill="#94a3b8"/>
+    <rect x="178" y="206" width="134" height="8" rx="4" fill="#94a3b8"/>
+    <rect x="178" y="278" width="156" height="8" rx="4" fill="#94a3b8"/>
+    <rect x="178" y="300" width="120" height="8" rx="4" fill="#cbd5e1"/>
+    <rect x="178" y="322" width="144" height="8" rx="4" fill="#cbd5e1"/>
+    <rect x="178" y="344" width="90" height="8" rx="4" fill="#e2e8f0"/>
+  </g>
+
+  <!-- Precision Computer Vision Laser Scanline -->
+  <g filter="url(#laserGlow)">
+    <line x1="75" y1="246" x2="437" y2="246" stroke="url(#laserGrad)" stroke-width="10" stroke-linecap="round"/>
+    <line x1="120" y1="246" x2="392" y2="246" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="256" cy="246" r="4" fill="#ffffff"/>
+  </g>
 </svg>
