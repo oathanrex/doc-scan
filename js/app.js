@@ -78,6 +78,8 @@
     poly: $("detectionPoly"),
     shutter: $("shutterBtn"),
     closeCam: $("closeCamBtn"),
+    camHomeBtn: $("camHomeBtn"),
+    camCloseTopBtn: $("camCloseTopBtn"),
     finishBtn: $("finishBtn"),
     manualBtn: $("manualBtn"),
     flashBtn: $("flashBtn"),
@@ -86,6 +88,7 @@
     importBtn: $("importBtn"),
     fileInput: $("fileInput"),
     fallbackImportBtn: $("fallbackImportBtn"),
+    fallbackHomeBtn: $("fallbackHomeBtn"),
     demoBtn: $("demoBtn"),
     resumeBtn: $("resumeBtn"),
     resumeCount: $("resumeCount"),
@@ -519,6 +522,21 @@
       showScreen("review");
     }
   });
+  if (els.camHomeBtn) {
+    els.camHomeBtn.addEventListener("click", () => showScreen("home"));
+  }
+  if (els.fallbackHomeBtn) {
+    els.fallbackHomeBtn.addEventListener("click", () => showScreen("home"));
+  }
+  if (els.camCloseTopBtn) {
+    els.camCloseTopBtn.addEventListener("click", () => {
+      if (state.pages.length === 0) {
+        showScreen("home");
+      } else {
+        showScreen("review");
+      }
+    });
+  }
 
   async function capturePage() {
     if (!state.cam.stream && els.video.readyState < 2) {

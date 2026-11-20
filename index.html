@@ -504,6 +504,24 @@
         opacity: 0.9;
       }
     }
+    .cam-topbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      z-index: 30;
+      pointer-events: auto;
+    }
+    .cam-topbar .cam-status {
+      position: static;
+      top: auto;
+      left: auto;
+      transform: none;
+    }
     .cam-status {
       position: absolute;
       top: 12px;
@@ -1252,16 +1270,27 @@
 
     <!-- Camera screen -->
     <section class="screen camera" id="screen-camera" aria-label="Camera">
+      <div class="cam-topbar" id="camTopbar">
+        <button class="cam-icon-btn" id="camHomeBtn" aria-label="Back to home" title="Back to Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
+        <div class="cam-status" id="camStatus">
+          <span class="dot"></span>
+          <span id="camStatusText">Searching for document…</span>
+        </div>
+        <button class="cam-icon-btn" id="camCloseTopBtn" aria-label="Exit camera" title="Close camera">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
       <div class="cam-stage" id="camStage">
         <video id="camVideo" playsinline muted autoplay></video>
         <div id="camFallback">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           <p>Camera not available in this environment. Use the button below to import images instead.</p>
-          <button class="file-btn" id="fallbackImportBtn">Import image</button>
-        </div>
-        <div class="cam-status" id="camStatus">
-          <span class="dot"></span>
-          <span id="camStatusText">Searching for document…</span>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+            <button class="file-btn" id="fallbackImportBtn">Import image</button>
+            <button class="file-btn" id="fallbackHomeBtn" style="background: transparent; border: 1px solid var(--line-strong); color: var(--ink);">Back to Home</button>
+          </div>
         </div>
         <svg class="detection-poly" id="detectionPoly" viewBox="0 0 100 100" preserveAspectRatio="none">
           <polygon points="20,20 80,20 80,80 20,80" />
