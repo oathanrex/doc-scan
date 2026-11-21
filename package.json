@@ -1,7 +1,7 @@
 {
   "name": "doc-scan",
-  "version": "1.2.0",
-  "description": "Zero-dependency, 100% on-device document scanner with real-time Canny edge detection, perspective warping, and PDF compilation.",
+  "version": "1.3.0",
+  "description": "Zero-dependency, 100% on-device document scanner with CIE Lab perceptual saliency edge detection, bilinear homography, and direct PDF 1.4 compilation.",
   "main": "js/app.js",
   "scripts": {
     "test": "node --test tests/scanner.test.js",

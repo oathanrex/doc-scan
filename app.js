@@ -332,40 +332,59 @@
  els.status.classList.toggle("locked", !!locked);
  }
 
- // ---- Detection loop ----
- function startDetectionLoop() {
- state.cam.tracking = true;
- state.cam.locked = false;
- state.cam.quad = null;
- setStatus("Searching for document…", false);
- detectFrame();
- }
- function detectFrame() {
- if (!state.cam.tracking) return;
- const video = els.video;
- if (video.readyState >= 2) {
- const t0 = performance.now();
- const result = EdgeDetect.detect(video);
- state.cam.lastDetect = performance.now() - t0;
- if (result.quad && result.confidence > 0.4) {
- state.cam.quad = result.quad;
- state.cam.locked = true;
- // Scale quad from detection downscale to the displayed video
- // area on screen.
- drawQuadOnOverlay(result.quad, result.w, result.h);
- setStatus("Locked on document", true);
- els.shutter.disabled = false;
- } else {
- state.cam.locked = false;
- if (!state.cam.manual) {
- hideQuad();
- setStatus("Searching for document…", false);
- }
- els.shutter.disabled = !state.cam.manual;
- }
- }
- requestAnimationFrame(detectFrame);
- }
+ // ---- Detection loop ----  function startDetectionLoop() {
+    state.cam.tracking = true;
+    state.cam.locked = false;
+    state.cam.quad = null;
+    setStatus("Searching for document…", false);
+    detectFrame();
+  }
+
+  // Blend the new live quad with the previous one so the overlay doesn't
+  // jitter. A big jump (different document / re-framed) is taken as-is.
+  function smoothQuad(prev, next, w, h) {
+    if (!prev) return next;
+    let shift = 0;
+    for (let i = 0; i < 4; i++) shift += Math.hypot(next[i].x - prev[i].x, next[i].y - prev[i].y);
+    shift /= 4;
+    if (shift > 0.06 * Math.max(w, h)) return next;
+    return next.map((p, i) => ({
+      x: prev[i].x * 0.5 + p.x * 0.5,
+      y: prev[i].y * 0.5 + p.y * 0.5
+    }));
+  }
+  const LIVE_DETECT_INTERVAL_MS = 110; // ~9 detections/s keeps preview smooth
+
+  function detectFrame() {
+    if (!state.cam.tracking) return;
+    const video = els.video;
+    const now = performance.now();
+    if (video.readyState >= 2 && now - (state.cam.lastDetectAt || 0) >= LIVE_DETECT_INTERVAL_MS) {
+      state.cam.lastDetectAt = now;
+      const t0 = performance.now();
+      // { live: true } = light-weight settings (~30-40 ms); full-accuracy detector
+      // runs on captured high-res frame when shutter is pressed.
+      const result = EdgeDetect.detect(video, { live: true });
+      state.cam.lastDetect = performance.now() - t0;
+      if (result.quad && result.confidence > 0.4) {
+        const smooth = smoothQuad(state.cam.quad, result.quad, result.w, result.h);
+        state.cam.quad = smooth;
+        state.cam.locked = true;
+        // Scale quad from detection downscale to the displayed video area
+        drawQuadOnOverlay(smooth, result.w, result.h);
+        setStatus("Locked on document", true);
+        els.shutter.disabled = false;
+      } else {
+        state.cam.locked = false;
+        if (!state.cam.manual) {
+          hideQuad();
+          setStatus("Searching for document…", false);
+        }
+        els.shutter.disabled = !state.cam.manual;
+      }
+    }
+    requestAnimationFrame(detectFrame);
+  }
 
  // The video fills the cam-stage. Map detection coordinates
  // (result.w x result.h) to pixel coordinates on the stage, preserving
@@ -607,7 +626,24 @@
  }));
  }
 
- const t0 = performance.now();
+ // The live overlay uses light-weight detection. Unless the user placed the
+    // corners by hand, re-run the full-accuracy detector on the captured frame
+    // and use that quad instead (falls back to live quad if unsure).
+    if (!state.cam.manual) {
+      try {
+        const full = EdgeDetect.detect(canvas);
+        if (full && full.quad && full.confidence > 0.3) {
+          sourceQuad = full.quad.map((p) => ({
+            x: (p.x * w) / full.w,
+            y: (p.y * h) / full.h
+          }));
+        }
+      } catch (err) {
+        console.warn("Full-accuracy detection failed, using live quad:", err);
+      }
+    }
+
+    const t0 = performance.now();
  const corrected = Perspective.correct(canvas, sourceQuad);
  const dt = performance.now() - t0;
  console.log("perspective correction", dt.toFixed(0), "ms");

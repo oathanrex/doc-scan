@@ -5,7 +5,7 @@
 [![Live Web App](https://img.shields.io/badge/Live_App-oathanrex.github.io%2Fdoc--scan-2dd4bf?style=for-the-badge&logo=googlechrome&logoColor=black)](https://oathanrex.github.io/doc-scan/)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-f59e0b?style=for-the-badge)](LICENSE)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20JS)-success?style=for-the-badge)](package.json)
-[![Tests Passing](https://img.shields.io/badge/Tests-11%2F11%20Passing-brightgreen?style=for-the-badge)](tests/scanner.test.js)
+[![Tests Passing](https://img.shields.io/badge/Tests-19%2F19%20Passing-brightgreen?style=for-the-badge)](tests/scanner.test.js)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable%20%26%20Offline-6366f1?style=for-the-badge)](manifest.json)
 [![Buy Me A Coffee](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/oathanrex)
 
