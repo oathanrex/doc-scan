@@ -201,7 +201,11 @@
       window.addEventListener("error", function (e) {
         var msg = (e.error && (e.error.stack || e.error.message)) || e.message || String(e);
         if (e.filename) msg = (e.filename + ":" + e.lineno + ":" + e.colno + "  ") + msg;
-        showError(msg);
+        if (!document.documentElement.hasAttribute("data-app-ready")) {
+          showError(msg);
+        } else {
+          console.error("DocScan runtime error:", msg);
+        }
       });
       window.addEventListener("unhandledrejection", function (e) {
         console.warn("Handled promise rejection:", e ? (e.reason || e) : "unknown");
@@ -2156,6 +2160,64 @@
       color: var(--ink-faint);
     }
 
+    /* Header PWA Install Pill Button */
+    .nav-install-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+    .nav-install-btn:hover {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(45, 212, 191, 0.3);
+    }
+    .nav-install-btn svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    /* Drop Zone Choose Files Button */
+    .drop-choose-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 22px;
+      margin: 4px 0;
+      background: var(--surface-2);
+      border: 1px solid var(--line-strong);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .drop-choose-btn:hover {
+      background: var(--surface-3);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .drop-choose-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
     /* Primary Hero Action Buttons */
     .hero-action-row {
       display: flex;
@@ -2294,6 +2356,14 @@
             <line x1="12" y1="8" x2="12.01" y2="8" />
           </svg>
         </button>
+        <button class="nav-install-btn" id="navInstallBtn" type="button" aria-label="Install App" title="Install DocScan as a Web App">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>Install App</span>
+        </button>
         <a href="https://buymeacoffee.com/oathanrex" target="_blank" rel="noopener noreferrer" class="nav-support-pill" title="Support open-source development">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
@@ -2335,7 +2405,15 @@
               <line x1="12" y1="3" x2="12" y2="15" />
             </svg>
           </div>
-          <div class="drop-title">Drop your document images here, or <span class="drop-browse-link">browse files</span></div>
+          <div class="drop-title">Drop your document images here, or</div>
+          <button class="drop-choose-btn" id="importBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span>Choose Files</span>
+          </button>
           <div class="drop-subtitle">Supports JPG, PNG, WEBP &bull; Multi-page bulk document import</div>
         </div>
         <input type="file" id="fileInput" accept="image/*" multiple class="visually-hidden" style="display: none !important;" aria-hidden="true" tabindex="-1" />
@@ -2348,15 +2426,6 @@
               <circle cx="12" cy="13" r="4" />
             </svg>
             <span>Open Camera Scanner</span>
-          </button>
-
-          <button class="hero-cta-btn secondary" id="importBtn" type="button">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
-            <span>Upload Documents</span>
           </button>
 
           <button class="hero-cta-btn secondary" id="demoBtn" type="button">

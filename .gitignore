@@ -1,3 +1,8 @@
 node_modules/
 texloom-reference/
+*.zip
 *.log
+votercard01.png
+scratch/
+.DS_Store
+Thumbs.db

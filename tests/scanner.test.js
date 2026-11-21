@@ -190,3 +190,45 @@ test('Texloom Line Intersection: fitLine and lineIntersect accurately locate ana
   assert.ok(Math.abs(pt.x - 30) < 1e-4);
   assert.ok(Math.abs(pt.y - 15) < 1e-4);
 });
+
+test('Perceptual Saliency: detectDocumentFromRgba accurately segments card on textured background', () => {
+  const { detectDocumentFromRgba } = require('../js/edge-detect.js');
+  const w = 200, h = 200;
+  const rgba = new Uint8ClampedArray(w * h * 4);
+
+  // Background: cream (220, 210, 200) with pattern variance
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const idx = (y * w + x) * 4;
+      rgba[idx] = 220 + ((x + y) % 4);
+      rgba[idx + 1] = 210;
+      rgba[idx + 2] = 200;
+      rgba[idx + 3] = 255;
+    }
+  }
+
+  // Foreground card: x=40..160, y=50..150
+  for (let y = 50; y <= 150; y++) {
+    for (let x = 40; x <= 160; x++) {
+      const idx = (y * w + x) * 4;
+      rgba[idx] = 40;
+      rgba[idx + 1] = 120;
+      rgba[idx + 2] = 220;
+      rgba[idx + 3] = 255;
+    }
+  }
+
+  const res = detectDocumentFromRgba(rgba, w, h);
+  assert.ok(res && res.quad, 'Should detect document quad');
+  assert.equal(res.quad.length, 4);
+
+  // Check corners within 2px precision
+  assert.ok(Math.abs(res.quad[0].x - 40) <= 2, `TL x expected ~40, got ${res.quad[0].x}`);
+  assert.ok(Math.abs(res.quad[0].y - 50) <= 2, `TL y expected ~50, got ${res.quad[0].y}`);
+  assert.ok(Math.abs(res.quad[1].x - 160) <= 2, `TR x expected ~160, got ${res.quad[1].x}`);
+  assert.ok(Math.abs(res.quad[1].y - 50) <= 2, `TR y expected ~50, got ${res.quad[1].y}`);
+  assert.ok(Math.abs(res.quad[2].x - 160) <= 2, `BR x expected ~160, got ${res.quad[2].x}`);
+  assert.ok(Math.abs(res.quad[2].y - 150) <= 2, `BR y expected ~150, got ${res.quad[2].y}`);
+  assert.ok(Math.abs(res.quad[3].x - 40) <= 2, `BL x expected ~40, got ${res.quad[3].x}`);
+  assert.ok(Math.abs(res.quad[3].y - 150) <= 2, `BL y expected ~150, got ${res.quad[3].y}`);
+});

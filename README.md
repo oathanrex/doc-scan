@@ -1,11 +1,11 @@
 # DocScan: Zero-Dependency In-Browser Document Scanner
 
-> **High-performance, privacy-first document scanner and perspective fixer running 100% on-device in your web browser. Real-time Canny edge detection, 8-DOF bilinear homography perspective warping, client-side OCR, and direct PDF 1.4 binary generation with zero external runtime dependencies.**
+> **High-performance, privacy-first document scanner and perspective fixer running 100% on-device in your web browser. CIE L\*a\*b\* perceptual saliency edge detection with sub-pixel PCA refinement, 8-DOF bilinear homography perspective warping, client-side OCR, and direct PDF 1.4 binary generation with zero external runtime dependencies.**
 
 [![Live Web App](https://img.shields.io/badge/Live_App-oathanrex.github.io%2Fdoc--scan-2dd4bf?style=for-the-badge&logo=googlechrome&logoColor=black)](https://oathanrex.github.io/doc-scan/)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-f59e0b?style=for-the-badge)](LICENSE)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20JS)-success?style=for-the-badge)](package.json)
-[![Tests Passing](https://img.shields.io/badge/Tests-8%2F8%20Passing-brightgreen?style=for-the-badge)](tests/scanner.test.js)
+[![Tests Passing](https://img.shields.io/badge/Tests-11%2F11%20Passing-brightgreen?style=for-the-badge)](tests/scanner.test.js)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable%20%26%20Offline-6366f1?style=for-the-badge)](manifest.json)
 [![Buy Me A Coffee](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/oathanrex)
 
@@ -18,7 +18,7 @@ Most web document scanning solutions either rely on massive computer vision bund
 **DocScan** is a **pure JavaScript engineering showcase (~45 KB total bundle)** that executes the complete scanning, edge-tracking, perspective rectification, and multi-page PDF compilation pipeline **entirely inside browser RAM**:
 
 * **100% Client-Side Privacy**: Camera video frames and images never leave your local machine. Zero cloud uploads, zero analytics trackers, and zero server logging.
-* **Real-Time Edge Detection (30+ FPS)**: Canny-style pipeline optimized to run within a tight mobile frame budget without blocking the main browser thread.
+* **Real-Time Edge Detection (30+ FPS)**: Dual-stage perceptual saliency pipeline: CIE L\*a\*b\* color-space background subtraction with morphological connected-component extraction, plus a Sobel/Canny fallback, running within tight mobile frame budgets.
 * **8-Point Bilinear Homography Solver**: Maps angled, photographed trapezoids into flat, crisp, orthogonal document scans using typed Float64 arrays.
 * **Direct PDF 1.4 Binary Generator**: Compiles valid PDF 1.4 binary documents with DCTDecode JPEG XObjects, custom Page trees, and byte-offset xref tables from scratch, without third-party libraries like `jsPDF` or `pdfkit`.
 * **On-Device OCR & Text Extraction**: Client-side optical character recognition allowing 1-click clipboard extraction of document text.
@@ -41,14 +41,26 @@ Most web document scanning solutions either rely on massive computer vision bund
 
 ## Computer Vision & Mathematical Foundations
 
-### 1. Real-Time Border Detection Pipeline
-To maintain 30+ frames per second on mobile processors, DocScan downscales incoming video frames into a lightweight 240-pixel buffer before running edge calculations:
-1. **Rec. 601 Grayscale Conversion**:
-   $$\text{Y} = 0.299 \cdot \text{R} + 0.587 \cdot \text{G} + 0.114 \cdot \text{B}$$
-2. **Separable 3x3 Box Smoothing**: Removes high-frequency sensor noise while preserving document boundaries.
-3. **Sobel Gradient Convolutions**: Horizontal and vertical 3x3 convolution kernels compute the intensity gradient vector magnitude:
-   $$G = \sqrt{G_x^2 + G_y^2}$$
-4. **Adaptive Thresholding & Radial Corner Search**: Ray casts from the center outward isolate the four outer corner pins of the paper polygon against contrasting backgrounds.
+### 1. Real-Time Border Detection Pipeline (Dual-Stage)
+DocScan uses a **perceptual saliency-first** approach inspired by professional-grade scanning engines, with a classical fallback:
+
+**Stage 1: CIE L\*a\*b\* Perceptual Saliency Segmentation**
+1. **Downscale** incoming frames to a 512px working buffer.
+2. **RGB to CIE L\*a\*b\*** conversion for perceptually uniform color distance:
+   $$\Delta E = \sqrt{(\Delta L^*)^2 + (\Delta a^*)^2 + (\Delta b^*)^2}$$
+3. **Background Palette Sampling**: 256 pixel samples from the 1.2% border margin characterize the surface behind the document.
+4. **Local Texture Variance**: L\* standard deviation in a neighborhood window separates flat document substrate from patterned backgrounds (fabric, wood grain, etc.).
+5. **Saliency Map**: Per-pixel score = max(colorDist / p95, varianceDiff / p95), thresholded at 1.6.
+6. **Morphological Open + Close** (radius 1 then radius 2) to solidify the binary mask.
+7. **4-Connected Flood Fill**: Extracts the largest connected component (rejecting blobs < 5% or > 95% of frame area).
+8. **Diagonal Extreme Seeds**: Corner candidates at argmin/argmax of (x+y) and (x-y).
+
+**Stage 2: Sub-Pixel PCA Line Refinement**
+9. **120-Sample Gradient Normal Sweeps** along each detected edge at full resolution.
+10. **PCA Line Fitting with RANSAC Outlier Rejection** (2.5x median threshold).
+11. **4-Line Analytic Intersection** yields sub-pixel corner coordinates.
+
+**Fallback**: If saliency segmentation fails (uniform backgrounds), DocScan falls back to classical Sobel gradient convolution with adaptive thresholding and radial corner ray casting.
 
 ### 2. 8-DOF Bilinear Homography Perspective Rectification
 When a physical document is photographed from an angle, it undergoes a projective transformation. An arbitrary quadrilateral with corners $(x_i, y_i)$ maps to an orthogonal destination rectangle $(u_i, v_i)$ via an 8-parameter homography matrix $\mathbf{H}$:

@@ -2286,6 +2286,7 @@
 
   // ---- Top 1% PWA Installation Manager ----
   let deferredPrompt = null;
+  const navInstallBtn = document.getElementById("navInstallBtn");
   const pwaCard = document.getElementById("pwaCard");
   const pwaInstallBtn = document.getElementById("pwaCardInstallBtn");
   const pwaDismissBtn = document.getElementById("pwaCardDismissBtn");
@@ -2295,6 +2296,10 @@
 
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
   const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  if (isStandalone && navInstallBtn) {
+    navInstallBtn.style.display = "none";
+  }
 
   function showPwaBanner() {
     if (isStandalone) return;
@@ -2311,12 +2316,10 @@
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    setTimeout(showPwaBanner, 2200);
+    if (navInstallBtn && !isStandalone) {
+      navInstallBtn.style.display = "inline-flex";
+    }
   });
-
-  if (isIos && !isStandalone) {
-    setTimeout(showPwaBanner, 3000);
-  }
 
   async function triggerInstallFlow() {
     if (isStandalone) {
@@ -2328,16 +2331,21 @@
       const choice = await deferredPrompt.userChoice;
       if (choice.outcome === "accepted") {
         hidePwaBanner();
+        if (navInstallBtn) navInstallBtn.style.display = "none";
         toast("DocScan installed successfully!", "success");
       }
       deferredPrompt = null;
     } else if (isIos) {
-      if (iosModal) iosModal.classList.add("open"); iosModal.classList.add("show");
+      if (iosModal) {
+        iosModal.classList.add("open");
+        iosModal.classList.add("show");
+      }
     } else {
       toast("To install DocScan, tap the Install icon in your browser address bar", "info");
     }
   }
 
+  if (navInstallBtn) navInstallBtn.addEventListener("click", triggerInstallFlow);
   if (pwaInstallBtn) pwaInstallBtn.addEventListener("click", triggerInstallFlow);
   if (footerInstallBtn) footerInstallBtn.addEventListener("click", triggerInstallFlow);
 
