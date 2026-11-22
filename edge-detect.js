@@ -313,6 +313,19 @@
     const cr = Math.max(3, Math.round(0.01 * maxSide));
     F = morph(morph(F, w, h, cr, true), w, h, cr, false);
 
+    // Clear border frame margin so boundary shadows never anchor extreme corners
+    const bm = Math.max(3, Math.round(0.012 * maxSide));
+    for (let y = 0; y < h; y++) {
+      if (y < bm || y >= h - bm) {
+        F.fill(0, y * w, (y + 1) * w);
+      } else {
+        for (let x = 0; x < bm; x++) {
+          F[y * w + x] = 0;
+          F[y * w + (w - 1 - x)] = 0;
+        }
+      }
+    }
+
     const blob = largestBlob(F, w, h);
     if (!blob || blob.size < 0.05 * n || blob.size > 0.95 * n) return null;
 
@@ -831,7 +844,7 @@
       if (refineSide > 0) {
         const hi = getHiGray();
         if (hi) {
-          const reach = Math.max(3, Math.round(0.006 * Math.max(hi.w, hi.h)));
+          const reach = Math.max(4, Math.round(0.0175 * Math.max(hi.w, hi.h)));
           const start = quadSrc.map(([x, y]) => [x * hi.s, y * hi.s]);
           const r = refineCorners(hi.gs, hi.w, hi.h, start, reach);
           if (r.snapped >= 2 && quadIsUsable(r.quad, hi.w, hi.h)) {
@@ -882,6 +895,84 @@
       const r = attempt(ladder[i], i);
       if (r) return r;
     }
+
+    // ---- Stage 3 Fallback: Texloom 3x3 Sobel radial detector c(t) ----
+    if (!live) {
+      const fb = scaled(256);
+      if (fb) {
+        const fw = fb.w, fh = fb.h;
+        const g = new Float32Array(fw * fh);
+        for (let i = 0; i < g.length; i++) {
+          g[i] = 0.299 * fb.data[4 * i] + 0.587 * fb.data[4 * i + 1] + 0.114 * fb.data[4 * i + 2];
+        }
+        const grad = new Float32Array(fw * fh);
+        let maxGrad = 0;
+        for (let y = 1; y < fh - 1; y++) {
+          for (let x = 1; x < fw - 1; x++) {
+            const idx = y * fw + x;
+            const a = g[idx - fw - 1], n = g[idx - fw], i = g[idx - fw + 1];
+            const l = g[idx - 1], s = g[idx + 1];
+            const u = g[idx + fw - 1], f = g[idx + fw], gg = g[idx + fw + 1];
+            const dx = -a - 2 * l - u + i + 2 * s + gg;
+            const dy = -a - 2 * n - i + u + 2 * f + gg;
+            const mag = Math.hypot(dx, dy);
+            grad[idx] = mag;
+            if (mag > maxGrad) maxGrad = mag;
+          }
+        }
+        if (maxGrad >= 0.001) {
+          const gThr = 0.18 * maxGrad;
+          let pCount = 0;
+          let minSum = Infinity, maxSum = -Infinity, maxDiff = -Infinity, minDiff = Infinity;
+          let ptTL = [0, 0], ptTR = [fw - 1, 0], ptBR = [fw - 1, fh - 1], ptBL = [0, fh - 1];
+          for (let y = 1; y < fh - 1; y++) {
+            for (let x = 1; x < fw - 1; x++) {
+              if (grad[y * fw + x] < gThr) continue;
+              pCount++;
+              const sum = x + y, diff = x - y;
+              if (sum < minSum) { minSum = sum; ptTL = [x, y]; }
+              if (sum > maxSum) { maxSum = sum; ptBR = [x, y]; }
+              if (diff > maxDiff) { maxDiff = diff; ptTR = [x, y]; }
+              if (diff < minDiff) { minDiff = diff; ptBL = [x, y]; }
+            }
+          }
+          const frac = pCount / ((fw - 2) * (fh - 2));
+          const candQuad = [ptTL, ptTR, ptBR, ptBL].map(([x, y]) => [x / fb.s, y / fb.s]);
+          const candArea = polyArea(candQuad);
+          if (frac >= 0.005 && frac <= 0.92 && candArea < 0.82 * srcW * srcH && quadIsUsable(candQuad, srcW, srcH)) {
+            const chk = scaled(512);
+            if (chk) {
+              const qs = candQuad.map(([x, y]) => [x * chk.s, y * chk.s]);
+              const ov = insideOutsideOverlap(chk.data, chk.w, chk.h, qs);
+              if (ov !== null && ov > 0.55) return miss();
+            }
+            let polishedQuad = candQuad;
+            if (refineSide > 0) {
+              const hi = getHiGray();
+              if (hi) {
+                const reach = Math.max(4, Math.round(0.0175 * Math.max(hi.w, hi.h)));
+                const start = candQuad.map(([x, y]) => [x * hi.s, y * hi.s]);
+                const r = refineCorners(hi.gs, hi.w, hi.h, start, reach);
+                if (r.snapped >= 2 && quadIsUsable(r.quad, hi.w, hi.h)) {
+                  polishedQuad = r.quad.map(([x, y]) => [x / hi.s, y / hi.s]);
+                }
+              }
+            }
+            return {
+              quad: polishedQuad.map(([x, y]) => ({ x, y })),
+              confidence: 0.65,
+              w: srcW,
+              h: srcH,
+              refined: true,
+              polished: true,
+              fallback: "sobel",
+              debug: dbg
+            };
+          }
+        }
+      }
+    }
+
     return miss();
   }
 
