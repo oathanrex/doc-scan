@@ -69,7 +69,7 @@ self.addEventListener("fetch", (event) => {
         return networkResponse;
       })
       .catch(async () => {
-        const cached = await caches.match(event.request);
+        const cached = await caches.match(event.request, { ignoreSearch: true });
         if (cached) return cached;
         if (event.request.mode === "navigate") {
           const fallback = await caches.match("./index.html");
