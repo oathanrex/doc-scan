@@ -332,7 +332,8 @@
  els.status.classList.toggle("locked", !!locked);
  }
 
- // ---- Detection loop ----  function startDetectionLoop() {
+ // ---- Detection loop ----
+  function startDetectionLoop() {
     state.cam.tracking = true;
     state.cam.locked = false;
     state.cam.quad = null;
